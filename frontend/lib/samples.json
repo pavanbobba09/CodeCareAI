@@ -1,0 +1,26 @@
+[
+  {
+    "label": "Worked example: diabetes with CKD stage 3",
+    "visit_date": "2026-10-15",
+    "patient_type": "established",
+    "text": "Assessment: Type 2 diabetes mellitus with chronic kidney disease stage 3.\nHPI: 62-year-old presents for diabetes and kidney follow-up. Denies chest pain or shortness of breath.\nPlan: Continue current regimen. Recheck renal function in 3 months.\n"
+  },
+  {
+    "label": "Gap: heart failure without a type",
+    "visit_date": "2026-11-04",
+    "patient_type": "established",
+    "text": "HPI: Here for heart failure follow-up. Mild ankle swelling.\nAssessment: Hypertension. Heart failure.\nPlan: Continue furosemide. Echocardiogram ordered.\n"
+  },
+  {
+    "label": "Combination: hypertension, heart failure and CKD",
+    "visit_date": "2026-11-09",
+    "patient_type": "established",
+    "text": "HPI: 77-year-old with hypertension, heart failure and chronic kidney disease.\nAssessment: Hypertension. Chronic diastolic heart failure. Chronic kidney disease stage 3a.\nPlan: Continue current regimen. Labs in 1 month.\n"
+  },
+  {
+    "label": "Abbreviations: DM2, HTN, CKD 3b",
+    "visit_date": "2026-11-23",
+    "patient_type": "established",
+    "text": "A/P: DM2, HTN, CKD 3b. Continue current meds. BMP in 3 months.\n"
+  }
+]
