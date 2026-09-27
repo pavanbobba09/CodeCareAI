@@ -195,6 +195,48 @@ Rules work on **codes the LLM already selected, plus fact status and details**. 
 - K. FDA labels are fine. Short list, each row cites its label; cover Z79.4, Z79.84, Z79.85.
 - L. Add `extract_v2` in M4 for symptoms behind suspected diagnoses; MDM becomes `extract_v3` in M6. Eval twice (rules + v1, then rules + v2), both against M3.
 - (later, 2026-09-27) Groq free-tier daily cap hit (200k tokens/day for gpt-oss-120b). Approved: `--extract-prompt`, usage logging with a local ledger, saved LLM outputs + replay, the N18 stage fix, a budget check, and "10-note smoke while developing, full set at milestone end" (CLAUDE.md). n004 (E11.65 in candidates, LLM chose E11.9) waits for run (b). Deferred: `reasoning_effort=low` and 20 -> 10 candidates, both to be judged by replay/saved outputs.
+
+---
+
+## Current task: M7 detailed plan (approved 2026-09-27)
+
+Branch `m7-review` from `main` (M4 is parked on `m4-rules` until its eval runs; owner decision 2026-09-27: build M7 meanwhile, merge M4 first, then M7). No LLM calls: tests use `ScriptedLlm` and the seeded test db. Out of order on purpose (M5, M6 not done); nothing here depends on them.
+
+Touches DESIGN §4.2 (review flow), §5.1 (`ReviewRequest`, `ReviewEvent`, new `NoteHistory`), §6 (API table, error codes), §5.3 (`reviews` table, no schema change expected). Milestone M7.
+
+### Steps
+
+1. [x] **Types (DESIGN §5.1 first).** `ReviewRequest` gets a validator: `edit` needs `replacement_code`; `reject` needs a non-blank `reason`; `accept` takes neither (422 `VALIDATION_ERROR` otherwise). New `NoteHistory`: `note`, `previous_versions` (ids, oldest first, following `parent_note_id`), `later_versions` (ids of notes whose parent is this note), `analyses` (this note's `AnalysisResult`s, newest first), `reviews` (`ReviewEvent`s for those analyses, oldest first).
+2. [x] **`GET /analyses/{analysis_id}`** returns the stored `AnalysisResult` (completed or failed); `404 ANALYSIS_NOT_FOUND`.
+3. [x] **`POST /analyses/{analysis_id}/suggestions/{suggestion_id}/reviews`** -> `201 ReviewEvent`.
+   - `404 ANALYSIS_NOT_FOUND`; `404 SUGGESTION_NOT_FOUND` when the id is not in that analysis (see decision M).
+   - `edit`: the replacement must exist and be billable in the analysis's own code set for the suggestion's system (`code_sets.icd10cm` or `.cpt`), checked through `CodeLookup`; else `422 INVALID_REPLACEMENT_CODE`. The replacement is compared exactly (dotted, upper case), no normalizing.
+   - Insert only; a db failure returns `500 DB_ERROR` and stores nothing.
+4. [x] **Append-only in code:** `repo` gets `insert_review`, `list_reviews(analysis_ids)`; no update or delete function exists. A unit test scans `app/` for `update(ReviewRow`/`delete(ReviewRow` and raw `UPDATE reviews`/`DELETE FROM reviews`. The db trigger from migration 0001 stays the backstop (already tested).
+5. [x] **Several reviews per suggestion are allowed** (a coder can change their mind); each is a new row. History returns them all; the latest one per suggestion is the current decision (the UI shows that in M8).
+6. [x] **`GET /notes/{note_id}/history`** -> `NoteHistory`; `404 NOTE_NOT_FOUND`. Reviews belong to one analysis of one note version, so a revised note starts with no approvals (DESIGN §4.2 step 4).
+7. [x] **Note versions via `parent_note_id`:** `POST /notes` already links a parent (M2). Add: history walks the chain both ways; a test proves reviews on v1 do not appear in v2's history and v1's history lists v2 as a later version.
+8. [x] **Integration tests for every endpoint and every error code in DESIGN §6:** `VALIDATION_ERROR` (bad note body, bad review body per action), `NOTE_NOT_FOUND` (read, analyze, history), `PARENT_NOTE_NOT_FOUND`, `ANALYSIS_NOT_FOUND` (read, review), `SUGGESTION_NOT_FOUND`, `INVALID_REPLACEMENT_CODE` (absent, non-billable, valid only in another release), `CODE_SET_MISSING`, `LLM_UNAVAILABLE`, `LLM_BAD_OUTPUT`, `TIMEOUT`, `PIPELINE_ERROR`, and `DB_ERROR` for analyze, review insert and health (by overriding the session dependency with one that fails on write). Existing tests that already cover a code are kept, not duplicated.
+9. [x] **DESIGN.md** in the same change: §5.1 types, §6 table rows (history output `NoteHistory`, review errors spelled out), `ErrorCode` list.
+
+**Verify:** unit + integration suites pass; `alembic check` clean (no schema change); ruff and mypy clean. Done when: all API integration tests pass (M7 done-when).
+
+**Merge note:** `m4-rules` also edits `DESIGN.md`, `tasks/todo.md`, `app/models/core.py` (`Suggestion.added_by_rule`) and `tests/integration/test_pipeline_api.py`. M7 keeps its edits in separate sections to make the merge after M4 mechanical.
+
+**Owner decisions (2026-09-27):**
+
+- M. Add `SUGGESTION_NOT_FOUND` (404) to DESIGN §6 and the `ErrorCode` list.
+- N. All three actions are allowed on "not suggested" codes; the coder has the final say, M8 hides them.
+- O. An edit to the same code is `422 INVALID_REPLACEMENT_CODE` with a message to use accept.
+
+### M7 Review (2026-09-27)
+
+**Done:** `ReviewRequest` validation per action, `ReviewEvent`, `NoteHistory` (DESIGN §5.1); `GET /analyses/{id}`; `POST .../reviews` with `SUGGESTION_NOT_FOUND` and replacement checks against the analysis's own code set (absent, non-billable, other release, same code); reviews insert-only in `repo` (no update/delete function) plus a unit scan of `app/`; `GET /notes/{id}/history` with previous and later versions; DESIGN §6 table and review rules. No schema change.
+
+**Verified:** 79 unit + 58 integration tests pass (24 new in `test_review_api.py`); `alembic check` clean; ruff and mypy clean. Error codes in DESIGN §6, each by an integration test: `VALIDATION_ERROR` (note body, 8 review bodies), `NOTE_NOT_FOUND` (read, analyze, history), `PARENT_NOTE_NOT_FOUND`, `ANALYSIS_NOT_FOUND` (read, review), `SUGGESTION_NOT_FOUND` (unknown id, failed analysis), `INVALID_REPLACEMENT_CODE` (4 cases), `CODE_SET_MISSING`, `LLM_UNAVAILABLE`, `LLM_BAD_OUTPUT`, `TIMEOUT` (now also through the API), `PIPELINE_ERROR`, `DB_ERROR` (analyze and review insert, by making the repo write fail). Health `DB_ERROR` stays covered by the unit test with a failing db dependency, not an integration test.
+
+**Open:** merge after M4 (`m4-rules`): expect conflicts in `DESIGN.md` and `tasks/todo.md` only; `Suggestion` gains `added_by_rule` in M4, which the review API does not read.
+
 ---
 
 ## Previous task: M3 detailed plan (done 2026-09-27)
@@ -460,12 +502,12 @@ Touches DESIGN.md §3.3 (tech, env vars), §5.3 (tables), §6 (`/health`), §7 (
 
 ## M7: Review and history
 
-- [ ] `POST /analyses/{analysis_id}/suggestions/{suggestion_id}/reviews`: accept, edit (replacement must exist and be billable), reject (reason required)
-- [ ] Append-only `reviews`; no update or delete path in code
-- [ ] `GET /notes/{id}/history`
-- [ ] `GET /analyses/{id}` (`404 ANALYSIS_NOT_FOUND`)
-- [ ] New note version via `parent_note_id`
-- [ ] Integration tests for every endpoint and every error code in `DESIGN.md` Section 6
+- [x] `POST /analyses/{analysis_id}/suggestions/{suggestion_id}/reviews`: accept, edit (replacement must exist and be billable), reject (reason required)
+- [x] Append-only `reviews`; no update or delete path in code
+- [x] `GET /notes/{id}/history`
+- [x] `GET /analyses/{id}` (`404 ANALYSIS_NOT_FOUND`)
+- [x] New note version via `parent_note_id`
+- [x] Integration tests for every endpoint and every error code in `DESIGN.md` Section 6
 - **Done when:** all API integration tests pass
 
 ## M8: Frontend

@@ -3,7 +3,7 @@
 from datetime import date, datetime
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 CodeSystem = Literal["ICD-10-CM", "CPT"]
 PatientType = Literal["new", "established"]
@@ -161,6 +161,49 @@ class AnalysisResult(BaseModel):
     latency_ms: int
     error: PipelineError | None
     created_at: datetime
+
+
+class ReviewRequest(BaseModel):
+    """A coder's decision on one suggestion. Checked here so a bad body is 422 VALIDATION_ERROR."""
+
+    action: ReviewAction
+    replacement_code: str | None = None  # required for edit
+    reason: str | None = None  # required for reject
+
+    @model_validator(mode="after")
+    def _fields_match_action(self) -> "ReviewRequest":
+        has_reason = bool(self.reason and self.reason.strip())
+        if self.action == "edit" and not self.replacement_code:
+            raise ValueError("edit needs replacement_code")
+        if self.action == "reject" and not has_reason:
+            raise ValueError("reject needs a reason")
+        if self.action == "accept" and (self.replacement_code is not None or has_reason):
+            raise ValueError("accept takes no replacement_code or reason")
+        if self.action == "reject" and self.replacement_code is not None:
+            raise ValueError("reject takes no replacement_code")
+        return self
+
+
+class ReviewEvent(BaseModel):
+    """One stored review. Reviews are append-only: never updated or deleted."""
+
+    id: str
+    analysis_id: str
+    suggestion_id: str
+    action: ReviewAction
+    replacement_code: str | None
+    reason: str | None
+    created_at: datetime
+
+
+class NoteHistory(BaseModel):
+    """One note version with its analyses and their reviews (GET /notes/{id}/history)."""
+
+    note: Note
+    previous_versions: list[str]  # note ids, oldest first, following parent_note_id
+    later_versions: list[str]  # ids of notes revised from this one, oldest first
+    analyses: list[AnalysisResult]  # this note's analyses, newest first
+    reviews: list[ReviewEvent]  # reviews of those analyses, oldest first
 
 
 class ErrorResponse(BaseModel):
