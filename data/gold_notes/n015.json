@@ -1,0 +1,24 @@
+{
+  "note_id": "n015",
+  "visit_date": "2026-12-02",
+  "patient_type": "new",
+  "text": "HPI: Reports shortness of breath when climbing stairs for 2 weeks. Known hypertension.\nAssessment: Possible heart failure. Essential hypertension.\nPlan: Echocardiogram and BNP ordered.\n",
+  "expected_codes": [
+    {
+      "code": "I10",
+      "system": "ICD-10-CM",
+      "reason": "Assessment: essential hypertension"
+    },
+    {
+      "code": "R06.02",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines IV.H: 'possible' heart failure is not coded in the outpatient setting; code the symptom (shortness of breath)"
+    }
+  ],
+  "expected_gap_rules": [],
+  "expected_em": null,
+  "tags": [
+    "suspected",
+    "htn"
+  ]
+}

@@ -27,7 +27,6 @@ CHECKS = [
     ("HFrEF", {}, "I50.20", 3),
     ("systolic heart failure", {}, "I50.20", 3),
     ("HFpEF", {}, "I50.30", 3),
-    ("HFmrEF", {}, "I50.40", 3),
 ]
 
 

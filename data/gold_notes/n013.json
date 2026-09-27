@@ -1,0 +1,30 @@
+{
+  "note_id": "n013",
+  "visit_date": "2026-11-23",
+  "patient_type": "established",
+  "text": "A/P: DM2, HTN, CKD 3b. Continue current meds. BMP in 3 months.\n",
+  "expected_codes": [
+    {
+      "code": "E11.22",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.A.15 'With': diabetes with CKD"
+    },
+    {
+      "code": "I12.9",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.C.9.a.2: HTN + CKD stage 1-4"
+    },
+    {
+      "code": "N18.32",
+      "system": "ICD-10-CM",
+      "reason": "CKD 3b documented"
+    }
+  ],
+  "expected_gap_rules": [],
+  "expected_em": null,
+  "tags": [
+    "abbrev",
+    "dm+ckd",
+    "htn+ckd"
+  ]
+}

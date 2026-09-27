@@ -22,11 +22,11 @@ def test_no_abbreviation_means_not_expanded() -> None:
 
 
 def test_project_heart_failure_mapping_follows_coding_guidance() -> None:
-    # HFrEF = systolic, HFpEF = diastolic, HFmrEF = combined (ICD-10-CM I50.2-/I50.3-/I50.4-).
+    # FY2027 Index: Failure, heart, reduced ejection fraction -> see Failure, heart, systolic;
+    # preserved ejection fraction -> see Failure, heart, diastolic.
     csv_path = Path(__file__).parents[3] / "data" / "abbreviations.csv"
     with csv_path.open(newline="") as f:
         mapping = {r["abbr"].upper(): r["expansion"] for r in csv.DictReader(f)}
 
     assert mapping["HFREF"] == "systolic heart failure"
     assert mapping["HFPEF"] == "diastolic heart failure"
-    assert mapping["HFMREF"] == "combined systolic and diastolic heart failure"

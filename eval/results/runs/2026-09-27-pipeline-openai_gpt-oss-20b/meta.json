@@ -1,0 +1,1 @@
+{"run_id": "2026-09-27-pipeline-openai_gpt-oss-20b", "setup": "pipeline", "model": "openai/gpt-oss-20b", "prompt_version": "extract_v1+select_v1"}

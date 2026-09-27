@@ -1,0 +1,24 @@
+{
+  "note_id": "n001",
+  "visit_date": "2026-10-05",
+  "patient_type": "established",
+  "text": "Chief Complaint: Diabetes follow-up.\nHPI: 58-year-old with type 2 diabetes mellitus without complications. Takes metformin 1000 mg twice daily. No hypoglycemic episodes.\nAssessment: Type 2 diabetes mellitus without complications, stable on metformin.\nPlan: Continue metformin. Recheck A1c in 3 months.\n",
+  "expected_codes": [
+    {
+      "code": "E11.9",
+      "system": "ICD-10-CM",
+      "reason": "Assessment: type 2 diabetes mellitus without complications"
+    },
+    {
+      "code": "Z79.84",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.C.4.a.3 and E11 Tabular 'use additional code': long-term metformin (oral hypoglycemic)"
+    }
+  ],
+  "expected_gap_rules": [],
+  "expected_em": null,
+  "tags": [
+    "dm",
+    "med-oral"
+  ]
+}

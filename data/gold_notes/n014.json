@@ -1,0 +1,22 @@
+{
+  "note_id": "n014",
+  "visit_date": "2026-11-30",
+  "patient_type": "established",
+  "text": "HPI: Heart failure follow-up. No chest pain.\nAssessment: HFrEF.\nPlan: Continue sacubitril-valsartan.\n",
+  "expected_codes": [
+    {
+      "code": "I50.20",
+      "system": "ICD-10-CM",
+      "reason": "Alphabetic Index: Failure, heart, with reduced ejection fraction - see Failure, heart, systolic; acuity not documented"
+    }
+  ],
+  "expected_gap_rules": [
+    "R10"
+  ],
+  "expected_em": null,
+  "tags": [
+    "hf",
+    "abbrev",
+    "gap-hf-acuity"
+  ]
+}

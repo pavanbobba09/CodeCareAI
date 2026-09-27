@@ -1,0 +1,442 @@
+{
+  "meta": {
+    "run_id": "2026-09-27-n20-pipeline-openai_gpt-oss-120b",
+    "setup": "pipeline",
+    "model": "openai/gpt-oss-120b",
+    "prompt_version": "extract_v1+select_v1"
+  },
+  "summary": {
+    "notes": 20,
+    "failed_notes": 0,
+    "predicted_codes": 41,
+    "precision": 0.7805,
+    "recall": 0.8205,
+    "invented_rate": 0.0,
+    "invalid_rate": 0.0,
+    "unsupported_rate": 0.0,
+    "gap_recall": 0.0,
+    "em_match": null,
+    "mean_latency_ms": 10705,
+    "per_note": [
+      {
+        "note_id": "n001",
+        "status": "completed",
+        "expected": [
+          "E11.9",
+          "Z79.84"
+        ],
+        "predicted": [
+          "E11.9",
+          "Z79.84"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n002",
+        "status": "completed",
+        "expected": [
+          "E11.22",
+          "N18.32"
+        ],
+        "predicted": [
+          "E11.22",
+          "N18.32"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n003",
+        "status": "completed",
+        "expected": [
+          "E11.22",
+          "N18.30"
+        ],
+        "predicted": [
+          "E11.22",
+          "N18.30"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [
+          "R9"
+        ],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n004",
+        "status": "completed",
+        "expected": [
+          "E11.65",
+          "Z79.4"
+        ],
+        "predicted": [
+          "E11.65",
+          "Z79.4"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n005",
+        "status": "completed",
+        "expected": [
+          "I10"
+        ],
+        "predicted": [
+          "I10"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n006",
+        "status": "completed",
+        "expected": [
+          "I12.9",
+          "N18.4"
+        ],
+        "predicted": [
+          "I10",
+          "N18.4"
+        ],
+        "missed": [
+          "I12.9"
+        ],
+        "extra": [
+          "I10"
+        ],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n007",
+        "status": "completed",
+        "expected": [
+          "I12.0",
+          "N18.5"
+        ],
+        "predicted": [
+          "I10",
+          "I12.0",
+          "N18.5"
+        ],
+        "missed": [],
+        "extra": [
+          "I10"
+        ],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n008",
+        "status": "completed",
+        "expected": [
+          "I11.0",
+          "I50.22"
+        ],
+        "predicted": [
+          "I10",
+          "I50.22"
+        ],
+        "missed": [
+          "I11.0"
+        ],
+        "extra": [
+          "I10"
+        ],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n009",
+        "status": "completed",
+        "expected": [
+          "I11.0",
+          "I50.9"
+        ],
+        "predicted": [
+          "I10",
+          "I50.9",
+          "R60.9"
+        ],
+        "missed": [
+          "I11.0"
+        ],
+        "extra": [
+          "I10",
+          "R60.9"
+        ],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [
+          "R10"
+        ],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n010",
+        "status": "completed",
+        "expected": [
+          "I13.0",
+          "I50.32",
+          "N18.31"
+        ],
+        "predicted": [
+          "I10",
+          "I50.32",
+          "N18.31"
+        ],
+        "missed": [
+          "I13.0"
+        ],
+        "extra": [
+          "I10"
+        ],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n011",
+        "status": "completed",
+        "expected": [
+          "E11.22",
+          "I13.0",
+          "I50.23",
+          "N18.32"
+        ],
+        "predicted": [
+          "E11.22",
+          "I10",
+          "I50.23",
+          "N18.32"
+        ],
+        "missed": [
+          "I13.0"
+        ],
+        "extra": [
+          "I10"
+        ],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n012",
+        "status": "completed",
+        "expected": [
+          "N18.9"
+        ],
+        "predicted": [
+          "N18.9"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [
+          "R9"
+        ],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n013",
+        "status": "completed",
+        "expected": [
+          "E11.22",
+          "I12.9",
+          "N18.32"
+        ],
+        "predicted": [
+          "E11.22",
+          "I10",
+          "N18.32"
+        ],
+        "missed": [
+          "I12.9"
+        ],
+        "extra": [
+          "I10"
+        ],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n014",
+        "status": "completed",
+        "expected": [
+          "I50.20"
+        ],
+        "predicted": [
+          "I50.20",
+          "I50.9"
+        ],
+        "missed": [],
+        "extra": [
+          "I50.9"
+        ],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [
+          "R10"
+        ],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n015",
+        "status": "completed",
+        "expected": [
+          "I10",
+          "R06.02"
+        ],
+        "predicted": [
+          "I10"
+        ],
+        "missed": [
+          "R06.02"
+        ],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n016",
+        "status": "completed",
+        "expected": [
+          "I10"
+        ],
+        "predicted": [
+          "I10"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n017",
+        "status": "completed",
+        "expected": [
+          "E11.9"
+        ],
+        "predicted": [
+          "E11.9"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n018",
+        "status": "completed",
+        "expected": [
+          "E11.9",
+          "Z79.84"
+        ],
+        "predicted": [
+          "E11.9",
+          "Z79.84"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n019",
+        "status": "completed",
+        "expected": [
+          "I10"
+        ],
+        "predicted": [
+          "I10"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n020",
+        "status": "completed",
+        "expected": [
+          "E11.9",
+          "Z79.4",
+          "Z79.84"
+        ],
+        "predicted": [
+          "E11.9",
+          "Z79.4",
+          "Z79.84"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "unsupported": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      }
+    ]
+  }
+}

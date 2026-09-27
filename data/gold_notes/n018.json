@@ -1,0 +1,24 @@
+{
+  "note_id": "n018",
+  "visit_date": "2026-12-14",
+  "patient_type": "established",
+  "text": "HPI: Diabetes check. Takes metformin daily.\nAssessment: Diabetes mellitus, controlled on metformin.\nPlan: Continue metformin.\n",
+  "expected_codes": [
+    {
+      "code": "E11.9",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.C.4.a.2: type not documented defaults to E11 (R7: needs_review, no gap)"
+    },
+    {
+      "code": "Z79.84",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.C.4.a.3: long-term oral hypoglycemic (metformin)"
+    }
+  ],
+  "expected_gap_rules": [],
+  "expected_em": null,
+  "tags": [
+    "dm-type-missing",
+    "med-oral"
+  ]
+}

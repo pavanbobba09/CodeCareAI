@@ -49,9 +49,10 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = [".", ".."]  # ".." makes the repo-level eval/ package importable
 markers = ["integration: needs a running Postgres (DATABASE_URL)"]
 
 [tool.ruff.lint.isort]
 # the local alembic/ migrations folder shadows the package name
 known-third-party = ["alembic"]
-known-first-party = ["app"]
+known-first-party = ["app", "eval"]

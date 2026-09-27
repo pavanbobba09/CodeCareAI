@@ -1,0 +1,19 @@
+{
+  "note_id": "n017",
+  "visit_date": "2026-12-09",
+  "patient_type": "established",
+  "text": "HPI: Creatinine was elevated at the last visit. Repeat testing was normal, and chronic kidney disease was ruled out.\nAssessment: Type 2 diabetes mellitus without complications. Chronic kidney disease ruled out.\nPlan: Continue diet control.\n",
+  "expected_codes": [
+    {
+      "code": "E11.9",
+      "system": "ICD-10-CM",
+      "reason": "Assessment: type 2 diabetes mellitus without complications; CKD documented as ruled out"
+    }
+  ],
+  "expected_gap_rules": [],
+  "expected_em": null,
+  "tags": [
+    "ruled-out",
+    "dm"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "note_id": "n003",
+  "visit_date": "2026-10-12",
+  "patient_type": "established",
+  "text": "HPI: Follow-up for diabetes and chronic kidney disease.\nAssessment: Type 2 diabetes mellitus with chronic kidney disease stage 3.\nPlan: Recheck renal function in 3 months.\n",
+  "expected_codes": [
+    {
+      "code": "E11.22",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.A.15 'With': diabetes with CKD is presumed linked"
+    },
+    {
+      "code": "N18.30",
+      "system": "ICD-10-CM",
+      "reason": "Stage 3 documented without 3a or 3b: N18.30 (stage 3 unspecified)"
+    }
+  ],
+  "expected_gap_rules": [
+    "R9"
+  ],
+  "expected_em": null,
+  "tags": [
+    "dm+ckd",
+    "gap-ckd-subtype"
+  ]
+}

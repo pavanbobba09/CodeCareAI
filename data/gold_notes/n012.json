@@ -1,0 +1,21 @@
+{
+  "note_id": "n012",
+  "visit_date": "2026-11-18",
+  "patient_type": "new",
+  "text": "HPI: New patient referred for chronic kidney disease. No history of diabetes or hypertension.\nAssessment: Chronic kidney disease.\nPlan: Repeat eGFR and urine albumin.\n",
+  "expected_codes": [
+    {
+      "code": "N18.9",
+      "system": "ICD-10-CM",
+      "reason": "CKD without a documented stage: N18.9"
+    }
+  ],
+  "expected_gap_rules": [
+    "R9"
+  ],
+  "expected_em": null,
+  "tags": [
+    "ckd",
+    "gap-ckd-stage"
+  ]
+}

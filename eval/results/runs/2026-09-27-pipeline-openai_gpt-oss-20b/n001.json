@@ -1,0 +1,32 @@
+{
+  "note_id": "n001",
+  "setup": "pipeline",
+  "model": "openai/gpt-oss-20b",
+  "prompt_version": "extract_v1+select_v1",
+  "status": "completed",
+  "error": null,
+  "attempts": 1,
+  "n_sentences": 7,
+  "predicted": [
+    {
+      "code": "E11.9",
+      "evidence": [
+        2
+      ],
+      "in_code_set": true,
+      "billable": true
+    },
+    {
+      "code": "Z79.84",
+      "evidence": [
+        3
+      ],
+      "in_code_set": true,
+      "billable": true
+    }
+  ],
+  "gap_rules": [],
+  "em_code": null,
+  "model_errors": 0,
+  "latency_ms": 10740
+}

@@ -1,0 +1,28 @@
+{
+  "note_id": "n010",
+  "visit_date": "2026-11-09",
+  "patient_type": "established",
+  "text": "HPI: 77-year-old with hypertension, heart failure and chronic kidney disease.\nAssessment: Hypertension. Chronic diastolic heart failure. Chronic kidney disease stage 3a.\nPlan: Continue current regimen. Labs in 1 month.\n",
+  "expected_codes": [
+    {
+      "code": "I13.0",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.C.9.a.3 Hypertensive heart and CKD: HTN + HF + CKD stage 1-4"
+    },
+    {
+      "code": "I50.32",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.C.9.a.3: additional I50 code for the HF type; chronic diastolic documented"
+    },
+    {
+      "code": "N18.31",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.C.9.a.3: N18 code for the stage; stage 3a documented"
+    }
+  ],
+  "expected_gap_rules": [],
+  "expected_em": null,
+  "tags": [
+    "htn+hf+ckd"
+  ]
+}

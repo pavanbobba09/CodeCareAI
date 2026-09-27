@@ -1,0 +1,23 @@
+{
+  "note_id": "n008",
+  "visit_date": "2026-11-02",
+  "patient_type": "established",
+  "text": "HPI: Follow-up for heart failure. Stable weight, no edema.\nAssessment: Hypertension. Chronic systolic heart failure.\nPlan: Continue carvedilol and lisinopril.\n",
+  "expected_codes": [
+    {
+      "code": "I11.0",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.C.9.a.1 Hypertension with heart disease: HTN + HF is presumed linked"
+    },
+    {
+      "code": "I50.22",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.C.9.a.1 use additional I50 code; chronic systolic documented"
+    }
+  ],
+  "expected_gap_rules": [],
+  "expected_em": null,
+  "tags": [
+    "htn+hf"
+  ]
+}

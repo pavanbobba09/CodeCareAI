@@ -1,15 +1,15 @@
 """R1: reject codes absent, inactive, non-billable, or invalid for the visit date.
 
-Sources: ICD-10-CM Official Guidelines for Coding and Reporting FY2027, Section I.B.3
-(report codes to the highest number of characters available); HIPAA code set standard,
-45 CFR 162.1002 (use the code set in effect on the date of service).
+Sources: ICD-10-CM Official Guidelines for Coding and Reporting FY2027, Section I.B.2
+(Level of Detail in Coding: report codes to the highest number of characters available);
+HIPAA code set standard, 45 CFR 162.1002 (use the code set in effect on the date of service).
 """
 
 from app.models import DroppedCode, RuleInput, RuleOutput, RuleResult, Suggestion
 from app.terminology.lookup import CodeLookup
 
 RULE_ID = "R1"
-SOURCE_REF = "ICD-10-CM Guidelines FY2027 §I.B.3; 45 CFR 162.1002"
+SOURCE_REF = "ICD-10-CM Guidelines FY2027 §I.B.2; 45 CFR 162.1002"
 
 
 def _problem(s: Suggestion, inp: RuleInput, codes: CodeLookup) -> str | None:

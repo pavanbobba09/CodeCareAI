@@ -1,0 +1,43 @@
+{
+  "note_id": "n010",
+  "setup": "baseline",
+  "model": "openai/gpt-oss-120b",
+  "prompt_version": "baseline_v1",
+  "status": "completed",
+  "error": null,
+  "attempts": 2,
+  "n_sentences": 6,
+  "predicted": [
+    {
+      "code": "I10",
+      "evidence": [
+        1,
+        2
+      ],
+      "in_code_set": true,
+      "billable": true
+    },
+    {
+      "code": "I50.31",
+      "evidence": [
+        1,
+        3
+      ],
+      "in_code_set": true,
+      "billable": true
+    },
+    {
+      "code": "N18.31",
+      "evidence": [
+        1,
+        4
+      ],
+      "in_code_set": true,
+      "billable": true
+    }
+  ],
+  "gap_rules": [],
+  "em_code": null,
+  "model_errors": 0,
+  "latency_ms": 1316
+}

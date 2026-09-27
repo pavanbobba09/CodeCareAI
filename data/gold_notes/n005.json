@@ -1,0 +1,18 @@
+{
+  "note_id": "n005",
+  "visit_date": "2026-10-19",
+  "patient_type": "established",
+  "text": "HPI: Blood pressure check. Taking lisinopril daily.\nExam: BP 128/80.\nAssessment: Essential hypertension, well controlled.\nPlan: Continue lisinopril.\n",
+  "expected_codes": [
+    {
+      "code": "I10",
+      "system": "ICD-10-CM",
+      "reason": "Assessment: essential hypertension"
+    }
+  ],
+  "expected_gap_rules": [],
+  "expected_em": null,
+  "tags": [
+    "htn"
+  ]
+}

@@ -13,3 +13,15 @@ Corrections from the owner and the rule that prevents each one. Review at the st
 **What went wrong:** `tasks/todo.md` numbered R12 to R14 differently from DESIGN.md §3.4 (todo: R12 = CPT support, R13 = MDM gap, R14 = NCCI; DESIGN: R12 = Excludes1, R13 = CPT support + NCCI, R14 = E/M). An instruction to "skip R12 to R14 without CPT" would have switched off the Excludes1 check.
 
 **Rule:** DESIGN.md §3.4 owns rule numbers. Any file that names a rule (todo, tests, code, prompts, commit messages) uses DESIGN's number. Changing a rule's number or scope updates DESIGN.md and every reference in the same change. When an instruction names a rule by number, check the number against DESIGN.md before acting.
+
+## 2026-09-27: Check guideline citations against the official PDF
+
+**What went wrong:** R1 shipped in M2 citing "ICD-10-CM Guidelines §I.B.3" for level of detail. The FY2027 PDF puts Level of Detail in Coding at **I.B.2**; I.B.3 is the valid code range. The number came from memory. The owner asked for every gold-note citation to be checked against the PDF, and that check caught it.
+
+**Rule:** Every guideline section cited in code (`source_ref`, docstrings), gold notes, prompts, or docs is checked against the Official Guidelines PDF for that fiscal year (`data/raw/fy-20XX-icd-10-cm-coding-guidelines.pdf`) before it is committed. Say "from memory, unverified" when a source cannot be checked, and name sources that are not the Official Guidelines (for example the Alphabetic Index or AHA Coding Clinic) as what they are.
+
+## 2026-09-27: Every abbreviation mapping needs a source
+
+**What went wrong:** `data/abbreviations.csv` mapped HFmrEF to "combined systolic and diastolic heart failure", and a unit test, two integration cases and `scripts/check_search.py` locked it in as I50.40. Neither the FY2027 Alphabetic Index nor the Guidelines support it; it came from memory of coding practice. The Index has "reduced ejection fraction: see Failure, heart, systolic" and "preserved ejection fraction: see Failure, heart, diastolic", and no entry for mildly reduced.
+
+**Rule:** Every abbreviation mapping must cite the Index entry or guideline section that supports it, checked in that fiscal year's files in `data/raw/`. When there is no source, the abbreviation expands only to its literal words (HFmrEF -> "heart failure with mildly reduced ejection fraction") and search handles the rest. Tests may assert only mappings that have a cited source.

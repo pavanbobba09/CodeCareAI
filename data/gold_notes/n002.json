@@ -1,0 +1,23 @@
+{
+  "note_id": "n002",
+  "visit_date": "2026-10-07",
+  "patient_type": "established",
+  "text": "HPI: 66-year-old here for review of diabetes and kidney function.\nLabs: eGFR 38 today.\nAssessment: Type 2 diabetes mellitus with chronic kidney disease stage 3b.\nPlan: Continue current medications. Nephrology follow-up in 6 months.\n",
+  "expected_codes": [
+    {
+      "code": "E11.22",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.A.15 'With': diabetes with CKD is presumed linked"
+    },
+    {
+      "code": "N18.32",
+      "system": "ICD-10-CM",
+      "reason": "Assessment documents CKD stage 3b; E11.22 'use additional code' for the stage"
+    }
+  ],
+  "expected_gap_rules": [],
+  "expected_em": null,
+  "tags": [
+    "dm+ckd"
+  ]
+}

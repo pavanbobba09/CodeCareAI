@@ -35,9 +35,11 @@ jobs:
           cache: pip
           cache-dependency-path: backend/pyproject.toml
       - run: pip install -e ".[dev]"
-      - run: ruff check . ../scripts
-      - run: ruff format --check . ../scripts
-      - run: mypy app
+      - run: ruff check . ../scripts ../eval
+      - run: ruff format --check . ../scripts ../eval
+      - run: mypy app ../eval
       - run: pytest tests/unit
       - run: alembic upgrade head
       - run: pytest tests/integration
+      - name: Eval gate (re-score committed runs; no invented codes)
+        run: python ../eval/rescore.py

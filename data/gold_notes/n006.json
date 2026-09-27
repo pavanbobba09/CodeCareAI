@@ -1,0 +1,23 @@
+{
+  "note_id": "n006",
+  "visit_date": "2026-10-21",
+  "patient_type": "established",
+  "text": "HPI: 71-year-old with hypertension and chronic kidney disease.\nLabs: eGFR 24.\nAssessment: Hypertension. Chronic kidney disease stage 4.\nPlan: Continue amlodipine. Nephrology referral for stage 4 CKD.\n",
+  "expected_codes": [
+    {
+      "code": "I12.9",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.C.9.a.2 Hypertensive chronic kidney disease: HTN + CKD stage 1-4 is presumed linked"
+    },
+    {
+      "code": "N18.4",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.C.9.a.2: use N18 to identify the stage; stage 4 documented"
+    }
+  ],
+  "expected_gap_rules": [],
+  "expected_em": null,
+  "tags": [
+    "htn+ckd"
+  ]
+}

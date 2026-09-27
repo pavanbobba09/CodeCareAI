@@ -55,9 +55,12 @@ python scripts/check_search.py                      # M1 search smoke check on t
 python scripts/record_llm.py                        # worked example via the real LLM; re-records fixtures only on PASS (free tier: wait ~1 min between runs)
 ruff check scripts && ruff format --check scripts
 
-# eval
-python eval/run_eval.py --setup pipeline --limit 10
-python eval/baseline_llm_only.py --limit 10
+# eval (local, live LLM; paced; reruns with the same --run-id resume)
+python scripts/validate_gold.py                     # gold notes: structure + codes billable for the visit date
+python eval/run_eval.py --setup pipeline --limit 10 [--model M] [--run-id ID]
+python eval/baseline_llm_only.py --limit 10 [--model M]
+python eval/compare.py RUN_ID RUN_ID [--limit N]    # side-by-side vs DESIGN §9 thresholds
+python eval/rescore.py                              # CI gate: no invented codes in committed pipeline runs
 ```
 
 ## Workflow

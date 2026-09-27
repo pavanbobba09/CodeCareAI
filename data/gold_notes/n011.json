@@ -1,0 +1,34 @@
+{
+  "note_id": "n011",
+  "visit_date": "2026-11-16",
+  "patient_type": "established",
+  "text": "HPI: Seen after recent weight gain and increased shortness of breath.\nAssessment: Type 2 diabetes mellitus with chronic kidney disease stage 3b. Hypertension. Acute on chronic systolic heart failure.\nPlan: Increase furosemide. Recheck weight and labs in 1 week.\n",
+  "expected_codes": [
+    {
+      "code": "E11.22",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.A.15 'With': diabetes with CKD"
+    },
+    {
+      "code": "I13.0",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.C.9.a.3: HTN + HF + CKD stage 1-4"
+    },
+    {
+      "code": "I50.23",
+      "system": "ICD-10-CM",
+      "reason": "Acute on chronic systolic heart failure documented"
+    },
+    {
+      "code": "N18.32",
+      "system": "ICD-10-CM",
+      "reason": "Stage 3b documented"
+    }
+  ],
+  "expected_gap_rules": [],
+  "expected_em": null,
+  "tags": [
+    "dm+ckd",
+    "htn+hf+ckd"
+  ]
+}

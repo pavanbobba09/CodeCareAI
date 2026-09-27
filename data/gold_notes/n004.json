@@ -1,0 +1,25 @@
+{
+  "note_id": "n004",
+  "visit_date": "2026-10-14",
+  "patient_type": "established",
+  "text": "HPI: 49-year-old with type 2 diabetes, poorly controlled despite insulin glargine nightly. Home glucose readings mostly above 250.\nAssessment: Type 2 diabetes mellitus, poorly controlled.\nPlan: Increase insulin glargine. Diabetes education referral.\n",
+  "expected_codes": [
+    {
+      "code": "E11.65",
+      "system": "ICD-10-CM",
+      "reason": "Alphabetic Index: Diabetes, poorly controlled - see Diabetes, by type, with hyperglycemia"
+    },
+    {
+      "code": "Z79.4",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.C.4.a.3: long-term (current) use of insulin"
+    }
+  ],
+  "expected_gap_rules": [],
+  "expected_em": null,
+  "tags": [
+    "dm",
+    "dm-hyperglycemia",
+    "med-insulin"
+  ]
+}

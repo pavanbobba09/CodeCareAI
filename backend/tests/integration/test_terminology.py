@@ -134,13 +134,12 @@ def test_lookup(seeded: Engine) -> None:
         ("HFrEF", "I50.20"),
         ("systolic heart failure", "I50.20"),
         ("HFpEF", "I50.30"),
-        ("HFmrEF", "I50.40"),
     ],
 )
 def test_heart_failure_type_finds_unspecified_acuity_code_top3(
     seeded: Engine, concept: str, want: str
 ) -> None:
-    # HFrEF = systolic, HFpEF = diastolic, HFmrEF = combined; no acuity documented.
+    # HFrEF = systolic, HFpEF = diastolic (FY2027 Index); no acuity documented.
     assert want in _codes(seeded, concept)[:3]
 
 
@@ -150,7 +149,6 @@ def test_heart_failure_type_finds_unspecified_acuity_code_top3(
         ("HFrEF", "I50.20"),
         ("systolic heart failure", "I50.20"),
         ("HFpEF", "I50.30"),
-        ("HFmrEF", "I50.40"),
     ],
 )
 def test_heart_failure_index_source_ranks_type_code_first(

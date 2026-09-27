@@ -1,0 +1,41 @@
+{
+  "note_id": "n009",
+  "setup": "pipeline",
+  "model": "openai/gpt-oss-20b",
+  "prompt_version": "extract_v1+select_v1",
+  "status": "completed",
+  "error": null,
+  "attempts": 2,
+  "n_sentences": 6,
+  "predicted": [
+    {
+      "code": "I50.9",
+      "evidence": [
+        1,
+        4
+      ],
+      "in_code_set": true,
+      "billable": true
+    },
+    {
+      "code": "R60.0",
+      "evidence": [
+        2
+      ],
+      "in_code_set": true,
+      "billable": true
+    },
+    {
+      "code": "I10",
+      "evidence": [
+        3
+      ],
+      "in_code_set": true,
+      "billable": true
+    }
+  ],
+  "gap_rules": [],
+  "em_code": null,
+  "model_errors": 0,
+  "latency_ms": 8330
+}

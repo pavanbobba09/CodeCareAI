@@ -1,0 +1,24 @@
+{
+  "note_id": "n007",
+  "visit_date": "2026-10-26",
+  "patient_type": "established",
+  "text": "HPI: Follow-up for hypertension and advanced kidney disease. Not on dialysis. Discussed dialysis planning.\nAssessment: Hypertension with chronic kidney disease stage 5, not on dialysis.\nPlan: Vascular surgery referral for access planning.\n",
+  "expected_codes": [
+    {
+      "code": "I12.0",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.C.9.a.2: hypertensive CKD with stage 5 CKD"
+    },
+    {
+      "code": "N18.5",
+      "system": "ICD-10-CM",
+      "reason": "Stage 5 documented, not on dialysis"
+    }
+  ],
+  "expected_gap_rules": [],
+  "expected_em": null,
+  "tags": [
+    "htn+ckd",
+    "ckd5"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "note_id": "n016",
+  "visit_date": "2026-12-07",
+  "patient_type": "established",
+  "text": "HPI: Routine follow-up. No heart failure symptoms. Kidney function normal on recent labs.\nAssessment: Essential hypertension, controlled. No heart failure. No chronic kidney disease.\nPlan: Continue current medication.\n",
+  "expected_codes": [
+    {
+      "code": "I10",
+      "system": "ICD-10-CM",
+      "reason": "Assessment: essential hypertension; heart failure and CKD are documented as absent"
+    }
+  ],
+  "expected_gap_rules": [],
+  "expected_em": null,
+  "tags": [
+    "negation",
+    "htn"
+  ]
+}

@@ -13,7 +13,7 @@ HF,heart failure
 CHF,congestive heart failure
 HFrEF,systolic heart failure
 HFpEF,diastolic heart failure
-HFmrEF,combined systolic and diastolic heart failure
+HFmrEF,heart failure with mildly reduced ejection fraction
 LVEF,left ventricular ejection fraction
 GFR,glomerular filtration rate
 eGFR,estimated glomerular filtration rate

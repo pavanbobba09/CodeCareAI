@@ -79,7 +79,9 @@ flowchart LR
 | Local development | Docker Compose | Reproducible frontend, backend, and Postgres setup |
 | CI | GitHub Actions | Tests and evaluation on each change |
 
-Required LLM variables: `LLM_BASE_URL`, `LLM_API_KEY`, and `LLM_MODEL`. Use temperature `0` and JSON mode. M2 records test fixtures with one Groq model (`openai/gpt-oss-20b`). M3 compares two Groq models on the first 10 gold notes and chooses the final model; there is no Hugging Face comparison.
+Required LLM variables: `LLM_BASE_URL`, `LLM_API_KEY`, and `LLM_MODEL`. Use temperature `0` and JSON mode. M2 records test fixtures with one Groq model (`openai/gpt-oss-20b`). M3 compared `openai/gpt-oss-20b` and `openai/gpt-oss-120b` on the first 10 gold notes; there is no Hugging Face comparison.
+
+Chosen model: **`openai/gpt-oss-120b`** (set via `LLM_MODEL`). Reason: both invented no codes and tied on recall, and 120b had higher precision, which is the next criterion in the selection order (numbers in `eval/results/` and the M3 Review in `tasks/todo.md`).
 
 ### 3.4 MVP coding rules
 
@@ -427,6 +429,28 @@ class GoldNote(BaseModel):          # one file per note: data/gold_notes/n001.js
 
 Every expected code must be billable in the ICD-10-CM set for the note's visit date and have a reason line; `scripts/validate_gold.py` checks this against the loaded tables.
 
+```python
+class BaselineOutput(BaseModel):      # LLM-only baseline (prompt baseline_v1): no candidates, no rules
+    codes: list[BaselineCode]         # BaselineCode: code, evidence, rationale
+
+class NoteRun(BaseModel):             # eval/records.py; one file per note per run
+    note_id: str
+    setup: Literal["pipeline", "baseline"]
+    model: str
+    prompt_version: str
+    status: Literal["completed", "failed"]
+    error: str | None
+    attempts: int
+    n_sentences: int
+    predicted: list[PredictedCode]    # code, evidence, in_code_set, billable (checked at run time)
+    gap_rules: list[str]
+    em_code: str | None
+    model_errors: int
+    latency_ms: int
+```
+
+Runs are saved to `eval/results/runs/<run_id>/<note_id>.json` (default run id `<date>-<setup>-<model>`), so they can be re-scored without the db or the LLM. Metrics compare exact code strings, micro-averaged over notes; a failed note counts as predicting nothing. Invented = predicted code not in the code set for the visit date. Invalid = predicted code that is invented or not billable in that code set (a superset of invented; catches category headers such as `N18.3`). Unsupported = predicted code with no evidence or evidence outside the note's sentence numbers. The baseline's missing dots are added before scoring (`E1122` -> `E11.22`).
+
 ## 6. API Contracts
 
 Base path: `/api/v1`. All request and response bodies are JSON.
@@ -513,9 +537,16 @@ Complexity rule: do not add authentication, queues, FHIR, caching, microservices
 
 Use 50 synthetic `GoldNote` cases and the same model for both the full pipeline and LLM-only baseline.
 
+Where each eval runs:
+
+- **Local, live:** `eval/run_eval.py` and `eval/baseline_llm_only.py` call the real LLM against the loaded code tables. The 10-note smoke run is required before any pipeline, prompt, retrieval, or rule change. Runs are paced, retry notes that fail with `LLM_UNAVAILABLE`/`TIMEOUT` with backoff, and resume from saved per-note results.
+- **CI (every push):** re-scores the committed per-note results of the latest local run and fails on any invented or invalid code in a pipeline run, or a metrics error. CI has no LLM key and no loaded code tables.
+- **CI with secrets (M9):** `eval-full.yml` runs the full live eval.
+
 | Metric | Required threshold |
 |---|---|
 | Invented-code rate | `0` — hard gate |
+| Invalid-code rate (pipeline) | `0` — hard gate |
 | Unsupported-code rate | `≤ 5%` |
 | Code precision | `≥ 0.85` |
 | Code recall | `≥ 0.80` |
@@ -554,7 +585,7 @@ Expected: E11.22 and N18.30, both with evidence `[1]`. Its recorded LLM response
 
 ## 11. Open Questions
 
-1. Which of the two Groq models performs best in the M3 comparison?
+1. ~~Which of the two Groq models performs best in the M3 comparison?~~ Closed in M3: `openai/gpt-oss-120b` (§3.3).
 2. Is the public-demo use of the CPT subset and hand-built MDM logic acceptable without additional licensing review? If uncertain, keep CPT labels project-written and clearly mark the feature as educational.
 3. Can a certified coder review 10–15 gold notes later?
 4. Are free Hugging Face Space cold starts acceptable for the final demo?

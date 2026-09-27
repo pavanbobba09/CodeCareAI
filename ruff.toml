@@ -3,4 +3,4 @@ extend = "backend/pyproject.toml"
 
 [lint.isort]
 known-third-party = ["alembic"]
-known-first-party = ["app", "_common"]
+known-first-party = ["app", "eval", "_common"]

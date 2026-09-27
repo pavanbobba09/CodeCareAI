@@ -1,0 +1,30 @@
+{
+  "note_id": "n020",
+  "visit_date": "2026-12-21",
+  "patient_type": "established",
+  "text": "HPI: Type 2 diabetes on metformin and insulin glargine. A1c 7.1.\nAssessment: Type 2 diabetes mellitus without complications.\nPlan: Continue metformin and insulin glargine.\n",
+  "expected_codes": [
+    {
+      "code": "E11.9",
+      "system": "ICD-10-CM",
+      "reason": "Assessment: type 2 diabetes mellitus without complications"
+    },
+    {
+      "code": "Z79.4",
+      "system": "ICD-10-CM",
+      "reason": "Guidelines I.C.4.a.3: insulin + oral hypoglycemic, assign both Z79.4 ..."
+    },
+    {
+      "code": "Z79.84",
+      "system": "ICD-10-CM",
+      "reason": "... and Z79.84"
+    }
+  ],
+  "expected_gap_rules": [],
+  "expected_em": null,
+  "tags": [
+    "dm",
+    "med-insulin",
+    "med-oral"
+  ]
+}
