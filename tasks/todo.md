@@ -5,6 +5,69 @@ Each milestone ends with its own passing check. Don't start a milestone until th
 
 ---
 
+## Plan for 2026-09-28 (after 07:30 CDT, owner message starts it)
+
+Order (owner, 2026-09-27). Stop and report after step 1.
+
+1. [ ] **M4 eval** on `m4-rules`: budget check; re-record the worked-example fixtures (2 calls); run (a) `--extract-prompt extract_v1`, 20 notes, new run id, outputs saved; run (b) `extract_v2`, 20 notes, outputs saved (if both don't fit, (a) today and (b) the next day); replay both; report all results against M3. **Stop for approval.**
+2. [ ] Merge M4, then M7, into `main`; fix conflicts (expected: `DESIGN.md`, `tasks/todo.md`).
+3. [ ] Rebase `m8-frontend` onto `main`, `npm run gen:types`, add the "added by rule" badge (`Suggestion.added_by_rule`), rerun e2e, merge into `main`.
+4. [ ] **Write README.md on `main`** once steps 1-3 are done and all tests pass on `main`, using the owner's README prompt below, with the M4 numbers.
+5. [ ] Push.
+
+Why the README waits (2026-09-27): no single branch had every feature (replay and the R9 gap on `m4-rules`; frontend, e2e, fake LLM, review API on `m8-frontend`), and the M4 eval numbers did not exist yet.
+
+### README prompt (owner, verbatim)
+
+> Write README.md for the repo root. The audience is engineers and hiring managers at a company reviewing this project. They should understand what it does, why it's built this way, and how well it works in under 3 minutes, and be able to run it in under 15.
+>
+> Rules:
+> - Plain, direct language. No marketing words ("revolutionary", "seamless", "cutting-edge"), no emojis, no em dashes.
+> - Every number must come from eval/results/ or tasks/todo.md reviews. Never estimate or round up. If a number isn't available yet, write TODO and tell me.
+> - Every command in the README must actually work. Run each one in a clean shell before finishing.
+> - Keep it under about 250 lines. Link to DESIGN.md for detail instead of repeating it.
+>
+> Sections, in this order:
+>
+> 1. Title and one line: "CodeCare AI: an explainable ICD-10-CM coding copilot for outpatient notes."
+>    Right under it, the disclaimer: synthetic data only, not reviewed by a certified coder, not for real clinical or billing use.
+>
+> 2. Screenshot of the review page (note on the left with evidence highlighted, code cards on the right). Take it with Playwright against the fake LLM and save it to docs/review-page.png.
+>
+> 3. The problem (3 or 4 sentences): coding depends on reading notes by hand, codes come from what's documented, mistakes cause denials and rework.
+>
+> 4. How it works:
+>    - The core rule in one line: the LLM reads, plain code checks.
+>    - A Mermaid flowchart of the pipeline: note → extract facts (LLM) → find candidates (code tables) → pick codes (LLM, candidates only) → rules R1 to R14 → gaps → coder review.
+>    - One line per step on what it does.
+>
+> 5. Worked example: the diabetes + CKD note, the codes returned (E11.22, N18.30), the evidence sentence, the rule that linked them, and the documentation gap it raised.
+>
+> 6. Results: the latest 20-note eval, pipeline vs LLM-only baseline, same model. Columns: precision, recall, invented rate, invalid rate, unsupported rate, gap recall. Add one line on how the gold notes were made and checked, and one line saying the gold set is small and synthetic.
+>
+> 7. Key design decisions: 5 or 6 short bullets, each "chose X over Y because Z". Cover: LLM picks only from retrieved candidates; rules as tested code, not prompts; deterministic eval instead of LLM-as-judge; saved LLM outputs with replay; code set chosen by visit date; open-weight model via an OpenAI-compatible API.
+>
+> 8. Tech stack: one short table.
+>
+> 9. Run it locally:
+>    - Prerequisites (Python 3.12, Node, Docker).
+>    - Start Postgres, run migrations, load the FY2027 code set (say it takes about 30 minutes because of embeddings).
+>    - The .env settings (LLM_BASE_URL, LLM_API_KEY, LLM_MODEL) with a link to get a Groq key. Never include a real key.
+>    - Start the backend and frontend.
+>    - Option to run with the fake LLM, no API key needed.
+>
+> 10. Tests and evaluation: commands for unit tests, integration tests, e2e, a smoke eval, and replay. One line each.
+>
+> 11. Project structure: top-level folders only, one line each.
+>
+> 12. Limitations and future work: honest and short. Include the free-tier rate limit, small synthetic gold set, no certified coder review, the hypertension exception limit, CPT/E/M status, and anything in DESIGN.md §12.
+>
+> 13. Data sources: CMS ICD-10-CM files and Official Guidelines (public), NCCI edits, and a note that CPT descriptions are our own wording because the AMA's are licensed.
+>
+> When done, show me the rendered README section by section, list any TODOs, and confirm every command was run. Commit to the current branch but don't push.
+
+---
+
 ## Current task: M4 detailed plan (approved 2026-09-27)
 
 Touches DESIGN §3.4 (R2-R12), §4.1 step 6 (retrieval), §4.4 (what counts as `model_errors`), §5.1 (confidence bands), §5.2 (`CodeLookup`, rule contract), §9 (smoke eval before/after). Milestone M4. Baseline to beat: M3 20-note pipeline run `2026-09-27-n20-pipeline-openai_gpt-oss-120b` (precision 0.78, recall 0.82, gap recall 0.00, invented 0, invalid 0).
