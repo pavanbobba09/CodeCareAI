@@ -5,6 +5,42 @@ Each milestone ends with its own passing check. Don't start a milestone until th
 
 ---
 
+## Current task: M2 detailed plan (awaiting approval)
+
+Touches DESIGN.md §3.4 (R1), §4.1, §4.4, §5.1, §5.2, §6 (`/notes`, `/analyze`), §10 (M2). Adds dependency `langgraph` (DESIGN §3.3 pipeline choice).
+
+**Worked example** (synthetic; proposed for DESIGN.md and `data/examples/worked_example.json`), visit 2026-10-15, established patient:
+
+```
+Assessment: Type 2 diabetes mellitus with chronic kidney disease stage 3.
+HPI: 62-year-old presents for diabetes and kidney follow-up. Denies chest pain or shortness of breath.
+Plan: Continue current regimen. Recheck renal function in 3 months.
+```
+Sentence 1 = "Type 2 diabetes mellitus with chronic kidney disease stage 3." Expected: E11.22 and N18.30, both with evidence [1].
+
+1. [ ] `segment/`: `segment_note(text) -> list[Sentence]`. Known headers map to normalized sections (hpi, assessment, plan, exam, ...); unknown `Word:` lines stay in the current section. Split on sentence punctuation and newlines, protecting decimals and common abbreviations. Invariant: `text[start:end] == sentence.text`. Unit tests for sections, numbering and offsets.
+2. [ ] Models: `Sentence`, `NoteCreate`, `Note`, `ExtractionOutput`, `MdmElements`, `CodeSelection`, `RuleResult`, `Gap`, `EmResult`, `Suggestion`, `PipelineError`, `AnalysisResult`, as in §5.1. Add `RuleInput`/`RuleOutput` to DESIGN §5.2; CLAUDE.md names them, DESIGN does not define them yet.
+3. [ ] `POST /notes` (segment, store, `404 PARENT_NOTE_NOT_FOUND`, `422 VALIDATION_ERROR` as `ErrorResponse`) and `GET /notes/{id}` (`404 NOTE_NOT_FOUND`).
+4. [ ] `llm/client.py`: httpx against `{LLM_BASE_URL}/chat/completions`, temperature 0, JSON mode, Pydantic validation. At most one retry per call: bad JSON or schema is retried once with the validation error, then `LLM_BAD_OUTPUT`; timeout, 429 or 5xx waits `Retry-After` capped at 20 s, retries once, then `LLM_UNAVAILABLE`. Sleep and transport are injectable. Unit tests use `httpx.MockTransport` and make no network calls.
+5. [ ] Prompts `llm/prompts/extract_v1.md` and `select_v1.md`: the note is untrusted data, output JSON only, the schema is embedded, and only supplied sentence numbers and candidate codes may be used. `extract_v1` returns `mdm` with all nulls; MDM extraction is `extract_v2` in M6.
+6. [ ] `pipeline/`: `PipelineState`, and nodes `extract_facts -> retrieve_candidates -> select_codes -> run_rules -> assemble`, one file each. A conditional edge after each node goes to `fail` when `state.error` is set. The 150 s deadline is carried in state; each LLM call gets the remaining time, and a node past the deadline sets `TIMEOUT`.
+   - Validation: facts with evidence outside the note's sentence numbers are dropped (`model_errors += 1`). Selections for unknown facts, with codes outside that fact's `CandidateSet`, or with bad evidence are dropped (`model_errors += 1`). Candidates are retrieved for `active` and `performed` facts only.
+7. [ ] `rules/r1_code_validity.py`: pure `apply(inp, codes)`. It fails a code that is absent from the visit's code set or not billable. `run_rules` preloads the needed codes into an `InMemoryCodeLookup`, so rules never touch the db. `tests/unit/rules/test_r1.py` covers positive, negative and edge cases.
+8. [ ] `assemble`: build `Suggestion`s (ids `s1..sn`); `confidence = "review"` for every suggestion until M4's confidence bands. `em = None` until M6.
+9. [ ] `POST /notes/{id}/analyze`: `resolve_code_sets` (`409 CODE_SET_MISSING`), run graph, store analysis (completed or failed), return `AnalysisResult`. LLM failures return `503` + `ErrorResponse(analysis_id=...)`; a db write failure returns `500 DB_ERROR`.
+10. [ ] LLM recordings: `scripts/record_llm.py` runs the real provider on the worked example and saves `tests/fixtures/llm/worked_example/{extract,select}.json` with the prompt hash. A replay client serves them in tests and warns on hash drift. Integration test: worked example on the fixture db gives E11.22 and N18.30 with evidence `[1]`. Plus graph tests for each failure path with a fake LLM.
+
+**Verify:** ruff, mypy strict, `pytest tests` green; the recorded worked example passes; a live `curl` of POST /notes then /analyze against the real db returns E11.22 and N18.30 with `[1]`.
+
+**Needs owner decision:**
+- A. LLM provider and model for recording (Groq first per DESIGN §3.3). The key goes in `backend/.env` (gitignored) and is never committed.
+- B. DESIGN §10 says M2 compares Groq vs Hugging Face models on 10 gold notes, but gold notes are M3. Proposal: record with one model now and run the comparison in M3.
+- C. R1 failure (a code not in the set or not billable): drop the suggestion and add 1 to `model_errors`. Candidates are already real and billable, so R1 is a guard that should never fire.
+- D. Approve the worked example text above.
+- E. `GET /analyses/{id}` is in §6 but in no milestone. Proposal: add it in M7 with history.
+
+---
+
 ## Previous task: M1 detailed plan (done 2026-09-26)
 
 Touches DESIGN.md §3.3 (search), §4.1 step 6, §5.2 (`search_candidates`, `get_code`), §5.3 (`codes`, `index_terms`, `abbreviations`), §10 (M1).
@@ -106,7 +142,7 @@ Touches DESIGN.md §3.3 (tech, env vars), §5.3 (tables), §6 (`/health`), §7 (
 
 ## M5: Code set versions
 
-- [ ] Load FY2026 with `load_icd10cm.py --fy 2026`
+- [x] Load FY2026 with `load_icd10cm.py --fy 2026` (April 1, 2026 update only, valid 2026-04-01 to 2026-09-30; loaded 2026-09-26)
 - [ ] Test the Sep 30 vs Oct 1, 2026 switch in `resolve_code_sets`
 - [ ] `409 CODE_SET_MISSING` when no code set covers the visit date
 - **Done when:** the same note dated 2026-09-30 and 2026-10-01 uses the matching code set

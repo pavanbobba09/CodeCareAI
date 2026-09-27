@@ -12,8 +12,8 @@ from sqlalchemy.orm import Session
 
 from app.db.models import IndexTerm
 from app.db.session import get_engine
-from app.models import ClinicalFact, CodeSetSelection
-from app.terminology.code_sets import resolve_code_set
+from app.models import ClinicalFact
+from app.terminology.code_sets import resolve_code_sets
 from app.terminology.embedder import get_embedder
 from app.terminology.search import search_candidates
 
@@ -38,10 +38,7 @@ def main() -> None:
 
     failed = 0
     with Session(get_engine()) as session, session.begin():
-        # CPT sets arrive in M6; resolve ICD only here.
-        sets = CodeSetSelection(
-            icd10cm=resolve_code_set(session, "ICD-10-CM", args.visit_date), cpt="none"
-        )
+        sets = resolve_code_sets(session, args.visit_date)
         notes = session.scalar(
             select(func.count())
             .select_from(IndexTerm)

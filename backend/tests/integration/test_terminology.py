@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
 
-from app.db.models import Code, IndexTerm
+from app.db.models import Code, CodeSet, IndexTerm
 from app.models import ClinicalFact, CodeSetSelection
 from app.terminology.abbreviations import expand, load_abbreviations
 from app.terminology.code_sets import CodeSetMissingError, resolve_code_sets
@@ -14,7 +14,7 @@ from tests.integration.conftest import FakeEmbedder
 
 pytestmark = pytest.mark.integration
 
-SETS = CodeSetSelection(icd10cm="ICD10CM-FY2027", cpt="CPT-DEMO-2026")
+SETS = CodeSetSelection(icd10cm="ICD10CM-FY2027", cpt=None)
 
 
 def _fact(concept: str, details: dict[str, str] | None = None) -> ClinicalFact:
@@ -39,6 +39,23 @@ def test_resolve_code_sets_on_first_day(seeded: Engine) -> None:
     with Session(seeded) as session:
         assert resolve_code_sets(session, date(2026, 10, 1)) == SETS
         assert resolve_code_sets(session, date(2027, 9, 30)) == SETS
+
+
+def test_resolve_code_sets_uses_cpt_set_when_one_covers_the_date(seeded: Engine) -> None:
+    with Session(seeded) as session:
+        session.add(
+            CodeSet(
+                id="CPT-TEST-2026",
+                system="CPT",
+                valid_from=date(2026, 11, 1),
+                valid_to=None,
+                source_url=None,
+            )
+        )
+        session.flush()
+        assert resolve_code_sets(session, date(2026, 11, 1)).cpt == "CPT-TEST-2026"
+        assert resolve_code_sets(session, date(2026, 10, 31)).cpt is None
+        session.rollback()
 
 
 def test_resolve_code_sets_missing(seeded: Engine) -> None:
@@ -91,7 +108,7 @@ def test_procedure_searches_cpt_set(seeded: Engine) -> None:
     fact = _fact("basic metabolic panel").model_copy(update={"kind": "procedure"})
     with Session(seeded) as session, session.begin():
         result = search_candidates(session, fact, SETS, FakeEmbedder())
-    assert result.candidates == []  # CPT subset arrives in M6
+    assert result.candidates == []  # no CPT set covers the visit date
 
 
 def test_lookup(seeded: Engine) -> None:

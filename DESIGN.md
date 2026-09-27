@@ -100,6 +100,8 @@ Required LLM variables: `LLM_BASE_URL`, `LLM_API_KEY`, and `LLM_MODEL`. Use temp
 | R13 | Flag CPT without a supporting diagnosis; apply effective NCCI PTP pairs and modifier indicator. |
 | R14 | Compute E/M from extracted MDM; return no E/M code when required elements are missing. |
 
+When `CodeSetSelection.cpt` is null, R13 and R14 are skipped (no CPT codes or E/M code can be suggested). R1–R12 still run.
+
 ## 4. Data Flow
 
 ### 4.1 Analyze a note
@@ -107,7 +109,7 @@ Required LLM variables: `LLM_BASE_URL`, `LLM_API_KEY`, and `LLM_MODEL`. Use temp
 1. `web` sends `NoteCreate` to `POST /api/v1/notes`.
 2. `api` segments the text into numbered `Sentence` objects and stores `Note`.
 3. `web` calls `POST /api/v1/notes/{note_id}/analyze`.
-4. `terminology` selects FY2026 or FY2027 from `Note.visit_date`.
+4. `terminology` selects the ICD-10-CM set from `Note.visit_date`: FY2026 (the April 1, 2026 update, valid 2026-04-01 to 2026-09-30) or FY2027 (2026-10-01 to 2027-09-30). The October 2025 FY2026 release is not loaded, so earlier visits return `CODE_SET_MISSING`. A CPT set is selected when one covers the date; otherwise `CodeSetSelection.cpt` is null.
 5. `llm_client` converts the numbered sentences into `ExtractionOutput`; it must not output codes.
 6. `terminology` returns up to 20 real, billable `CodeCandidate` values per active/performed fact. The fact text (concept plus details) is abbreviation-expanded, then searched three ways: trigram match on Alphabetic Index term paths (a category hit such as `N18.3-` expands to its billable descendants), full-text search on descriptions, and vector search on description embeddings. Results merge by reciprocal rank fusion (k=60). `sources` lists every search that found the code, plus `abbreviation` when the fact text was expanded.
 7. `llm_client` returns `CodeSelection` values chosen only from those candidates.
@@ -161,7 +163,8 @@ sequenceDiagram
 | Invalid model JSON | Retry once with the validation error; then return `LLM_BAD_OUTPUT`. |
 | Invalid sentence evidence | Drop the fact and increment `model_errors`. |
 | Selected code outside candidates | Drop the selection and increment `model_errors`. |
-| Code set missing for visit date | Return `409 CODE_SET_MISSING`; do not run the pipeline. |
+| No ICD-10-CM set covers the visit date | Return `409 CODE_SET_MISSING`; do not run the pipeline. |
+| No CPT set covers the visit date | Not an error. `cpt` is null, procedure facts get no candidates, CPT-dependent rules (R13, R14) are skipped, and `em` is null. |
 | Rule or pipeline failure | Return no partial suggestions; store a failed analysis. |
 | Database write failure | Return `500 DB_ERROR`; do not return an unstored result. |
 | Entire analysis exceeds 150 seconds | Cancel and return `503 TIMEOUT`. |
@@ -281,7 +284,7 @@ class Suggestion(BaseModel):
 
 class CodeSetSelection(BaseModel):
     icd10cm: str              # e.g. ICD10CM-FY2027
-    cpt: str                  # e.g. CPT-DEMO-2026
+    cpt: str | None           # e.g. CPT-DEMO-2026; None when no CPT set covers the visit date
 
 class PipelineError(BaseModel):
     code: Literal["LLM_UNAVAILABLE", "LLM_BAD_OUTPUT", "TIMEOUT", "CODE_SET_MISSING", "DB_ERROR"]
@@ -432,7 +435,8 @@ CodeCareAI/
 | Analyze button | Live typing analysis | Much simpler MVP |
 | Immutable notes and reviews | In-place edits | Preserves evidence and approvals |
 | Synchronous analysis | Redis/job queue | One-user demo does not need a queue |
-| FY2026 and FY2027 by visit date | Latest release only | Correct date-of-service behavior and a visible demo |
+| FY2026 (April 1 update) and FY2027 by visit date | Latest release only | Correct date-of-service behavior and a visible demo |
+| Optional CPT code set | Seeding an empty placeholder CPT set | No placeholder data; a date with no CPT set loaded is a valid case |
 | Provider-neutral LLM configuration | Hard-coded vendor | Free-provider flexibility |
 | ICD end-to-end before CPT | Building both pipelines simultaneously | Faster working slice; both remain in v1 |
 
@@ -476,7 +480,7 @@ The owner will validate expected results against FY2027 guidelines and code tabl
 | M2 | Thin slice: create note → extract facts → retrieve/select ICD candidates → R1 → return evidence-backed results. Compare Groq and Hugging Face models on 10 notes and select one. |
 | M3 | Add 20 gold notes, evaluation runner, and LLM-only baseline. |
 | M4 | Add ICD rules R2–R12, gaps, confidence, and rule tests. |
-| M5 | Load FY2026 and demonstrate code-set selection across September 30/October 1, 2026. |
+| M5 | Load FY2026 (April 1, 2026 update) and demonstrate code-set selection across September 30/October 1, 2026. |
 | M6 | Add CPT subset, NCCI, MDM extraction, E/M calculation, and R13–R14. |
 | M7 | Add append-only review and history APIs. |
 | M8 | Build and test the two-panel Next.js review UI. |
@@ -488,6 +492,4 @@ The owner will validate expected results against FY2027 guidelines and code tabl
 2. Is the public-demo use of the CPT subset and hand-built MDM logic acceptable without additional licensing review? If uncertain, keep CPT labels project-written and clearly mark the feature as educational.
 3. Can a certified coder review 10–15 gold notes later?
 4. Are free Hugging Face Space cold starts acceptable for the final demo?
-5. CMS also published an April 1, 2026 ICD-10-CM update inside FY2026. Should M5 load it as a separate code set (2026-04-01 to 2026-09-30)?
-6. `CodeSetSelection.cpt` is required, so every analysis needs a CPT code set row. Seed an empty `CPT-DEMO-2026` set in M2, or make `cpt` optional until M6?
 

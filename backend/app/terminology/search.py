@@ -121,6 +121,8 @@ def search_candidates(
 ) -> CandidateSet:
     system: CodeSystem = "CPT" if fact.kind == "procedure" else "ICD-10-CM"
     code_set_id = code_sets.cpt if system == "CPT" else code_sets.icd10cm
+    if code_set_id is None:  # no CPT set covers this visit date
+        return CandidateSet(fact_id=fact.fact_id, candidates=[])
 
     query, expanded = expand(build_query(fact), load_abbreviations(session))
     [vector] = embedder.embed([query])

@@ -38,12 +38,15 @@ class Release:
 
 # CMS file names are not consistent across years, so each release is listed explicitly.
 RELEASES: dict[int, Release] = {
+    # FY2026 is loaded only as the April 1, 2026 update (owner decision, 2026-09-26).
+    # The October 2025 release is not loaded, so visits before 2026-04-01 get
+    # CODE_SET_MISSING.
     2026: Release(
         fy=2026,
-        valid_from=date(2025, 10, 1),
+        valid_from=date(2026, 4, 1),
         valid_to=date(2026, 9, 30),
-        order_zip="2026-code-descriptions-tabular-order.zip",
-        tables_zip="2026-code-tables-tabular-and-index.zip",
+        order_zip="april-1-2026-code-descriptions-tabular-order.zip",
+        tables_zip="april-1-2026-code-tables-tabular-index.zip",
     ),
     2027: Release(
         fy=2027,

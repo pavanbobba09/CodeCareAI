@@ -1,4 +1,8 @@
-"""Pick the code sets valid on a visit date (DESIGN.md §4.1 step 4)."""
+"""Pick the code sets valid on a visit date (DESIGN.md §4.1 step 4).
+
+ICD-10-CM is required. CPT is optional: a visit date with no CPT set loaded is valid,
+and the CPT-dependent rules are skipped for it.
+"""
 
 from datetime import date
 
@@ -18,7 +22,7 @@ class CodeSetMissingError(Exception):
         self.visit_date = visit_date
 
 
-def resolve_code_set(session: Session, system: CodeSystem, visit_date: date) -> str:
+def _find(session: Session, system: CodeSystem, visit_date: date) -> str | None:
     stmt = (
         select(CodeSet.id)
         .where(
@@ -29,7 +33,11 @@ def resolve_code_set(session: Session, system: CodeSystem, visit_date: date) -> 
         .order_by(CodeSet.valid_from.desc())
         .limit(1)
     )
-    code_set_id = session.scalar(stmt)
+    return session.scalar(stmt)
+
+
+def resolve_code_set(session: Session, system: CodeSystem, visit_date: date) -> str:
+    code_set_id = _find(session, system, visit_date)
     if code_set_id is None:
         raise CodeSetMissingError(system, visit_date)
     return code_set_id
@@ -38,5 +46,5 @@ def resolve_code_set(session: Session, system: CodeSystem, visit_date: date) -> 
 def resolve_code_sets(session: Session, visit_date: date) -> CodeSetSelection:
     return CodeSetSelection(
         icd10cm=resolve_code_set(session, "ICD-10-CM", visit_date),
-        cpt=resolve_code_set(session, "CPT", visit_date),
+        cpt=_find(session, "CPT", visit_date),
     )

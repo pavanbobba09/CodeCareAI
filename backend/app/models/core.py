@@ -42,7 +42,7 @@ class CandidateSet(BaseModel):
 
 class CodeSetSelection(BaseModel):
     icd10cm: str  # e.g. ICD10CM-FY2027
-    cpt: str  # e.g. CPT-DEMO-2026
+    cpt: str | None  # e.g. CPT-DEMO-2026; None when no CPT set covers the visit date
 
 
 class ErrorResponse(BaseModel):

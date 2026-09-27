@@ -22,7 +22,7 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
-from app.db.models import EMBEDDING_DIM, Abbreviation, CodeSet
+from app.db.models import EMBEDDING_DIM, Abbreviation
 from app.db.session import get_engine
 from app.loaders.icd10cm import Release, parse_sources, store_release
 from app.terminology.embed_codes import embed_code_set
@@ -81,7 +81,7 @@ def engine() -> Iterator[Engine]:
 
 @pytest.fixture(scope="session")
 def seeded(engine: Engine) -> Engine:
-    """FY2027 fixture codes + index + abbreviations + embeddings, and a CPT code set row."""
+    """FY2027 fixture codes + index + abbreviations + embeddings. No CPT set is loaded."""
 
     parsed = parse_sources(
         (FIXTURES / "icd10cm_order_2027.txt").read_text(),
@@ -90,15 +90,6 @@ def seeded(engine: Engine) -> Engine:
     )
     with Session(engine) as session, session.begin():
         store_release(session, TEST_RELEASE, parsed)
-        session.merge(
-            CodeSet(
-                id="CPT-DEMO-2026",
-                system="CPT",
-                valid_from=date(2026, 1, 1),
-                valid_to=None,
-                source_url=None,
-            )
-        )
         # The real project mapping, so abbreviation fixes stay covered by tests.
         with ABBREVIATIONS_CSV.open(newline="") as f:
             for row in csv.DictReader(f):
