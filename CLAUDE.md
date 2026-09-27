@@ -43,9 +43,10 @@ cd backend && alembic upgrade head
 cd backend && uvicorn app.main:app --reload
 
 # frontend
-cd frontend && npm install && npm run dev
-cd frontend && npm run gen:types             # regenerate lib/types.ts from OpenAPI; never hand-edit it
-cd frontend && npm run lint && npm run test:e2e
+cd frontend && npm install && npm run dev       # API at NEXT_PUBLIC_API_BASE_URL (default http://localhost:8000)
+cd frontend && npm run gen:types             # backend venv active; exports openapi.json + samples.json, regenerates lib/types.ts; never hand-edit it
+cd frontend && npm run lint && npm run typecheck && npm run build
+cd frontend && npm run test:e2e              # local only: starts fake LLM (:8765), backend (:8010, dev db with FY2027 loaded), web (:3010); no real LLM calls
 
 # data (backend venv active, from repo root; raw CMS files cached in data/raw/)
 python scripts/seed_abbreviations.py

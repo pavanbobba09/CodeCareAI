@@ -198,7 +198,61 @@ Rules work on **codes the LLM already selected, plus fact status and details**. 
 
 ---
 
-## Current task: M7 detailed plan (approved 2026-09-27)
+## Current task: M8 detailed plan (approved with changes 2026-09-27)
+
+Branch `m8-frontend` from `m7-review` (it needs the M7 review and history endpoints). After M4 and M7 are merged into `main`, rebase onto `main` and regenerate the API types (owner, 2026-09-27). No LLM calls, in dev or tests.
+
+Touches DESIGN §3.1 (`web`), §3.3 (frontend stack), §7 (folder structure), §9 (`web` testing), §10 (M8). Milestone M8.
+
+### Stack
+
+Next.js 15 (App Router), TypeScript strict, Tailwind (DESIGN §3.3). Runtime dependencies: only `next`, `react`, `react-dom`. Dev: `tailwindcss`, `eslint` + `eslint-config-next`, `openapi-typescript` (types), `@playwright/test`. No data-fetching or UI library; a small typed `fetch` client is enough for five endpoints (reason noted per CLAUDE.md "no new dependency without a reason").
+
+### Steps
+
+1. [x] **API types.** `scripts/export_openapi.py` writes `frontend/openapi.json` from `app.main.app.openapi()` (no server, deterministic). `npm run gen:types` runs `openapi-typescript openapi.json -o lib/types.ts`. `lib/types.ts` is generated, committed, never hand-edited; CI regenerates it and fails on a diff.
+2. [x] **API client** `lib/api.ts`: `createNote`, `getNote`, `analyzeNote`, `getAnalysis`, `getHistory`, `reviewSuggestion`. Base URL from `NEXT_PUBLIC_API_BASE_URL` (default `http://localhost:8000`). Every non-2xx body is parsed as `ErrorResponse` and thrown as `ApiError { status, error_code, message, analysis_id }`, so pages branch on `error_code`, never on text.
+3. [x] **`/` note form:** note text (20-20,000 chars, counter), visit date, new/established. *(Revise-note flow dropped, owner decision R.)* Submit -> `POST /notes` -> go to `/notes/{id}`. Field errors from `422 VALIDATION_ERROR` and `404 PARENT_NOTE_NOT_FOUND` shown inline. Visible "synthetic data only" notice.
+4. [x] **`/notes/[id]` review page, two panels.**
+   - Load `GET /notes/{id}/history`; show the latest analysis, or an "Analyze" button when there is none. Version links (previous/later) from history.
+   - **Left, note panel:** the note text rendered sentence by sentence using the stored offsets (so highlights match `Sentence.start/end` exactly), each with its number and section. Sentences cited by any suggestion get a light mark; hovering or selecting a suggestion card strongly highlights its evidence sentences and scrolls the first into view.
+   - **Right, suggestion cards:** code, description, system, confidence badge, evidence sentence numbers (clicking one scrolls to it), rule results (rule id, outcome, message, `source_ref`), linked gaps, and the current decision (the latest review for that suggestion, from history).
+   - **Actions:** Accept; Edit (code input, optional reason); Reject (required reason). Each posts a review, then refreshes history; `422 INVALID_REPLACEMENT_CODE` / `VALIDATION_ERROR` and `404 SUGGESTION_NOT_FOUND` show inline on the card. All actions allowed on any card (owner decision N).
+   - **"Not suggested"** codes are hidden from the card list, with a "Show N not suggested" toggle; their gaps stay in the gap list.
+   - **Gap list:** every gap with kind, severity, the neutral `query_text`, and the codes it affects.
+   - **E/M card:** shows "No E/M level" with `missing` elements, or "E/M arrives in M6" while `em` is null.
+5. [x] **Loading and failed states.** Analyze shows a progress state (it can take up to 150 s) and disables the button. A failed analysis (`503` with `analysis_id`, or a stored `status: failed`) shows the error code and message, keeps the note visible, and offers "Analyze again" (a new analysis; the failed one stays in history). `409 CODE_SET_MISSING`, `500 PIPELINE_ERROR`/`DB_ERROR` and a network error each get a clear message. Page-level loading skeleton and a not-found page for `404 NOTE_NOT_FOUND`.
+6. [x] **Accessibility basics:** keyboard-reachable actions, `aria-live` for analyze status and review results, highlight not by color alone (outline + sentence number emphasis).
+7. [x] **Playwright smoke test** (DESIGN §9 `web`: analyze, highlight, accept, edit, reject) against the **real backend and test db, with a fake LLM** (decision P): create the worked-example note -> analyze -> hover E11.22 and see sentence 1 highlighted -> accept E11.22 -> edit N18.30 to N18.31 -> reject N18.30 with a reason -> history shows three reviews. *(Owner: only one more test, the failed analysis through the fake LLM's 503; no route-mocked tests.)*
+8. [-] *(dropped: owner decision Q, e2e local only; no frontend CI job in M8)* **CI:** a `frontend` job: `npm ci`, lint, `tsc --noEmit`, types up to date (step 1), `next build`; an `e2e` job with Postgres, the backend on the seeded test tables, the fake LLM, and Playwright (decision Q).
+9. [x] **DESIGN.md** in the same change: §7 frontend layout (`e2e/`, `openapi.json`), §9 how the smoke test runs, the fake LLM (if P is approved), `NEXT_PUBLIC_API_BASE_URL`; CLAUDE.md commands (`gen:types`, `test:e2e`, how to start the e2e stack).
+
+**Verify:** `npm run lint`, `tsc`, `next build` clean; types regenerate without a diff; Playwright smoke + state tests pass locally; backend suites still pass. Done when: the smoke test passes (create note, analyze, see highlights, review a code).
+
+**Rebase note (tomorrow):** after `main` has M4 + M7, rebase `m8-frontend`, run `gen:types` (M4 adds `Suggestion.added_by_rule` and real confidence bands), then show an "added by R3" badge on rule-added cards and re-run the tests.
+
+**Owner decisions (2026-09-27): keep it simple, it is a demo.**
+
+- P. Yes: `scripts/fake_llm.py` replays the worked-example recordings; the backend reaches it only through `LLM_BASE_URL`.
+- Q. E2E stays local-only; no CI job for it (revisit in M9). Step 8 shrinks to nothing for e2e; no frontend CI job either unless trivial.
+- R. No "revise note" in the UI; listed under future work in DESIGN.md.
+- S. Browser fetch, no SSR, no proxy route.
+- Tests: only two Playwright tests: the smoke test, and one failed-analysis test that uses the fake LLM's error. The route-mocked tests are dropped.
+- Add: a "Load sample note" dropdown on the form with 3-4 synthetic notes (the worked example, one with a gap, one with a combination code), exported from `data/` into the frontend so a reviewer can try it in one click.
+
+### M8 Review (2026-09-27)
+
+**Done:** Next.js 15.5 app (React 19, Tailwind 4, TS strict) in `frontend/`: note form with a "Load sample note" menu (worked example, n009 gap, n010 combination, n013 abbreviations), review page (sentence-exact evidence highlights, suggestion cards with rule results, gaps and current decision, accept/edit/reject with inline errors, not-suggested toggle, gap list, E/M card), loading, analyzing, failed and not-found states. `lib/types.ts` generated from `openapi.json` (`scripts/export_frontend.py` + `openapi-typescript`), typed `lib/api.ts`. `scripts/fake_llm.py` for local e2e. Next's bundled PostCSS pinned to 8.5.28 via `overrides` (npm audit: 0 vulnerabilities; the suggested fix was a Next 16 upgrade).
+
+**Verified:** `npm run lint`, `tsc --noEmit`, `next build` clean; Playwright: smoke (create, analyze, highlight sentence 1, accept E11.22, edit N18.30 to N18.31, reject N18.30, history has 3 reviews) and failed analysis (fake LLM 503 -> `LLM_UNAVAILABLE`, no cards) pass, twice in a row; screenshots of the form and review page checked by eye. Backend suites unchanged.
+
+**Found:** e2e against `next dev` timed out on the first navigation (on-demand route compile); the e2e config now builds and runs `next start`.
+
+**Open (tomorrow):** rebase onto `main` after M4 + M7, `npm run gen:types`, show an "added by rule" badge from `Suggestion.added_by_rule`, rerun e2e (the worked example will then show the R9 gap on N18.30).
+
+---
+
+## Previous task: M7 detailed plan (done 2026-09-27)
 
 Branch `m7-review` from `main` (M4 is parked on `m4-rules` until its eval runs; owner decision 2026-09-27: build M7 meanwhile, merge M4 first, then M7). No LLM calls: tests use `ScriptedLlm` and the seeded test db. Out of order on purpose (M5, M6 not done); nothing here depends on them.
 
@@ -512,12 +566,12 @@ Touches DESIGN.md §3.3 (tech, env vars), §5.3 (tables), §6 (`/health`), §7 (
 
 ## M8: Frontend
 
-- [ ] Next.js app, `npm run gen:types` from OpenAPI
-- [ ] `/`: note form (text, visit date, new or established patient)
-- [ ] `/notes/[id]`: note panel with evidence highlights, suggestion cards, rule results, gap list, E/M card
-- [ ] Accept, edit, reject buttons; hide not-suggested codes but show their gaps
-- [ ] Clear failed-analysis state and loading state
-- [ ] Playwright smoke test
+- [x] Next.js app, `npm run gen:types` from OpenAPI
+- [x] `/`: note form (text, visit date, new or established patient)
+- [x] `/notes/[id]`: note panel with evidence highlights, suggestion cards, rule results, gap list, E/M card
+- [x] Accept, edit, reject buttons; hide not-suggested codes but show their gaps
+- [x] Clear failed-analysis state and loading state
+- [x] Playwright smoke test
 - **Done when:** the smoke test passes: create note, analyze, see highlights, review a code
 
 ## M9: Deploy config and full eval
