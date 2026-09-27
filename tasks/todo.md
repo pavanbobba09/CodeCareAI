@@ -68,6 +68,36 @@ Why the README waits (2026-09-27): no single branch had every feature (replay an
 
 ---
 
+## Current task: second Codex review fixes on m4-rules (owner, 2026-09-27)
+
+Touches DESIGN §3.4 (R2-R11 semantics and order), §5.2 (fact-owned evidence), §5.4
+(run scope/provenance), and §9 (support metric and CI gates). Milestone M4. No LLM calls.
+
+1. [x] Centralize condition-family classification with Index-supported synonyms and use it in every rule family check.
+2. [x] Require every selected family code to belong to an active matching fact; rule-added/rebuilt codes use their triggering facts and evidence.
+3. [x] Make R4/R5 add the I50 code documented by the HF facts, defaulting to I50.9 when type is absent.
+4. [x] Run R7/R9/R10 normalization before R2-R5 combinations, then dedupe; cover untyped E13 + CKD.
+5. [x] Reconcile diabetes code family with documented type in R7.
+6. [x] Reconcile I50 type and acuity with documented HF facts in both directions in R10.
+7. [x] Narrow the support checker fixes to clause-aware negation, history/uncertainty, diabetes family, and stage phrases; keep it reported but remove it from CI gates.
+8. [x] Make `rescore.py` fail incomplete pipeline runs and unmeasured pipeline gate metrics without treating `None` as zero.
+9. [x] Refuse live resume across Git commits while preserving cross-commit replay.
+10. [x] Mark reports incomplete when a scoped gold ID no longer exists.
+11. [x] Add a direct R11 rule-boundary regression.
+12. [x] Prove every new wrong-but-valid regression fails on `29e8836` in a throwaway worktree, then delete the worktree.
+13. [x] Run unit, integration, ruff, and mypy (`app` and `eval`); only the known recorded-fixture prompt-drift test may fail.
+14. [x] Update DESIGN and this task's Review, then commit to `m4-rules` without pushing.
+
+### Review (2026-09-27)
+
+**Done on `m4-rules`, no LLM calls:** one shared condition-family classifier now recognizes the required Index terms; selected diabetes, hypertension, CKD and HF codes must own active facts for every family they assert, while normalized/rule-added codes carry only their source facts and evidence. R7/R9/R10 run before R2-R5; R7 reconciles E10/E11, R10 reconciles every I50 type/acuity axis, and R4/R5 add the required I50 code. I13.10/I13.11 correctly remain non-HF variants. The support checker now scopes negation by clause, rejects history/uncertainty, checks diabetes family and requires CKD stage phrases. Eval gates fail incomplete/unmeasured runs, live resume refuses commit changes, replay remains cross-commit, and removed stored-scope IDs make reports incomplete. `unsupported_rate` remains report-only.
+
+**Regression proof:** applying only the tests to detached `29e8836` produced 24 failures and 76 passes in the main focused run; the subsequently added I13.10 and dedupe-boundary tests each failed separately on the same commit. All throwaway worktrees and temporary patches were deleted.
+
+**Verified:** 243 unit tests pass. Integration tests: 42 pass and only the approved `test_worked_example_from_recorded_llm` prompt-drift fixture fails. `ruff check backend eval` passes. `mypy backend/app eval` passes (72 source files). No Groq or other LLM call was made.
+
+---
+
 ## Current task: Codex review fixes on m4-rules (owner, 2026-09-27)
 
 Owner-directed fixes before tomorrow's M4 eval; no LLM calls. Each fix gets a regression test that feeds the wrong-but-valid code and fails without the fix. Findings 16-18 skipped (owner). Supersedes parts of steps 5, 9 and 23 of the M4 plan (combination presence and stage come from facts only).
@@ -513,4 +543,3 @@ Plus 0 index rows containing "Note:" text.
 - Groq free-tier rate limits: back-to-back runs hit 429s. The M3 eval (20+ notes x 2 calls, plus the baseline) needs pacing between notes.
 - The extractor put `{'type': 'renal function test'}` in a planned test's details. Harmless now (planned facts are not coded); watch in M3.
 - `AnalysisResult.created_at` is the pipeline start time; the db row uses the same value.
-

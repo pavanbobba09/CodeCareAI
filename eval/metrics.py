@@ -86,7 +86,9 @@ def score_note(gold: GoldNote, run: NoteRun) -> NoteScore:
     )
 
 
-def summarize(golds: list[GoldNote], runs: dict[str, NoteRun]) -> Summary:
+def summarize(
+    golds: list[GoldNote], runs: dict[str, NoteRun], scope_ids: set[str] | None = None
+) -> Summary:
     scores = [score_note(g, runs[g.note_id]) for g in golds if g.note_id in runs]
     tp = sum(len(set(s.expected) & set(s.predicted)) for s in scores)
     n_pred = sum(len(s.predicted) for s in scores)
@@ -96,7 +98,11 @@ def summarize(golds: list[GoldNote], runs: dict[str, NoteRun]) -> Summary:
     em_golds = [g for g in golds if g.expected_em is not None and g.note_id in runs]
     em_hits = sum(1 for g in em_golds if runs[g.note_id].em_code == g.expected_em)
     latencies = [runs[s.note_id].latency_ms for s in scores]
-    missing = sorted(g.note_id for g in golds if g.note_id not in runs)
+    current_ids = {g.note_id for g in golds}
+    expected_ids = current_ids if scope_ids is None else scope_ids
+    missing = sorted(
+        (expected_ids - current_ids) | {g.note_id for g in golds if g.note_id not in runs}
+    )
     failed = sum(1 for s in scores if s.status != "completed")
     unchecked = sum(len(s.unchecked) for s in scores)
     return Summary(

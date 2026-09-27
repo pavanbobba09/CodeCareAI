@@ -21,6 +21,17 @@ def test_triad_gives_i13_0_with_i50_and_n18_and_no_i10() -> None:
     assert [r.rule_id for r in i13.rule_results] == ["R5", "R1"]  # R1 checked the added code
 
 
+def test_diabetes_type_normalizes_before_ckd_combination() -> None:
+    dm = fact("f1", "diabetes mellitus", [1])
+    ckd = fact("f2", "chronic kidney disease stage 4", [2])
+    out = run_chain(
+        [sug("s1", "E13.9", ["f1"]), sug("s2", "N18.4", ["f2"])], [dm, ckd]
+    )
+
+    assert "E11.22" in codes_of(out)
+    assert "E13.9" not in codes_of(out)
+
+
 def test_added_code_absent_from_code_set_is_dropped_by_r1() -> None:
     out = run_chain(TRIAD, [HTN, HF, CKD], lookup(without={"I13.0"}))
 

@@ -29,11 +29,14 @@ def score_run(run_dir: Path, limit: int | None = None) -> tuple[dict[str, Any], 
     """
     meta: dict[str, Any] = json.loads((run_dir / "meta.json").read_text())
     golds = load_gold()
+    scope_ids: set[str] | None = None
     if "gold" in meta:
-        golds = [g for g in golds if g.note_id in meta["gold"]]
+        scope_ids = set(meta["gold"])
+        golds = [g for g in golds if g.note_id in scope_ids]
     if limit:
         golds = golds[:limit]
-    return meta, summarize(golds, load_runs(run_dir))
+        scope_ids = {g.note_id for g in golds}
+    return meta, summarize(golds, load_runs(run_dir), scope_ids)
 
 
 def _fmt(v: float | None) -> str:

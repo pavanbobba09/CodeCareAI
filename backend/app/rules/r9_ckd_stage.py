@@ -19,8 +19,9 @@ from app.rules.common import (
     added,
     ckd_facts,
     documented_ckd_codes,
-    facts_by_id,
+    documented_stage_code,
     is_ckd,
+    own_family_facts,
     present,
     result,
     with_result,
@@ -49,9 +50,8 @@ MISSING = {
 
 def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
     live = {s.suggestion_id for s in active(inp.suggestions)}
-    ckd_f = ckd_facts(inp)
-    esrd = documented_ckd_codes(ckd_f) == ["N18.6"]
-    by_id = facts_by_id(inp)
+    all_ckd = ckd_facts(inp)
+    esrd = documented_ckd_codes(all_ckd) == ["N18.6"]
     out: list[Suggestion] = []
     dropped: list[DroppedCode] = []
     gaps: list[Gap] = []
@@ -59,11 +59,22 @@ def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
         if s.suggestion_id not in live or not is_ckd(s.code):
             out.append(s)
             continue
-        if not ckd_f:
-            r = result(RULE_ID, "fail", f"{s.code} needs documented CKD.", SOURCE_REF, [s.code])
+        if present(active(out), s.code):
+            continue
+        if any(r.rule_id == RULE_ID for r in s.rule_results):
+            out.append(s)
+            continue
+        own = own_family_facts(inp, s, "ckd")
+        if not own:
+            r = result(
+                RULE_ID,
+                "fail",
+                f"{s.code} needs its own active CKD fact.",
+                SOURCE_REF,
+                [s.code],
+            )
             out.append(with_result(s, r))
             continue
-        own = [by_id[f] for f in s.fact_ids if f in by_id and by_id[f] in ckd_f] or ckd_f
         documented = ["N18.6"] if esrd else documented_ckd_codes(own)
         target = documented[0] if len(documented) == 1 else s.code  # conflict: leave it
         if target != s.code:
@@ -79,11 +90,12 @@ def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
                 continue
             # The replacement gets its R9 result below like any other CKD code.
             placeholder = result(RULE_ID, "pass", "", SOURCE_REF, [target])
-            ids = sorted({*s.fact_ids, *(f.fact_id for f in own)})
+            supporting = (
+                [f for f in all_ckd if documented_stage_code(f) == "N18.6"] if esrd else own
+            )
+            ids = sorted(f.fact_id for f in supporting)
             s = added(inp, codes, target, RULE_ID, [s], placeholder, ids)
             s = s.model_copy(update={"rule_results": []})
-        elif present(out, s.code):
-            continue  # an earlier suggestion was already reconciled to this code
         if s.code in MISSING:
             missing, query = MISSING[s.code]
             gap = Gap(

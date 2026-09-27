@@ -2,6 +2,7 @@
 
 import re
 from collections.abc import Iterable
+from typing import Literal
 
 from app.models import ClinicalFact, DroppedCode, Gap, RuleInput, RuleResult, Suggestion
 from app.terminology.lookup import CodeLookup
@@ -128,40 +129,104 @@ def review_all(
 
 # Conditions are documented only by active condition facts (a combined fact such as
 # "hypertension with chronic kidney disease stage 5" documents both). A selected code is
-# never evidence that its own parts are documented.
+# never evidence that its own parts are documented. These patterns include common
+# Alphabetic Index terms, not just the preferred clinical names.
+ConditionFamily = Literal["diabetes", "hypertension", "ckd", "heart_failure"]
 DIABETES_TEXT = re.compile(r"diabet|\bdm\s*[12]?\b|\bt[12]dm\b|\bn?iddm\b", re.IGNORECASE)
 CKD_TEXT = re.compile(
-    r"chronic kidney|\bckd\b|kidney disease|end[- ]stage (renal|kidney)|\besrd\b|\beskd\b",
+    r"chronic kidney|\bckd\b|kidney disease|chronic renal (?:disease|failure|insufficiency)"
+    r"|end[- ]stage (renal|kidney)|\besrd\b|\beskd\b",
     re.IGNORECASE,
 )
 HEART_FAILURE_TEXT = re.compile(
-    r"heart failure|cardiac failure|\bchf\b|\bhf\b|\bhf(r|p|mr)ef\b", re.IGNORECASE
+    r"heart failure|cardiac failure|(?:left|right|bi)[ -]?ventricular failure|\bchf\b|\bhf\b"
+    r"|\bhf(r|p|mr)ef\b",
+    re.IGNORECASE,
 )
-HYPERTENSION_TEXT = re.compile(r"hypertensi|\bhtn\b", re.IGNORECASE)
+HYPERTENSION_TEXT = re.compile(r"hypertensi|\bhtn\b|high blood pressure", re.IGNORECASE)
+FAMILY_PATTERNS: dict[ConditionFamily, re.Pattern[str]] = {
+    "diabetes": DIABETES_TEXT,
+    "hypertension": HYPERTENSION_TEXT,
+    "ckd": CKD_TEXT,
+    "heart_failure": HEART_FAILURE_TEXT,
+}
 
 
-def _documented(inp: RuleInput, pattern: re.Pattern[str]) -> list[ClinicalFact]:
+def condition_families(fact: ClinicalFact) -> frozenset[ConditionFamily]:
+    """Condition families named by one condition fact, independent of status.
+
+    A combined fact may name more than one family. Callers separately decide whether an
+    active, suspected, historical or denied fact is appropriate for their check.
+    """
+    if fact.kind != "condition":
+        return frozenset()
+    return frozenset(
+        family for family, pattern in FAMILY_PATTERNS.items() if pattern.search(fact.concept)
+    )
+
+
+def code_condition_families(code: str) -> frozenset[ConditionFamily]:
+    """Condition families a code itself asserts, including combination-code parts."""
+    families: set[ConditionFamily] = set()
+    if is_diabetes(code):
+        families.add("diabetes")
+        if code.endswith(".22"):
+            families.add("ckd")
+    if is_hypertension(code):
+        families.add("hypertension")
+        if code.startswith("I11.0"):
+            families.add("heart_failure")
+        if code.startswith("I12") or code.startswith("I13"):
+            families.add("ckd")
+        if code.startswith("I13.0") or code.startswith("I13.2"):
+            families.add("heart_failure")
+    if is_ckd(code):
+        families.add("ckd")
+    if is_heart_failure(code):
+        families.add("heart_failure")
+    return frozenset(families)
+
+
+def _documented(inp: RuleInput, family: ConditionFamily) -> list[ClinicalFact]:
     return [
         f
         for f in inp.facts
-        if f.kind == "condition" and f.status == "active" and pattern.search(f.concept)
+        if f.status == "active" and family in condition_families(f)
     ]
 
 
 def diabetes_facts(inp: RuleInput) -> list[ClinicalFact]:
-    return _documented(inp, DIABETES_TEXT)
+    return _documented(inp, "diabetes")
 
 
 def ckd_facts(inp: RuleInput) -> list[ClinicalFact]:
-    return _documented(inp, CKD_TEXT)
+    return _documented(inp, "ckd")
 
 
 def heart_failure_facts(inp: RuleInput) -> list[ClinicalFact]:
-    return _documented(inp, HEART_FAILURE_TEXT)
+    return _documented(inp, "heart_failure")
 
 
 def hypertension_facts(inp: RuleInput) -> list[ClinicalFact]:
-    return _documented(inp, HYPERTENSION_TEXT)
+    return _documented(inp, "hypertension")
+
+
+def own_family_facts(
+    inp: RuleInput, suggestion: Suggestion, family: ConditionFamily
+) -> list[ClinicalFact]:
+    """Active facts in a suggestion's own fact_ids that document `family`."""
+    by_id = facts_by_id(inp)
+    return [
+        by_id[fid]
+        for fid in suggestion.fact_ids
+        if fid in by_id
+        and by_id[fid].status == "active"
+        and family in condition_families(by_id[fid])
+    ]
+
+
+def owns_families(inp: RuleInput, suggestion: Suggestion, *families: ConditionFamily) -> bool:
+    return all(own_family_facts(inp, suggestion, family) for family in families)
 
 
 def ids_of(facts: Iterable[ClinicalFact]) -> list[str]:
@@ -210,6 +275,87 @@ def documented_ckd_codes(facts: Iterable[ClinicalFact]) -> list[str]:
 
 def stage5_or_esrd(facts: Iterable[ClinicalFact]) -> bool:
     return any(c in {"N18.5", "N18.6"} for c in documented_ckd_codes(facts))
+
+
+HF_CODES = frozenset(
+    {
+        "I50.1",
+        "I50.20",
+        "I50.21",
+        "I50.22",
+        "I50.23",
+        "I50.30",
+        "I50.31",
+        "I50.32",
+        "I50.33",
+        "I50.40",
+        "I50.41",
+        "I50.42",
+        "I50.43",
+        "I50.9",
+    }
+)
+_HF_SYSTOLIC = re.compile(r"systolic|reduced ejection|\bhfref\b", re.IGNORECASE)
+_HF_DIASTOLIC = re.compile(r"diastolic|preserved ejection|\bhfpef\b", re.IGNORECASE)
+_HF_COMBINED = re.compile(
+    r"combined|systolic and diastolic|diastolic and systolic", re.IGNORECASE
+)
+_HF_ACUTE_ON_CHRONIC = re.compile(r"acute[ -]on[ -]chronic", re.IGNORECASE)
+_HF_ACUTE = re.compile(r"\bacute\b", re.IGNORECASE)
+_HF_CHRONIC = re.compile(r"\bchronic\b", re.IGNORECASE)
+
+
+def documented_heart_failure_code(fact: ClinicalFact) -> str:
+    """I50 code supported by one heart-failure fact; missing axes stay unspecified."""
+    text = " ".join([fact.concept, *fact.details.values()])
+    if re.search(r"left ventricular failure", text, re.IGNORECASE) and not any(
+        p.search(text) for p in (_HF_SYSTOLIC, _HF_DIASTOLIC, _HF_COMBINED)
+    ):
+        return "I50.1"
+    type_digit = (
+        "4"
+        if _HF_COMBINED.search(text)
+        else "2"
+        if _HF_SYSTOLIC.search(text)
+        else "3"
+        if _HF_DIASTOLIC.search(text)
+        else None
+    )
+    if type_digit is None:
+        return "I50.9"
+    acuity_digit = (
+        "3"
+        if _HF_ACUTE_ON_CHRONIC.search(text)
+        else "1"
+        if _HF_ACUTE.search(text)
+        else "2"
+        if _HF_CHRONIC.search(text)
+        else "0"
+    )
+    return f"I50.{type_digit}{acuity_digit}"
+
+
+def documented_heart_failure_codes(facts: Iterable[ClinicalFact]) -> list[str]:
+    found = {documented_heart_failure_code(f) for f in facts}
+    if len(found) > 1:
+        found.discard("I50.9")
+    return sorted(found)
+
+
+def heart_failure_additions(
+    inp: RuleInput, codes: CodeLookup, rule_id: str, r: RuleResult, facts: list[ClinicalFact]
+) -> list[Suggestion]:
+    """I50 codes required by I11.0/I13, carrying only their heart-failure facts."""
+    present_codes = {s.code for s in active(inp.suggestions) if is_heart_failure(s.code)}
+    out = []
+    for code in documented_heart_failure_codes(facts):
+        if code in present_codes:
+            continue
+        supporting = [f for f in facts if documented_heart_failure_code(f) == code]
+        if not supporting and code == "I50.9":
+            supporting = facts
+        out.append(added(inp, codes, code, rule_id, [], r, ids_of(supporting)))
+    return out
 
 
 class Conditions:

@@ -104,7 +104,11 @@ def test_n18_code_without_documented_ckd_is_not_suggested() -> None:
 
 def test_both_i12_variants_leave_only_the_documented_one() -> None:
     ckd = fact("f3", "CKD", [3], details={"stage": "5"})
-    sugs = [sug("s1", "I12.9", ["f1"]), sug("s2", "I12.0", ["f1"]), sug("s3", "N18.5", ["f3"])]
+    sugs = [
+        sug("s1", "I12.9", ["f1", "f3"]),
+        sug("s2", "I12.0", ["f1", "f3"]),
+        sug("s3", "N18.5", ["f3"]),
+    ]
     out = run(r3_htn_ckd.apply, sugs, [HTN, ckd])
 
     assert [c for c in codes_of(out) if c.startswith("I12")] == ["I12.0"]
@@ -112,7 +116,11 @@ def test_both_i12_variants_leave_only_the_documented_one() -> None:
 
 def test_i13_2_with_stage_3a_documented_becomes_i13_0() -> None:
     ckd = fact("f3", "CKD", [3], details={"stage": "3a"})
-    sugs = [sug("s1", "I13.2", ["f1"]), sug("s2", "I50.22", ["f2"]), sug("s3", "N18.31", ["f3"])]
+    sugs = [
+        sug("s1", "I13.2", ["f1", "f2", "f3"]),
+        sug("s2", "I50.22", ["f2"]),
+        sug("s3", "N18.31", ["f3"]),
+    ]
     out = run(r5_htn_hf_ckd.apply, sugs, [HTN, HF, ckd])
 
     assert [c for c in codes_of(out) if c.startswith("I13")] == ["I13.0"]

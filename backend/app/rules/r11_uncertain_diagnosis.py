@@ -10,7 +10,13 @@ sees why. Later rules ignore it.
 """
 
 from app.models import RuleInput, RuleOutput
-from app.rules.common import facts_by_id, result, with_result
+from app.rules.common import (
+    code_condition_families,
+    condition_families,
+    facts_by_id,
+    result,
+    with_result,
+)
 from app.terminology.lookup import CodeLookup
 
 RULE_ID = "R11"
@@ -23,7 +29,13 @@ def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
     facts = facts_by_id(inp)
     kept = []
     for s in inp.suggestions:
-        statuses = {facts[f].status for f in s.fact_ids if f in facts}
+        families = code_condition_families(s.code)
+        related = [
+            facts[f]
+            for f in s.fact_ids
+            if f in facts and condition_families(facts[f]) & families
+        ]
+        statuses = {f.status for f in related}
         if statuses and statuses <= NOT_CODED:
             r = result(
                 RULE_ID,

@@ -25,3 +25,13 @@ def test_one_confirmed_fact_is_enough() -> None:
     out = run(r11_uncertain_diagnosis.apply, [sug("s1", "I50.9", ["f1", "f2"])], facts)
 
     assert by_code(out, "I50.9").rule_results == []
+
+
+def test_rule_boundary_ignores_unrelated_active_fact_on_suspected_diagnosis() -> None:
+    facts = [
+        fact("f1", "heart failure", [1], status="suspected"),
+        fact("f2", "hypertension", [2]),
+    ]
+    out = run(r11_uncertain_diagnosis.apply, [sug("s1", "I50.9", ["f1", "f2"])], facts)
+
+    assert outcomes(by_code(out, "I50.9"), "R11") == ["fail"]

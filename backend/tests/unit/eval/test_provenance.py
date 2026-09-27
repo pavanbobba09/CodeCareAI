@@ -20,8 +20,14 @@ def test_resume_keeps_the_original_record() -> None:
     assert resume_meta(BASE, dict(BASE)) == BASE
 
 
-def test_resume_on_a_newer_commit_is_recorded_not_refused() -> None:
-    merged = resume_meta(BASE, {**BASE, "git_commit": "bbb"})
+def test_live_resume_on_a_newer_commit_is_refused() -> None:
+    with pytest.raises(ValueError, match="git_commit"):
+        resume_meta(BASE, {**BASE, "git_commit": "bbb"})
+
+
+def test_replay_resume_on_a_newer_commit_is_recorded() -> None:
+    saved = {**BASE, "replay_of": "source-run"}
+    merged = resume_meta(saved, {**saved, "git_commit": "bbb"})
 
     assert merged["git_commit"] == "aaa"  # the run started here
     assert merged["resumed_at_commits"] == ["bbb"]

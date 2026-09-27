@@ -1,5 +1,5 @@
 from app.rules import r7_diabetes_type
-from tests.unit.rules.helpers import by_code, fact, outcomes, run, sug
+from tests.unit.rules.helpers import by_code, codes_of, fact, outcomes, run, sug
 
 
 def test_untyped_diabetes_on_e11_needs_review_without_gap() -> None:
@@ -39,3 +39,25 @@ def test_diabetes_code_without_active_diabetes_is_not_suggested() -> None:
     out = run(r7_diabetes_type.apply, [sug("s1", "E11.9", ["f2"])], history)
 
     assert outcomes(by_code(out, "E11.9"), "R7") == ["fail"]
+
+
+def test_type_2_fact_replaces_wrong_type_1_family() -> None:
+    out = run(
+        r7_diabetes_type.apply,
+        [sug("s1", "E10.9", ["f1"])],
+        [fact("f1", "type 2 diabetes mellitus", [1])],
+    )
+
+    assert codes_of(out) == ["E11.9"]
+    assert by_code(out, "E11.9").fact_ids == ["f1"]
+
+
+def test_type_1_fact_replaces_wrong_type_2_family() -> None:
+    out = run(
+        r7_diabetes_type.apply,
+        [sug("s1", "E11.9", ["f1"])],
+        [fact("f1", "type 1 diabetes mellitus", [1])],
+    )
+
+    assert codes_of(out) == ["E10.9"]
+    assert by_code(out, "E10.9").fact_ids == ["f1"]

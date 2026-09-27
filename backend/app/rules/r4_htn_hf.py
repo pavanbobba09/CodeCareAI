@@ -14,12 +14,15 @@ presumed and the codes are marked for review.
 
 from app.models import DroppedCode, RuleInput, RuleOutput
 from app.rules.common import (
+    HF_CODES,
     Conditions,
     active,
     fail_all,
+    heart_failure_additions,
     ids_of,
     is_heart_failure,
     is_hypertension,
+    owns_families,
     result,
     review_all,
     settle_variant,
@@ -28,7 +31,7 @@ from app.terminology.lookup import CodeLookup
 
 RULE_ID = "R4"
 SOURCE_REF = "ICD-10-CM Guidelines FY2027 §I.C.9.a.1"
-TARGET_CODES = frozenset({"I11.0"})
+TARGET_CODES = frozenset({"I11.0", *HF_CODES})
 VARIANTS = {"I11.0", "I11.9"}
 
 
@@ -40,13 +43,28 @@ def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
         return RuleOutput(suggestions=out, dropped=dropped, gaps=[])
     c = Conditions(inp)
     i11 = [s for s in htn_codes if s.code.startswith("I11")]
-    unsupported = i11 if not c.htn else [s for s in i11 if s.code == "I11.0" and not c.hf]
+    unowned = [
+        s
+        for s in i11
+        if not owns_families(
+            inp, s, "hypertension", *(("heart_failure",) if s.code == "I11.0" else ())
+        )
+    ]
+    unsupported = list(
+        {
+            s.suggestion_id: s
+            for s in [
+                *unowned,
+                *(i11 if not c.htn else [s for s in i11 if s.code == "I11.0" and not c.hf]),
+            ]
+        }.values()
+    )
     if unsupported:
         r = result(
             RULE_ID,
             "fail",
-            "I11.0 needs documented hypertension and heart failure; the note does not "
-            "document both.",
+            "An I11 code needs its own active hypertension fact; I11.0 also needs its own "
+            "active heart-failure fact.",
             SOURCE_REF,
             [s.code for s in unsupported],
         )
@@ -75,4 +93,7 @@ def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
     )
     ids = ids_of([*c.htn, *c.hf])
     out, dropped = settle_variant(inp, codes, out, VARIANTS, "I11.0", RULE_ID, r, ids)
+    out += heart_failure_additions(
+        inp.model_copy(update={"suggestions": out}), codes, RULE_ID, r, c.hf
+    )
     return RuleOutput(suggestions=out, dropped=dropped, gaps=[])

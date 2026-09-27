@@ -260,12 +260,14 @@ def predict_baseline(session: Session, llm: JsonLlm, gold: GoldNote) -> NoteRun:
             "baseline", system, user, BaselineOutput, start + ANALYSIS_TIME_LIMIT_S
         )
     except LlmError as exc:
-        return NoteRun(
-            **base,
-            status="failed",
-            error=exc.code,
-            predicted=[],
-            latency_ms=int((time.monotonic() - start) * 1000),
+        return NoteRun.model_validate(
+            {
+                **base,
+                "status": "failed",
+                "error": exc.code,
+                "predicted": [],
+                "latency_ms": int((time.monotonic() - start) * 1000),
+            }
         )
     with session.begin():
         sets = resolve_code_sets(session, note.visit_date)
@@ -275,10 +277,12 @@ def predict_baseline(session: Session, llm: JsonLlm, gold: GoldNote) -> NoteRun:
             [(normalize_code(c.code), c.evidence, None) for c in out.codes],
             {x.n: x.text for x in note.sentences},
         )
-    return NoteRun(
-        **base,
-        status="completed",
-        error=None,
-        predicted=predicted,
-        latency_ms=int((time.monotonic() - start) * 1000),
+    return NoteRun.model_validate(
+        {
+            **base,
+            "status": "completed",
+            "error": None,
+            "predicted": predicted,
+            "latency_ms": int((time.monotonic() - start) * 1000),
+        }
     )

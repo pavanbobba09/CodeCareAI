@@ -47,6 +47,20 @@ def test_r4_adds_i11_0() -> None:
     assert by_code(out, "I11.0").added_by_rule == "R4"
 
 
+def test_r4_adds_documented_i50_when_selection_omits_it() -> None:
+    out = run(r4_htn_hf.apply, [sug("s1", "I10", ["f1"])], [HTN, HF])
+
+    added = by_code(out, "I50.22")
+    assert (added.added_by_rule, added.fact_ids, added.evidence) == ("R4", ["f2"], [2])
+
+
+def test_r4_adds_unspecified_i50_for_untyped_heart_failure() -> None:
+    hf = fact("f2", "heart failure", [2])
+    out = run(r4_htn_hf.apply, [sug("s1", "I10", ["f1"])], [HTN, hf])
+
+    assert (by_code(out, "I50.9").fact_ids, by_code(out, "I50.9").evidence) == (["f2"], [2])
+
+
 def test_r4_skips_when_i13_present() -> None:
     sugs = [sug("s1", "I13.0", ["f1"]), sug("s2", "I50.22", ["f2"]), sug("s3", "N18.4", ["f3"])]
     out = run(r4_htn_hf.apply, sugs, [HTN, HF, CKD])
@@ -74,12 +88,27 @@ def test_r5_adds_i13_0_for_stage_1_to_4() -> None:
     assert (added.added_by_rule, added.fact_ids) == ("R5", ["f1", "f2", "f3"])
 
 
+def test_r5_adds_documented_i50_when_selection_omits_it() -> None:
+    sugs = [sug("s1", "I10", ["f1"]), sug("s2", "N18.4", ["f3"])]
+    out = run(r5_htn_hf_ckd.apply, sugs, [HTN, HF, CKD])
+
+    added = by_code(out, "I50.22")
+    assert (added.added_by_rule, added.fact_ids, added.evidence) == ("R5", ["f2"], [2])
+
+
 def test_r5_adds_i13_2_for_esrd() -> None:
     esrd = fact("f3", "ESRD", [3])
     sugs = [sug("s1", "I10", ["f1"]), sug("s2", "I50.22", ["f2"]), sug("s3", "N18.6", ["f3"])]
     out = run(r5_htn_hf_ckd.apply, sugs, [HTN, HF, esrd])
 
     assert "I13.2" in codes_of(out)
+
+
+def test_r5_does_not_require_heart_failure_for_i13_without_heart_failure() -> None:
+    combined = fact("f1", "hypertensive heart and chronic kidney disease stage 4", [1])
+    out = run(r5_htn_hf_ckd.apply, [sug("s1", "I13.10", ["f1"])], [combined])
+
+    assert outcomes(by_code(out, "I13.10"), "R5") == []
 
 
 def test_r5_blocked_ckd_link_leaves_r4() -> None:

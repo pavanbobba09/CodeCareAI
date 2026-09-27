@@ -1,9 +1,9 @@
 """What produced a run: code commit, prompts, and code sets (recorded in meta.json).
 
-The resume guard compares only what must not change inside one run (setup, model, prompt
-version, gold scope, replay source). Provenance such as the git commit is recorded, not
-guarded: a resume on a newer commit is noted in `resumed_at_commits`, and replay exists to
-run new rule code on old outputs, so it never refuses a different commit.
+The resume guard compares what must not change inside one run (setup, model, prompt version,
+gold scope, replay source). A live run also cannot cross code commits. A replay may resume
+on a newer commit because replay exists specifically to run new deterministic code on saved
+LLM outputs; those commits are recorded in `resumed_at_commits`.
 """
 
 import subprocess
@@ -42,6 +42,8 @@ def resume_meta(saved: dict[str, Any], new: dict[str, Any]) -> dict[str, Any]:
     """The meta.json to keep when a run is started again. Raises ValueError when a guarded
     field differs; otherwise keeps the original record and notes a newer commit."""
     changed = [k for k in GUARDED if saved.get(k) != new.get(k)]
+    if not saved.get("replay_of") and saved.get("git_commit") != new.get("git_commit"):
+        changed.append("git_commit")
     if changed:
         raise ValueError(
             f"run {new['run_id']} was started with different {', '.join(changed)}: "

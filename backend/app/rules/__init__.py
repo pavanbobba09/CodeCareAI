@@ -25,21 +25,24 @@ from app.terminology.lookup import CodeLookup
 
 Rule = Callable[[RuleInput, CodeLookup], RuleOutput]
 
-# Order matters: each rule sees the previous rule's kept suggestions.
-# R11 first, so combination rules only combine codes that can be reported. R1 runs on the
-# LLM's picks, then again last on the codes R2-R8 added. R5 before R4 and R3 (I13 wins).
+# Order matters: each rule sees the previous rule's kept suggestions. R11 and R1 reject
+# unsafe inputs first. R7/R9/R10 normalize documented type/stage before R2-R5 build
+# combinations; R9/R10 run idempotently once more for N18/I50 codes those rules add. R5
+# precedes R4 and R3 (I13 wins), and dedupe/exclusion rules follow combination building.
 ICD_RULES: list[Rule] = [
     r11_uncertain_diagnosis.apply,
     r1_code_validity.apply,
+    r7_diabetes_type.apply,
+    r9_ckd_stage.apply,
+    r10_heart_failure_type.apply,
     r2_diabetes_ckd.apply,
     r5_htn_hf_ckd.apply,
     r4_htn_hf.apply,
     r3_htn_ckd.apply,
-    r6_duplicate_hypertension.apply,
-    r7_diabetes_type.apply,
-    r8_diabetes_drugs.apply,
     r9_ckd_stage.apply,
     r10_heart_failure_type.apply,
+    r6_duplicate_hypertension.apply,
+    r8_diabetes_drugs.apply,
     r12_excludes1.apply,
     r1_code_validity.apply,
 ]
@@ -57,9 +60,8 @@ TARGET_CODES: frozenset[str] = frozenset().union(
 
 
 def codes_to_preload(selected: set[str]) -> set[str]:
-    """ICD-10-CM codes a note's rules may need: every rule target, plus the E11 counterparts
-    R7 may put in place of an untyped E10/E13 code."""
-    counterparts = {c for code in selected if (c := r7_diabetes_type.counterpart(code))}
+    """ICD-10-CM codes a note's rules may need, including R7's type variants."""
+    counterparts = {c for code in selected for c in r7_diabetes_type.counterparts(code)}
     return {*TARGET_CODES, *counterparts}
 
 

@@ -37,7 +37,7 @@ EXTRACT = ExtractionOutput.model_validate(
             {
                 "fact_id": "f1",
                 "kind": "condition",
-                "concept": "type 2 diabetes mellitus",
+                "concept": "type 2 diabetes mellitus with chronic kidney disease stage 3",
                 "status": "active",
                 "details": {"type": "2"},
                 "links": [{"type": "associated_with", "target_fact_id": "f2"}],

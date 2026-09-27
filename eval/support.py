@@ -43,6 +43,11 @@ _NEGATION_BEFORE = re.compile(
     r"\b(no|not|denies|denied|without|negative for|free of|absence of|rule out|r/o)\b"
 )
 _NEGATION_ANYWHERE = re.compile(r"\b(ruled out|was excluded|is excluded|not present)\b")
+_NON_ACTIVE = re.compile(
+    r"\b(history of|historical|possible|possibly|probable|probably|suspected|"
+    r"uncertain|questionable|may have|might have|cannot rule out|could be)\b"
+)
+_CLAUSE_BOUNDARY = re.compile(r"[;.\n]|\b(?:but|however|although|yet)\b", re.IGNORECASE)
 
 _PARTS: dict[str, list[re.Pattern[str]]] = {
     "22": [DIABETES_TEXT, CKD_TEXT],  # E08-E13 .22
@@ -65,13 +70,13 @@ _HF_ACUITY = {
     "3": re.compile(r"acute on chronic"),
 }
 _CKD_STAGE = {
-    "N18.1": r"\b1\b",
-    "N18.2": r"\b2\b",
-    "N18.30": r"\b3[ab]?\b",
-    "N18.31": r"\b3a\b",
-    "N18.32": r"\b3b\b",
-    "N18.4": r"\b4\b",
-    "N18.5": r"\b5\b",
+    "N18.1": r"\b(?:stage|stg)\s*1\b",
+    "N18.2": r"\b(?:stage|stg)\s*2\b",
+    "N18.30": r"\b(?:stage|stg)\s*3\b",
+    "N18.31": r"\b(?:stage|stg)\s*3a\b|\b3a\b",
+    "N18.32": r"\b(?:stage|stg)\s*3b\b|\b3b\b",
+    "N18.4": r"\b(?:stage|stg)\s*4\b",
+    "N18.5": r"\b(?:stage|stg)\s*5\b",
 }
 
 
@@ -108,10 +113,21 @@ def _has(words: list[str], wanted: str) -> bool:
     return any(w == wanted or (len(wanted) >= 4 and w.startswith(wanted)) for w in words)
 
 
+def _clause(sentence: str, start: int | None) -> tuple[str, int | None]:
+    """The semicolon/sentence/contrast clause containing the named condition."""
+    if start is None:
+        return sentence, None
+    boundaries = list(_CLAUSE_BOUNDARY.finditer(sentence))
+    left = max((m.end() for m in boundaries if m.end() <= start), default=0)
+    right = min((m.start() for m in boundaries if m.start() > start), default=len(sentence))
+    return sentence[left:right], start - left
+
+
 def _negated(sentence: str, start: int | None) -> bool:
-    """A cue before the condition ("no heart failure") or anywhere ("CKD was ruled out")."""
+    """A cue scoped to the clause containing the named condition."""
+    sentence, start = _clause(sentence, start)
     lowered = sentence.lower()
-    if _NEGATION_ANYWHERE.search(lowered):
+    if _NEGATION_ANYWHERE.search(lowered) or _NON_ACTIVE.search(lowered):
         return True
     return start is not None and bool(_NEGATION_BEFORE.search(lowered[:start]))
 
@@ -165,7 +181,7 @@ def _missing_detail(code: str, text: str) -> str | None:
     if code in _CKD_STAGE and not re.search(_CKD_STAGE[code], lowered):
         return f"CKD stage for {code}"
     if code in {"N18.6", "I12.0", "I13.2"} and not (
-        ESRD_TEXT.search(lowered) or re.search(r"\bstage\s*5\b|\b5\b", lowered)
+        ESRD_TEXT.search(lowered) or re.search(r"\b(?:stage|stg)\s*5\b", lowered)
     ):
         return "stage 5 or ESRD"
     if code.startswith("I50.") and len(code) >= 5 and code[4] in _HF_TYPE:
@@ -175,6 +191,10 @@ def _missing_detail(code: str, text: str) -> str | None:
             return "heart failure acuity"
     if code.startswith("E10") and not re.search(r"type\s*(1|i|one)\b|\bt1dm\b|\bdm1\b", lowered):
         return "diabetes type 1"
+    if code.startswith("E11") and re.search(
+        r"type\s*(1|i|one)\b|\bt1dm\b|\bdm1\b|\biddm\b", lowered
+    ):
+        return "diabetes type does not match E11"
     if code == "E11.65" and not re.search(
         r"hyperglyc|poorly controlled|uncontrolled|out of control|inadequately controlled",
         lowered,

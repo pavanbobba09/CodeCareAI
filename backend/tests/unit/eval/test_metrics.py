@@ -1,6 +1,10 @@
 from datetime import date
+from pathlib import Path
+
+import pytest
 
 from app.models.eval import ExpectedCode, GoldNote
+from eval import report
 from eval.metrics import judge, meets, summarize
 from eval.records import NoteRun, PredictedCode
 
@@ -151,3 +155,18 @@ def test_missing_or_failed_notes_make_the_run_incomplete() -> None:
 def test_complete_run() -> None:
     s = summarize([_gold("n001", ["I10"])], {"n001": _run("n001", [_p("I10")])})
     assert (s.complete, s.missing_notes) == (True, [])
+
+
+def test_removed_gold_id_in_stored_scope_makes_report_incomplete(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    (tmp_path / "meta.json").write_text(
+        '{"run_id":"r1","setup":"pipeline","gold":{"n001":"h1","removed":"h2"}}'
+    )
+    monkeypatch.setattr(report, "load_gold", lambda: [_gold("n001", ["I10"])])
+    monkeypatch.setattr(report, "load_runs", lambda _: {"n001": _run("n001", [_p("I10")])})
+
+    _, summary = report.score_run(tmp_path)
+
+    assert summary.complete is False
+    assert summary.missing_notes == ["removed"]

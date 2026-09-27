@@ -22,6 +22,7 @@ from app.rules.common import (
     ids_of,
     is_ckd,
     is_hypertension,
+    owns_families,
     result,
     review_all,
     settle_variant,
@@ -44,6 +45,20 @@ def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
         return RuleOutput(suggestions=out, dropped=dropped, gaps=[])
     c = Conditions(inp)
     i12 = [s for s in htn_codes if s.code.startswith("I12")]
+    unowned = [s for s in i12 if not owns_families(inp, s, "hypertension", "ckd")]
+    if unowned:
+        r = result(
+            RULE_ID,
+            "fail",
+            "I12 needs its own active hypertension and CKD facts.",
+            SOURCE_REF,
+            [s.code for s in unowned],
+        )
+        out = fail_all(out, unowned, r)
+        htn_codes = [s for s in active(out) if is_hypertension(s.code)]
+        i12 = [s for s in htn_codes if s.code.startswith("I12")]
+        if not htn_codes:
+            return RuleOutput(suggestions=out, dropped=dropped, gaps=[])
     if not (c.htn and c.ckd):
         if i12:
             r = result(

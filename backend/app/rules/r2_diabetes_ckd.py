@@ -24,6 +24,8 @@ from app.rules.common import (
     fail_all,
     ids_of,
     is_ckd,
+    is_diabetes,
+    owns_families,
     present,
     result,
     review_all,
@@ -40,6 +42,21 @@ def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
     out: list[Suggestion] = list(inp.suggestions)
     dropped: list[DroppedCode] = []
     c = Conditions(inp)
+    combinations = [
+        s
+        for s in active(out)
+        if is_diabetes(s.code) and s.code.endswith(".22")
+    ]
+    unowned = [s for s in combinations if not owns_families(inp, s, "diabetes", "ckd")]
+    if unowned:
+        r = result(
+            RULE_ID,
+            "fail",
+            "A diabetes-with-CKD code needs its own active diabetes and CKD facts.",
+            SOURCE_REF,
+            [s.code for s in unowned],
+        )
+        out = fail_all(out, unowned, r)
     for prefix in ("E10", "E11"):
         target = f"{prefix}.22"
         dm = [s for s in active(out) if s.code.startswith(prefix)]
