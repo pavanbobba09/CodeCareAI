@@ -21,7 +21,15 @@ from app.models import (
 )
 from app.terminology.embedder import Embedder
 
-PROMPT_VERSION = "extract_v1+select_v1"
+EXTRACT_PROMPT = "extract_v2"  # default; the eval can run an older version (--extract-prompt)
+SELECT_PROMPT = "select_v1"
+
+
+def prompt_version(extract_prompt: str = EXTRACT_PROMPT) -> str:
+    return f"{extract_prompt}+{SELECT_PROMPT}"
+
+
+PROMPT_VERSION = prompt_version()
 ANALYSIS_TIME_LIMIT_S = 150.0
 
 
@@ -40,8 +48,21 @@ class PipelineState(BaseModel):
     suggestions: list[Suggestion] = []
     gaps: list[Gap] = []
     model_errors: int = 0
+    rule_model_errors: int = 0  # the part of model_errors added by run_rules (R1 on LLM picks)
     error: PipelineError | None = None
     result: AnalysisResult | None = None
+
+
+class SavedLlmOutputs(BaseModel):
+    """What the LLM steps produced for one note, kept so rules can be replayed offline.
+
+    `model_errors` counts what extract/select validation dropped before the rules ran.
+    """
+
+    facts: list[ClinicalFact]
+    candidate_sets: list[CandidateSet]
+    selections: list[CodeSelection]
+    model_errors: int
 
 
 @dataclass(frozen=True)
@@ -51,3 +72,4 @@ class PipelineDeps:
     session: Session
     llm: JsonLlm
     embedder: Embedder
+    extract_prompt: str = EXTRACT_PROMPT

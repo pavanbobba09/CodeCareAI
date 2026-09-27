@@ -4,6 +4,9 @@ from typing import Literal
 
 from pydantic import BaseModel
 
+from app.llm.client import CallUsage
+from app.pipeline.state import SavedLlmOutputs
+
 Setup = Literal["pipeline", "baseline"]
 
 
@@ -28,3 +31,5 @@ class NoteRun(BaseModel):
     em_code: str | None
     model_errors: int
     latency_ms: int
+    usage: list[CallUsage] = []  # every LLM call for this note, across retry attempts
+    llm_outputs: SavedLlmOutputs | None = None  # pipeline only; what replay reruns rules on

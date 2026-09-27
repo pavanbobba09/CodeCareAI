@@ -132,6 +132,7 @@ class Suggestion(BaseModel):
     rule_results: list[RuleResult]
     gap_ids: list[str]
     confidence: Confidence
+    added_by_rule: str | None = None  # rule id when a rule added the code (e.g. "R3")
 
 
 class CodeSetSelection(BaseModel):

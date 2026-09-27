@@ -149,23 +149,104 @@ def parse_tabular(root: ET.Element) -> dict[str, dict[str, list[str]]]:
     return notes
 
 
+def _is_note(term: ET.Element) -> bool:
+    title = term.find("title")
+    return title is not None and _text(title).startswith("Note:")
+
+
+class _Tree:
+    """The Index term tree with CMS "Note: ..." pseudo-headings removed.
+
+    CMS encodes some guidance notes as a heading that wraps the subterms after it, for
+    example "Failure > Note: heart failure stages ..." wraps "systolic", "stage A", ...
+    Those subterms belong to the term just before the note (here "heart"), so they are
+    reattached there; with no term before the note they stay with the note's parent.
+    """
+
+    def __init__(self, root: ET.Element) -> None:
+        self._extra: dict[ET.Element, list[ET.Element]] = {}
+        for parent in root.iter():
+            previous = parent
+            for child in parent.findall("term"):
+                if _is_note(child):
+                    self._extra.setdefault(previous, []).extend(self.children(child))
+                else:
+                    previous = child
+
+    def children(self, node: ET.Element) -> list[ET.Element]:
+        own = [c for c in node.findall("term") if not _is_note(c)]
+        return own + self._extra.get(node, [])
+
+
+def _key(node: ET.Element) -> str:
+    title = node.find("title")
+    return "" if title is None else _core_text(title).lower()
+
+
+def _step(tree: _Tree, node: ET.Element, part: str) -> list[ET.Element]:
+    """Subterms of node matching one part of a <see> target.
+
+    "by type" / "by site" style parts mean "the applicable subterm", so they match any
+    subterm. "with X" also matches the subterm X under a "with" subterm.
+    """
+    if part.startswith("by "):
+        return tree.children(node)
+    direct = [c for c in tree.children(node) if _key(c) == part]
+    if direct or not part.startswith("with "):
+        return direct
+    rest = part.removeprefix("with ")
+    return [g for c in tree.children(node) if _key(c) == "with" for g in _step(tree, c, rest)]
+
+
+def resolve_see(tree: _Tree, target: str, mains: dict[str, list[ET.Element]]) -> list[str]:
+    """Codes of the Index term a <see> cross-reference points to ("Failure, heart, systolic").
+
+    The first part names a main term by its first comma-separated word(s); each later part
+    walks one subterm level. Unresolvable targets return no codes.
+    """
+    first, *rest = [p.strip().lower() for p in target.split(",")]
+    nodes = mains.get(first, [])
+    for part in rest:
+        nodes = [m for n in nodes for m in _step(tree, n, part)]
+    codes = [
+        code
+        for n in nodes
+        for code_el in n.findall("code")
+        if code_el.text and (code := normalize_index_code(code_el.text))
+    ]
+    return list(dict.fromkeys(codes))
+
+
 def parse_index(root: ET.Element) -> list[IndexRow]:
-    """Flatten the Alphabetic Index into one row per (term path, code)."""
+    """Flatten the Alphabetic Index into one row per (term path, code).
+
+    A term with a <see> cross-reference gets the codes of the term it points to, so
+    "Diabetes, poorly controlled" finds "with hyperglycemia" codes (Index convention I.A.16).
+    """
     rows: list[IndexRow] = []
+    sees: list[tuple[str, str, str]] = []  # (term, path, target)
+    tree = _Tree(root)
 
     def walk(node: ET.Element, core: list[str], full: list[str]) -> None:
         title = node.find("title")
-        # CMS wraps some subterms in a "Note: ..." pseudo-heading; it is guidance, not a term.
-        if title is not None and not _text(title).startswith("Note:"):
+        if title is not None:
             core, full = [*core, _core_text(title)], [*full, _text(title)]
         for code_el in node.findall("code"):
             if code_el.text and (code := normalize_index_code(code_el.text)):
                 rows.append(IndexRow(term=" ".join(core), path=" > ".join(full), code=code))
-        for child in node.findall("term"):
+        for see_el in node.findall("see"):
+            if see_el.text and see_el.text.strip():
+                sees.append((" ".join(core), " > ".join(full), _text(see_el)))
+        for child in tree.children(node):
             walk(child, core, full)
 
+    mains: dict[str, list[ET.Element]] = {}
     for main in root.iter("mainTerm"):
         walk(main, [], [])
+        mains.setdefault(_key(main).split(",")[0].strip(), []).append(main)
+    for term, path, target in sees:
+        for code in resolve_see(tree, target, mains):
+            rows.append(IndexRow(term=term, path=f"{path} (see {target})", code=code))
     return rows
 
 

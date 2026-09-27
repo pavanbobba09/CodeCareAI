@@ -116,3 +116,20 @@ def test_normalize_code_adds_missing_dot() -> None:
     assert normalize_code(" e1122 ") == "E11.22"
     assert normalize_code("I10") == "I10"
     assert normalize_code("N18.30") == "N18.30"
+
+
+def test_usage_is_summed_across_retry_attempts(tmp_path: Path) -> None:
+    from app.llm.client import CallUsage
+
+    spent = CallUsage(
+        step="extract", prompt_tokens=100, completion_tokens=10, reasoning_tokens=None
+    )
+    results = iter(
+        [
+            _run("n001", "failed", "LLM_UNAVAILABLE").model_copy(update={"usage": [spent]}),
+            _run("n001").model_copy(update={"usage": [spent, spent]}),
+        ]
+    )
+    done = run_notes([_gold("n001")], lambda g: next(results), tmp_path, sleep=lambda s: None)
+
+    assert (done["n001"].attempts, len(done["n001"].usage)) == (2, 3)

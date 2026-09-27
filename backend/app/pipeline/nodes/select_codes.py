@@ -4,12 +4,12 @@ from typing import Any
 from app.llm.prompts import load_prompt
 from app.models import SelectionOutput
 from app.pipeline.nodes import Node
-from app.pipeline.state import PipelineDeps, PipelineState
+from app.pipeline.state import SELECT_PROMPT, PipelineDeps, PipelineState
 from app.pipeline.validate import validate_selections
 
 
 def make(deps: PipelineDeps) -> Node:
-    system = load_prompt("select_v1", SelectionOutput)
+    system = load_prompt(SELECT_PROMPT, SelectionOutput)
 
     def select_codes(state: PipelineState) -> dict[str, Any]:
         if not state.candidate_sets:

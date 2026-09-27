@@ -142,9 +142,18 @@ def test_analyze_worked_example_with_scripted_llm(seeded: Engine) -> None:
     assert [(s["code"], s["evidence"]) for s in result["suggestions"]] == [
         (e["code"], e["evidence"]) for e in WORKED["expected"]
     ]
-    for s in result["suggestions"]:
-        assert [r["rule_id"] for r in s["rule_results"]] == ["R1"]
-        assert s["confidence"] == "review"
+    # E11.22 already carries the kidney link, so R2 adds nothing; stage 3 without 3a/3b
+    # keeps N18.30 and raises the R9 gap.
+    by_code = {s["code"]: s for s in result["suggestions"]}
+    assert [r["rule_id"] for r in by_code["E11.22"]["rule_results"]] == ["R1"]
+    assert [r["rule_id"] for r in by_code["N18.30"]["rule_results"]] == ["R1", "R9"]
+    assert (by_code["E11.22"]["confidence"], by_code["N18.30"]["confidence"]) == (
+        "strong",
+        "review",
+    )
+    assert [(g["gap_id"], g["rule_id"]) for g in result["gaps"]] == [("R9-N18.30", "R9")]
+    assert by_code["N18.30"]["gap_ids"] == ["R9-N18.30"]
+    assert all(s["added_by_rule"] is None for s in result["suggestions"])
     assert result["model_errors"] == 0
     assert result["em"] is None
 

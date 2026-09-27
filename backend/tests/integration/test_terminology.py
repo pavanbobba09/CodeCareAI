@@ -8,7 +8,7 @@ from app.db.models import Code, CodeSet, IndexTerm
 from app.models import ClinicalFact, CodeSetSelection
 from app.terminology.abbreviations import expand, load_abbreviations
 from app.terminology.code_sets import CodeSetMissingError, resolve_code_sets
-from app.terminology.lookup import DbCodeLookup
+from app.terminology.lookup import DbCodeLookup, preload_lookup
 from app.terminology.search import MAX_CANDIDATES, index_hits, search_candidates
 from tests.integration.conftest import FakeEmbedder
 
@@ -169,3 +169,12 @@ def test_no_note_heading_text_in_index_search_text(seeded: Engine) -> None:
             )
         ).all()
     assert leaked == []
+
+
+def test_excludes1_is_inherited_from_the_category(seeded: Engine) -> None:
+    # E11 carries "type 1 diabetes mellitus (E10.-)"; it applies to every E11 code.
+    with Session(seeded) as session:
+        assert DbCodeLookup(session).excludes1_of("E11.22", SETS.icd10cm) == ["E10"]
+        preloaded = preload_lookup(session, {SETS.icd10cm: {"E11.22"}})
+    assert preloaded.excludes1_of("E11.22", SETS.icd10cm) == ["E10"]
+    assert preloaded.get_code("E11", SETS.icd10cm) is not None  # ancestor loaded

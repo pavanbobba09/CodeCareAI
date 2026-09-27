@@ -5,7 +5,7 @@ import httpx
 import pytest
 from pydantic import BaseModel
 
-from app.llm.client import LlmClient, LlmError
+from app.llm.client import CallUsage, LlmClient, LlmError
 
 
 class Out(BaseModel):
@@ -157,3 +157,59 @@ def test_missing_config_is_unavailable_at_call_time() -> None:
     with pytest.raises(LlmError) as err:
         client.complete_json("extract", "sys", "user", Out, deadline=100.0)
     assert err.value.code == "LLM_UNAVAILABLE"
+
+
+def _with_usage(content: str, usage: dict[str, object]) -> httpx.Response:
+    return httpx.Response(
+        200, json={"choices": [{"message": {"content": content}}], "usage": usage}
+    )
+
+
+def _usage_client(fake: Fake, seen: list[CallUsage]) -> LlmClient:
+    return LlmClient(
+        "http://llm.test/v1",
+        "test-key",
+        "test-model",
+        transport=httpx.MockTransport(fake.handler),
+        sleep=fake.sleeps.append,
+        clock=lambda: fake.now,
+        on_usage=seen.append,
+    )
+
+
+def test_usage_is_reported_per_call_with_reasoning_when_given() -> None:
+    usage = {
+        "prompt_tokens": 1400,
+        "completion_tokens": 350,
+        "completion_tokens_details": {"reasoning_tokens": 120},
+    }
+    fake = Fake(_with_usage('{"answer": "x"}', usage))
+    seen: list[CallUsage] = []
+
+    _usage_client(fake, seen).complete_json("extract", "sys", "user", Out, 100.0)
+
+    assert seen == [
+        CallUsage(step="extract", prompt_tokens=1400, completion_tokens=350, reasoning_tokens=120)
+    ]
+
+
+def test_invalid_output_still_reports_the_tokens_it_spent() -> None:
+    fake = Fake(
+        _with_usage("not json", {"prompt_tokens": 10, "completion_tokens": 5}),
+        _with_usage('{"answer": "x"}', {"prompt_tokens": 20, "completion_tokens": 6}),
+    )
+    seen: list[CallUsage] = []
+
+    _usage_client(fake, seen).complete_json("select", "sys", "user", Out, 100.0)
+
+    assert [(u.prompt_tokens, u.completion_tokens, u.reasoning_tokens) for u in seen] == [
+        (10, 5, None),
+        (20, 6, None),
+    ]
+
+
+def test_no_usage_block_reports_nothing() -> None:
+    seen: list[CallUsage] = []
+    _usage_client(Fake(_ok('{"answer": "x"}')), seen).complete_json("x", "s", "u", Out, 100.0)
+
+    assert seen == []

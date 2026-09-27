@@ -8,12 +8,20 @@ from sqlalchemy.orm import Session
 
 from app.db.models import Code, CodeSet
 from app.models import CodeCandidate, CodeSystem
+from app.terminology.tabular import code_refs
 
 
 class CodeLookup(Protocol):
     def get_code(self, code: str, code_set_id: str) -> CodeCandidate | None: ...
     def children_of(self, code: str, code_set_id: str) -> list[str]: ...
     def is_billable(self, code: str, code_set_id: str) -> bool: ...
+    def excludes1_of(self, code: str, code_set_id: str) -> list[str]:
+        """Excludes1 code patterns on the code and its ancestors (notes apply downward)."""
+        ...
+
+
+def _excludes1(notes: dict[str, list[str]]) -> tuple[str, ...]:
+    return tuple(ref for note in notes.get("excludes1", []) for ref in code_refs(note))
 
 
 class DbCodeLookup:
@@ -53,6 +61,14 @@ class DbCodeLookup:
         found = self._row(code, code_set_id)
         return found is not None and found[0].billable
 
+    def excludes1_of(self, code: str, code_set_id: str) -> list[str]:
+        refs: list[str] = []
+        current: str | None = code
+        while current is not None and (found := self._row(current, code_set_id)) is not None:
+            refs += _excludes1(found[0].tabular_notes)
+            current = found[0].parent_code
+        return refs
+
 
 @dataclass(frozen=True)
 class CodeRecord:
@@ -61,6 +77,7 @@ class CodeRecord:
     description: str
     billable: bool
     parent_code: str | None
+    excludes1: tuple[str, ...] = ()  # patterns from this code's own Excludes1 notes
 
 
 class InMemoryCodeLookup:
@@ -88,22 +105,39 @@ class InMemoryCodeLookup:
         rec = self._records.get((code_set_id, code))
         return rec is not None and rec.billable
 
+    def excludes1_of(self, code: str, code_set_id: str) -> list[str]:
+        refs: list[str] = []
+        rec = self._records.get((code_set_id, code))
+        while rec is not None:
+            refs += rec.excludes1
+            rec = self._records.get((code_set_id, rec.parent_code or ""))
+        return refs
+
 
 def preload_lookup(session: Session, wanted: dict[str, set[str]]) -> InMemoryCodeLookup:
-    """Load exactly the given codes (code_set_id -> codes) into memory."""
+    """Load the given codes (code_set_id -> codes) and their ancestors into memory.
+
+    Ancestors are needed because Excludes1 notes on a category apply to its codes.
+    """
     records: dict[tuple[str, str], CodeRecord] = {}
     for code_set_id, codes in wanted.items():
-        rows = session.execute(
-            select(Code, CodeSet.system)
-            .join(CodeSet, CodeSet.id == Code.code_set_id)
-            .where(Code.code_set_id == code_set_id, Code.code.in_(sorted(codes)))
-        ).all()
-        for row, system in rows:
-            records[(code_set_id, row.code)] = CodeRecord(
-                code=row.code,
-                system="CPT" if system == "CPT" else "ICD-10-CM",
-                description=row.description,
-                billable=row.billable,
-                parent_code=row.parent_code,
-            )
+        pending = set(codes)
+        while pending:
+            rows = session.execute(
+                select(Code, CodeSet.system)
+                .join(CodeSet, CodeSet.id == Code.code_set_id)
+                .where(Code.code_set_id == code_set_id, Code.code.in_(sorted(pending)))
+            ).all()
+            pending = set()
+            for row, system in rows:
+                records[(code_set_id, row.code)] = CodeRecord(
+                    code=row.code,
+                    system="CPT" if system == "CPT" else "ICD-10-CM",
+                    description=row.description,
+                    billable=row.billable,
+                    parent_code=row.parent_code,
+                    excludes1=_excludes1(row.tabular_notes),
+                )
+                if row.parent_code and (code_set_id, row.parent_code) not in records:
+                    pending.add(row.parent_code)
     return InMemoryCodeLookup(records)

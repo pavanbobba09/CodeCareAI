@@ -78,6 +78,7 @@ def run_notes(
             continue
         result = predict(gold)
         attempts = 1
+        usage = list(result.usage)  # failed attempts spent tokens too
         for wait in retry_waits:
             if result.status == "completed" or result.error not in RETRYABLE:
                 break
@@ -85,7 +86,8 @@ def run_notes(
             sleep(wait)
             result = predict(gold)
             attempts += 1
-        result = result.model_copy(update={"attempts": attempts})
+            usage += result.usage
+        result = result.model_copy(update={"attempts": attempts, "usage": usage})
         (run_dir / f"{gold.note_id}.json").write_text(result.model_dump_json(indent=2) + "\n")
         done[gold.note_id] = result
         log.info("%s: %s %s", gold.note_id, result.status, [p.code for p in result.predicted])

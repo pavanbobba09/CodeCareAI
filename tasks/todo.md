@@ -5,6 +5,64 @@ Each milestone ends with its own passing check. Don't start a milestone until th
 
 ---
 
+## Current task: M4 detailed plan (approved 2026-09-27)
+
+Touches DESIGN §3.4 (R2-R12), §4.1 step 6 (retrieval), §4.4 (what counts as `model_errors`), §5.1 (confidence bands), §5.2 (`CodeLookup`, rule contract), §9 (smoke eval before/after). Milestone M4. Baseline to beat: M3 20-note pipeline run `2026-09-27-n20-pipeline-openai_gpt-oss-120b` (precision 0.78, recall 0.82, gap recall 0.00, invented 0, invalid 0).
+
+Every citation below was checked against `data/raw/guidelines-fy2027.txt` (FY2027 PDF text) on 2026-09-27; Index entries against `icd10cm_index_2027.xml`.
+
+### Approach
+
+Rules work on **codes the LLM already selected, plus fact status and details**. The LLM still only extracts and picks from candidates. Rules can do three things, all deterministic:
+- **add** a code (combination codes, Z79.x). It must come from `CodeLookup` for the visit's code set, carries `added_by_rule` (new `Suggestion` field), and its `fact_ids` and evidence are the union of the **facts** that triggered it. This is how E11.22, I12.x, I11.0 and I13.x appear when the LLM picked E11.9 / I10. **Every added code must pass R1**: R1 runs first (LLM picks) and again last (codes added by rules); a test proves an added code that is absent, non-billable, or from another release is dropped.
+- **drop** a code (R6 duplicate I10, R2 E11.9 replaced by E11.22, I.C.14.a.1 stage + ESRD), recorded as `DroppedCode`. Only R1 drops of LLM-selected codes count as `model_errors`; the others are coding decisions.
+- **annotate**: append a `RuleResult` (`pass` / `needs_review`), raise a `Gap`, or set `not_suggested`.
+
+`run_rules` preloads the codes a note can need: the drafts plus each rule's declared `TARGET_CODES` (e.g. I12.0, I12.9, I11.0, I13.0, I13.2, E11.22, Z79.4, Z79.84) and their Excludes1 notes, so rules stay pure.
+
+### Steps
+
+1. [x] **Retrieval: Index `<see>` cross-references.** `load_icd10cm.py` resolves each `<see>` to its target term's code(s) and stores it as an extra `index_terms` row under the source term (no schema change). Reload FY2027 and FY2026 (upsert keeps embeddings). Checks: "poorly controlled" / "out of control" / "inadequately controlled" type 2 diabetes -> E11.65 in top 3; "heart failure with reduced ejection fraction" -> I50.20 in top 3; add both to `check_search.py`. Source: FY2027 Index entries.
+2. [x] **Rule contract (DESIGN §5.2 first).** `CodeLookup` gains `excludes1_of(code, code_set_id) -> list[str]` (own notes plus inherited category notes, parsed to code or range patterns). Each rule module declares `TARGET_CODES`. `run_rules` counts only R1 drops as `model_errors`. New suggestions get ids after the drafts (`s{n+1}`).
+3. [x] **R11 outpatient uncertain diagnosis** (IV.H). A suggestion whose facts are all `suspected`, `ruled_out` or `denied` is kept as `not_suggested` with a `RuleResult`, so the coder sees why. Runs first so later rules only combine confirmed codes. Today such facts get no candidates; R11 is the explicit guard.
+4. [x] **R2 diabetes + CKD** (I.A.15 "With"). E11.9 + any N18.x -> E11.22 replaces E11.9, N18.x kept. If a more specific E11 complication is present (e.g. E11.65), add E11.22 alongside it. Same for E10 (E10.22).
+5. [x] **R5, R4, R3 hypertension combinations**, run in that order (I.C.9.a.3, I.C.9.a.1, I.C.9.a.2).
+   - R5: HTN + I50.x + N18.1-N18.4/N18.9 -> I13.0; with N18.5/N18.6 -> I13.2. I50.x and N18.x kept.
+   - R4: HTN + I50.x, no CKD -> I11.0.
+   - R3: HTN + N18.x, no HF -> I12.9 (N18.1-N18.4, N18.9) or I12.0 (N18.5, N18.6).
+   - "HTN" = I10 or an I11/I12 code the LLM already picked. R4/R3 skip when R5 applied.
+   - **Link check (owner decision J):** the HTN link is presumed unless a CKD or HF fact has a `caused_by` link to a fact that is not the hypertension. Then no combination code is added for that condition, and the HTN, N18/I50 suggestions get `needs_review`. If only one link is blocked (e.g. CKD caused by something else, HF not), the other combination still applies (R4 instead of R5). Same check in R2 for diabetes and CKD: CKD `caused_by` something other than diabetes -> no E11.22, `needs_review`.
+6. [x] **R6** drops I10 when any I11/I12/I13 is present (I11, I12 and I13 include the hypertension; I.C.9.a.1 keeps I10 only when the provider documents the conditions as unrelated), and drops I11.x/I12.x when I13.x is present (I.C.9.a.3: "a code from I13 should be used, not codes from I11 or I12").
+7. [x] **R7 diabetes type not documented** (I.C.4.a.2: default E11.-). A diabetes fact with no type in `concept` or `details` and an E11 code -> `needs_review` RuleResult, no gap (owner decision G).
+8. [x] **R8 long-term drug use** (I.C.4.a.3). Diabetes code present + active medication fact that is insulin -> Z79.4; oral hypoglycemic -> Z79.84; injectable non-insulin -> Z79.85; each combination assigns both (n020). `data/diabetes_drug_classes.csv` (`drug,class,source`): the gold-note drugs (metformin, insulin glargine) plus a few common ones, each citing its FDA label (DailyMed) for route and class (owner decision K). Semaglutide is left out: it has both an oral and an injectable label, so the name alone does not give the class.
+9. [x] **R9 CKD stage gap** (I.C.14.a.1). N18.9 -> gap "missing: CKD stage"; N18.30 -> gap "missing: stage 3a or 3b". Also I.C.14.a.1: stage + ESRD both documented -> keep N18.6 only.
+10. [x] **R10 heart failure gap** (I.C.9.a.1 and I.C.9.a.3: "additional code from category I50 to identify the type of heart failure"; acuity has no guideline sentence of its own, it comes from the I50.2-/I50.3-/I50.4- Tabular subcodes). I50.9 -> gap "missing: heart failure type"; I50.20/I50.30/I50.40 -> gap "missing: acuity".
+11. [x] **R12 Excludes1** (I.A.12.a). Two kept codes where one is in the other's Excludes1 -> both `needs_review` and a `conflicting` gap asking whether the conditions are related (the guideline says query the provider when unclear). Never drops a code on its own.
+12. [x] **Gap wording.** Every `query_text` is neutral: it asks for the missing fact ("Please document the CKD stage, if known.") and never names a code, a payment effect, or a preferred answer. A unit test scans all gap templates for leading words (e.g. "higher", "more specific code", "consider documenting").
+13. [x] **Conflict detection** (in `assemble`, pure helper): two different codes in the same N18 or I50 family for the note -> `conflicting` gap, both `review`. This also catches n014 (I50.20 + I50.9).
+14. [x] **Confidence bands** (DESIGN §5.1 gets the definition): `not_suggested` = R11 applied; `review` = any `needs_review` result or any linked gap; `strong` = every rule result `pass`, no linked gap, evidence present.
+15. [ ] **Tests.** One file per rule in `tests/unit/rules/`: positive, negative, edge case each, using `InMemoryCodeLookup`. Graph test with recorded fixtures for one combination note. Re-record the worked example only if its output changes (it should not: E11.22 + N18.30 already). *(2026-09-27: rule, chain and confidence tests done (133 unit); the recorded combination-note graph test still needs a recording, i.e. LLM calls.)*
+16. [ ] **extract_v2** (owner decision L): same as v1, plus: when a diagnosis is suspected/possible/probable, also extract the documented symptoms or signs behind it as their own `active` facts. `PROMPT_VERSION` -> `extract_v2+select_v1`; re-record the worked-example fixtures with `record_llm.py`. *(2026-09-27: prompt added and pipeline switched; re-recording pending, 2 LLM calls, so `test_worked_example_from_recorded_llm` fails on prompt drift until then.)* DESIGN: MDM extraction becomes `extract_v3` in M6.
+17. [ ] **Eval (revised 2026-09-27, owner):** when the Groq limit recovers, budget check first; (i) re-record worked-example fixtures (2 calls); (ii) run (a) from scratch with a new run id, `--extract-prompt extract_v1`, 20 notes, outputs saved (the old `2026-09-27-m4rules-*` 14 + 6 run is not patched); (iii) run (b) `extract_v2`, 20 notes; if both don't fit, (a) today and (b) the next day; (iv) replay both with the N18 stage rule and report all against M3.
+18. [x] **DESIGN.md** in the same change as the code: `Suggestion.added_by_rule`, `CodeLookup.excludes1_of`, rule add/drop contract and R1-last, `model_errors` definition, confidence bands, R1-R12 behaviour with sources, extract_v2/v3, and a **Known limits** list (at least: "unrelated" statements with no alternative cause are not captured; secondary diabetes E08/E09/E13 combinations; temporary insulin use (I.C.4.a.3) is not detected; I11.9/I12 without a documented link beyond the presumption).
+19. [x] **`--extract-prompt`** (default `extract_v2`), recorded in `meta.json`; resuming a run with a different setup, model or prompt version stops.
+20. [x] **Usage logging:** `LlmClient(on_usage=...)` reports prompt, completion and reasoning tokens per call; run files keep `usage` (summed across retries); local gitignored ledger `eval/.usage_ledger.jsonl`; `record_llm.py` logs too.
+21. [x] **Budget check** before every live run (`eval/budget.py`): estimate from saved usage (default 4k/pipeline note, 800/baseline note) vs 200k/day minus the ledger's last 24 h; stops unless `--ignore-budget`.
+22. [x] **Saved LLM outputs + replay:** run files keep facts, candidate sets, selections (`SavedLlmOutputs`); `run_eval.py --replay-of RUN_ID` reruns only rules + assemble, no LLM. Rule changes are measured by replay from now on.
+23. [x] **n007 fix:** R2/R3/R5 add the N18 code for the stage the CKD fact documents when none was selected (N18.9 if no stage); R9 replaces N18.9/N18.30 with a documented stage and raises its gap only when no stage is written. Tests in `tests/unit/rules/test_ckd_stage.py`.
+
+**Verify:** all rule tests pass; `check_search.py` passes with the new `<see>` checks; `rescore.py` gates pass; 20-note table printed next to M3 with gap recall measured (M4 done-when).
+
+**Owner decisions (2026-09-27):**
+
+- I. Yes: R2-R5 add combination codes from the code table with `added_by_rule` and evidence from the triggering facts; every added code must pass R1, with a test.
+- J. Use `caused_by` links: a CKD or HF fact caused by something other than hypertension -> no presumed link, `needs_review`. Same for R2 (diabetes-CKD). Uncovered cases go to DESIGN as known limits.
+- K. FDA labels are fine. Short list, each row cites its label; cover Z79.4, Z79.84, Z79.85.
+- L. Add `extract_v2` in M4 for symptoms behind suspected diagnoses; MDM becomes `extract_v3` in M6. Eval twice (rules + v1, then rules + v2), both against M3.
+- (later, 2026-09-27) Groq free-tier daily cap hit (200k tokens/day for gpt-oss-120b). Approved: `--extract-prompt`, usage logging with a local ledger, saved LLM outputs + replay, the N18 stage fix, a budget check, and "10-note smoke while developing, full set at milestone end" (CLAUDE.md). n004 (E11.65 in candidates, LLM chose E11.9) waits for run (b). Deferred: `reasoning_effort=low` and 20 -> 10 candidates, both to be judged by replay/saved outputs.
+
+---
+
 ## Previous task: M3 detailed plan (done 2026-09-27)
 
 Touches DESIGN.md §3.3 (model choice), §5.4 (GoldNote, added), §9 (metrics, thresholds), §10 (M3).

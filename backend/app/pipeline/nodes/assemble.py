@@ -1,8 +1,9 @@
 from typing import Any
 
 from app.models import AnalysisResult
+from app.pipeline.confidence import finalize
 from app.pipeline.nodes import Node
-from app.pipeline.state import PROMPT_VERSION, PipelineDeps, PipelineState
+from app.pipeline.state import PipelineDeps, PipelineState, prompt_version
 
 
 def latency_ms(state: PipelineState, now: float) -> int:
@@ -11,7 +12,7 @@ def latency_ms(state: PipelineState, now: float) -> int:
 
 def make(deps: PipelineDeps, clock: Any) -> Node:
     def assemble(state: PipelineState) -> dict[str, Any]:
-        # Confidence bands arrive in M4; until then every suggestion stays "review".
+        suggestions, gaps = finalize(state.suggestions, state.gaps)
         return {
             "result": AnalysisResult(
                 analysis_id=state.analysis_id,
@@ -19,11 +20,11 @@ def make(deps: PipelineDeps, clock: Any) -> Node:
                 status="completed",
                 code_sets=state.code_sets,
                 facts=state.facts,
-                suggestions=state.suggestions,
-                gaps=state.gaps,
+                suggestions=suggestions,
+                gaps=gaps,
                 em=None,  # E/M arrives in M6
                 model=deps.llm.model,
-                prompt_version=PROMPT_VERSION,
+                prompt_version=prompt_version(deps.extract_prompt),
                 model_errors=state.model_errors,
                 latency_ms=latency_ms(state, clock()),
                 error=None,

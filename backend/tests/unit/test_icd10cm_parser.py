@@ -101,6 +101,60 @@ def test_note_headings_never_reach_index_text() -> None:
 
     assert rows, "fixture should produce index rows"
     assert not [r for r in rows if "Note:" in r.term or "Note:" in r.path]
+    # The note heading follows "heart", so its subterms are heart's subterms.
     systolic = next(r for r in rows if r.code == "I50.20")
-    assert systolic.term == "Failure, failed systolic"
-    assert systolic.path == "Failure, failed > systolic (congestive) (left ventricular)"
+    assert systolic.term == "Failure, failed heart systolic"
+    assert systolic.path == (
+        "Failure, failed > heart (acute) (senile) (sudden) > "
+        "systolic (congestive) (left ventricular)"
+    )
+
+
+SEE_INDEX = """<i>
+<mainTerm><title>Diabetes, diabetic<nemod>(mellitus)</nemod></title><code>E11.9</code>
+  <term level="1"><title>poorly controlled</title>
+    <see>Diabetes, by type, with hyperglycemia</see></term>
+  <term level="1"><title>type 1</title><code>E10.9</code>
+    <term level="2"><title>with</title>
+      <term level="3"><title>hyperglycemia</title><code>E10.65</code></term></term></term>
+  <term level="1"><title>type 2</title><code>E11.9</code>
+    <term level="2"><title>with</title>
+      <term level="3"><title>hyperglycemia</title><code>E11.65</code></term></term></term>
+</mainTerm>
+<mainTerm><title>Failure, failed</title>
+  <term level="1"><title>heart<nemod>(acute)</nemod></title><code>I50.9</code>
+    <term level="2"><title>with</title>
+      <term level="3"><title>reduced ejection fraction</title>
+        <see>Failure, heart, systolic</see></term></term></term>
+  <term level="1"><title>Note: guidance heading</title>
+    <term level="2"><title>systolic<nemod>(congestive)</nemod></title><code>I50.20</code>
+    </term></term>
+</mainTerm>
+<mainTerm><title>Oddity</title><see>Nowhere, at all</see></mainTerm>
+</i>"""
+
+
+def test_see_reference_takes_the_target_terms_codes() -> None:
+    rows = parse_index(ET.fromstring(SEE_INDEX))
+    poorly = [(r.code, r.path) for r in rows if r.term == "Diabetes, diabetic poorly controlled"]
+
+    # "by type" matches every type subterm; "with hyperglycemia" walks "with" > "hyperglycemia".
+    assert [c for c, _ in poorly] == ["E10.65", "E11.65"]
+    assert poorly[1][1] == (
+        "Diabetes, diabetic (mellitus) > poorly controlled "
+        "(see Diabetes, by type, with hyperglycemia)"
+    )
+
+
+def test_see_reference_looks_through_note_headings() -> None:
+    rows = parse_index(ET.fromstring(SEE_INDEX))
+    term = "Failure, failed heart with reduced ejection fraction"
+    hfref = [r.code for r in rows if r.term == term]
+
+    assert hfref == ["I50.20"]
+
+
+def test_unresolvable_see_reference_adds_no_rows() -> None:
+    rows = parse_index(ET.fromstring(SEE_INDEX))
+
+    assert not [r for r in rows if r.term == "Oddity"]

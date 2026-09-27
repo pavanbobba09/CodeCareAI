@@ -57,7 +57,8 @@ ruff check scripts && ruff format --check scripts
 
 # eval (local, live LLM; paced; reruns with the same --run-id resume)
 python scripts/validate_gold.py                     # gold notes: structure + codes billable for the visit date
-python eval/run_eval.py --setup pipeline --limit 10 [--model M] [--run-id ID]
+python eval/run_eval.py --setup pipeline --limit 10 [--model M] [--run-id ID] [--extract-prompt extract_v1]
+python eval/run_eval.py --replay-of RUN_ID [--run-id ID]   # rule changes: rerun rules on saved LLM outputs, no tokens
 python eval/baseline_llm_only.py --limit 10 [--model M]
 python eval/compare.py RUN_ID RUN_ID [--limit N]    # side-by-side vs DESIGN §9 thresholds
 python eval/rescore.py                              # CI gate: no invented codes in committed pipeline runs
@@ -81,7 +82,8 @@ python eval/rescore.py                              # CI gate: no invented codes
 ### 3. Verify before calling it done
 
 - Never mark a task complete without proof: tests pass, the endpoint returns the expected JSON, the page renders, or the eval runs.
-- For pipeline, prompt, retrieval, or rule changes, run the smoke eval (`--limit 10`) and compare with the last result in `eval/results/`. Report any metric that dropped.
+- For pipeline, prompt, or retrieval changes, run the smoke eval (`--limit 10`) and compare with the last result in `eval/results/`. Measure rule and assemble changes by replaying a saved run (`--replay-of`). Report any metric that dropped. Live runs print a token budget check first; don't pass `--ignore-budget` without asking.
+- While developing, use only the 10-note smoke set. Run the full gold set (20 notes today) only once, at the end of a milestone. The Groq free tier caps gpt-oss-120b at 200k tokens per rolling day; a pipeline note costs roughly 4k tokens and a baseline note under 1k (M4 estimate), so budget full runs.
 - Ask yourself: would a staff engineer approve this change?
 
 ### 4. Simple and elegant, in balance
