@@ -16,7 +16,11 @@ export default function ReviewPage() {
   const [loadError, setLoadError] = useState<ApiError | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [analyzeError, setAnalyzeError] = useState<unknown>(null);
-  const [focusId, setFocusId] = useState<string | null>(null);
+  // A clicked or keyboard-focused card stays selected until another card is chosen;
+  // hovering previews a card's evidence without changing the selection.
+  const [pickedId, setPickedId] = useState<string | null>(null);
+  const [hoverId, setHoverId] = useState<string | null>(null);
+  const focusId = hoverId ?? pickedId;
   const [showHidden, setShowHidden] = useState(false);
 
   const load = useCallback(async () => {
@@ -181,8 +185,9 @@ export default function ReviewPage() {
                 suggestion={s}
                 gaps={analysis.gaps.filter((g) => s.gap_ids.includes(g.gap_id))}
                 decision={decisions.get(s.suggestion_id)}
-                selected={focusId === s.suggestion_id}
-                onSelect={(on) => setFocusId(on ? s.suggestion_id : null)}
+                selected={pickedId === s.suggestion_id}
+                onHover={(on) => setHoverId(on ? s.suggestion_id : null)}
+                onPick={() => setPickedId(s.suggestion_id)}
                 onReviewed={load}
               />
             ))}

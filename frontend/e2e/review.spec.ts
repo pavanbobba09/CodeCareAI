@@ -22,12 +22,21 @@ test("smoke: create a note, analyze, see evidence, accept, edit and reject", asy
   await expect(e11).toBeVisible();
   await expect(n18).toBeVisible();
 
-  // Evidence: hovering a card highlights its supporting sentence (sentence 1).
-  await e11.hover();
-  await expect(page.locator('[data-sentence="1"]')).toHaveAttribute("data-highlighted", "true");
-  await expect(page.locator('[data-sentence="1"]')).toContainText(
-    "Type 2 diabetes mellitus with chronic kidney disease stage 3.",
-  );
+  // Evidence: clicking a card selects it and highlights its supporting sentence (sentence 1),
+  // and the highlight stays after the pointer moves away.
+  const sentence1 = page.locator('[data-sentence="1"]');
+  await e11.getByText("E11.22", { exact: true }).click();
+  await page.mouse.move(0, 0);
+  await expect(e11).toHaveAttribute("aria-current", "true");
+  await expect(sentence1).toHaveAttribute("data-highlighted", "true");
+  await expect(sentence1).toContainText("Type 2 diabetes mellitus with chronic kidney disease stage 3.");
+  await expect(page.locator('[data-sentence="2"]')).not.toHaveAttribute("data-highlighted", "true");
+
+  // Keyboard focus selects too; the previous card is no longer selected.
+  await n18.focus();
+  await expect(n18).toHaveAttribute("aria-current", "true");
+  await expect(e11).not.toHaveAttribute("aria-current", "true");
+  await expect(sentence1).toHaveAttribute("data-highlighted", "true"); // N18.30 also cites 1
 
   await e11.getByRole("button", { name: "Accept" }).click();
   await expect(e11.getByTestId("decision")).toContainText("accept");

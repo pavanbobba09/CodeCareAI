@@ -31,7 +31,8 @@ export function SuggestionCard({
   gaps,
   decision,
   selected,
-  onSelect,
+  onHover,
+  onPick,
   onReviewed,
 }: {
   analysisId: string;
@@ -39,7 +40,8 @@ export function SuggestionCard({
   gaps: Gap[];
   decision: ReviewEvent | undefined;
   selected: boolean;
-  onSelect: (focus: boolean) => void;
+  onHover: (on: boolean) => void;
+  onPick: () => void;
   onReviewed: () => void;
 }) {
   const [mode, setMode] = useState<Mode>("idle");
@@ -68,10 +70,13 @@ export function SuggestionCard({
     <article
       aria-label={`Suggestion ${s.code}`}
       data-code={s.code}
-      onMouseEnter={() => onSelect(true)}
-      onMouseLeave={() => onSelect(false)}
-      onFocus={() => onSelect(true)}
-      className={`rounded-lg border bg-white p-4 ${selected ? "border-amber-500 ring-2 ring-amber-200" : "border-slate-200"}`}
+      tabIndex={0}
+      aria-current={selected ? "true" : undefined}
+      onMouseEnter={() => onHover(true)}
+      onMouseLeave={() => onHover(false)}
+      onClick={onPick}
+      onFocus={onPick}
+      className={`cursor-pointer rounded-lg border bg-white p-4 outline-none focus-visible:ring-2 focus-visible:ring-slate-400 ${selected ? "border-amber-500 ring-2 ring-amber-200" : "border-slate-200"}`}
     >
       <header className="flex items-start justify-between gap-3">
         <div>
