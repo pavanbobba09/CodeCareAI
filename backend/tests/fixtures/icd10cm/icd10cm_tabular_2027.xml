@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Excerpt of the public CMS FY2027 ICD-10-CM tabular XML, for tests. -->
+<ICD10CM.tabular>
+  <chapter>
+    <section id="E08-E13">
+      <diag>
+        <name>E11</name>
+        <desc>Type 2 diabetes mellitus</desc>
+        <excludes1>
+          <note>type 1 diabetes mellitus (E10.-)</note>
+        </excludes1>
+        <useAdditionalCode>
+          <note>insulin (Z79.4)</note>
+          <note>oral antidiabetic drugs (Z79.84)</note>
+        </useAdditionalCode>
+        <diag>
+          <name>E11.2</name>
+          <desc>Type 2 diabetes mellitus with kidney complications</desc>
+          <diag>
+            <name>E11.22</name>
+            <desc>Type 2 diabetes mellitus with diabetic chronic kidney disease</desc>
+            <useAdditionalCode>
+              <note>code to identify stage of chronic kidney disease (N18.1-N18.6)</note>
+            </useAdditionalCode>
+          </diag>
+        </diag>
+      </diag>
+    </section>
+  </chapter>
+</ICD10CM.tabular>

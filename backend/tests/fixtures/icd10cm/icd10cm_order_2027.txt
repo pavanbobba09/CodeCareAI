@@ -1,0 +1,51 @@
+04301 E109    1 Type 1 diabetes mellitus without complications               Type 1 diabetes mellitus without complications
+04306 E11     0 Type 2 diabetes mellitus                                     Type 2 diabetes mellitus
+04313 E112    0 Type 2 diabetes mellitus with kidney complications           Type 2 diabetes mellitus with kidney complications
+04314 E1121   1 Type 2 diabetes mellitus with diabetic nephropathy           Type 2 diabetes mellitus with diabetic nephropathy
+04315 E1122   1 Type 2 diabetes mellitus w diabetic chronic kidney disease   Type 2 diabetes mellitus with diabetic chronic kidney disease
+04316 E1129   1 Type 2 diabetes mellitus w oth diabetic kidney complication  Type 2 diabetes mellitus with other diabetic kidney complication
+04403 E116    0 Type 2 diabetes mellitus with other specified complications  Type 2 diabetes mellitus with other specified complications
+04418 E1165   1 Type 2 diabetes mellitus with hyperglycemia                  Type 2 diabetes mellitus with hyperglycemia
+04421 E119    1 Type 2 diabetes mellitus without complications               Type 2 diabetes mellitus without complications
+04423 E13     0 Other specified diabetes mellitus                            Other specified diabetes mellitus
+04432 E1322   1 Oth diabetes mellitus with diabetic chronic kidney disease   Other specified diabetes mellitus with diabetic chronic kidney disease
+11589 I10     1 Essential (primary) hypertension                             Essential (primary) hypertension
+11593 I12     0 Hypertensive chronic kidney disease                          Hypertensive chronic kidney disease
+11594 I120    1 Hyp chr kidney disease w stage 5 chr kidney disease or ESRD  Hypertensive chronic kidney disease with stage 5 chronic kidney disease or end stage renal disease
+11595 I129    1 Hypertensive chronic kidney disease w stg 1-4/unsp chr kdny  Hypertensive chronic kidney disease with stage 1 through stage 4 chronic kidney disease, or unspecified chronic kidney disease
+11596 I13     0 Hypertensive heart and chronic kidney disease                Hypertensive heart and chronic kidney disease
+11597 I130    1 Hyp hrt & chr kdny dis w hrt fail and stg 1-4/unsp chr kdny  Hypertensive heart and chronic kidney disease with heart failure and stage 1 through stage 4 chronic kidney disease, or unspecified chronic kidney disease
+11598 I131    0 Hypertensive heart and chronic kidney disease w/o hrt fail   Hypertensive heart and chronic kidney disease without heart failure
+11599 I1310   1 Hyp hrt & chr kdny dis w/o hrt fail, w stg 1-4/unsp chr kdny Hypertensive heart and chronic kidney disease without heart failure, with stage 1 through stage 4 chronic kidney disease, or unspecified chronic kidney disease
+11600 I1311   1 Hyp hrt and chr kdny dis w/o hrt fail, w stg 5 chr kdny/ESRD Hypertensive heart and chronic kidney disease without heart failure, with stage 5 chronic kidney disease, or end stage renal disease
+11601 I132    1 Hyp hrt & chr kdny dis w hrt fail and w stg 5 chr kdny/ESRD  Hypertensive heart and chronic kidney disease with heart failure and with stage 5 chronic kidney disease, or end stage renal disease
+11916 I50     0 Heart failure                                                Heart failure
+11918 I502    0 Systolic (congestive) heart failure                          Systolic (congestive) heart failure
+11919 I5020   1 Unspecified systolic (congestive) heart failure              Unspecified systolic (congestive) heart failure
+11920 I5021   1 Acute systolic (congestive) heart failure                    Acute systolic (congestive) heart failure
+11921 I5022   1 Chronic systolic (congestive) heart failure                  Chronic systolic (congestive) heart failure
+11922 I5023   1 Acute on chronic systolic (congestive) heart failure         Acute on chronic systolic (congestive) heart failure
+11923 I503    0 Diastolic (congestive) heart failure                         Diastolic (congestive) heart failure
+11924 I5030   1 Unspecified diastolic (congestive) heart failure             Unspecified diastolic (congestive) heart failure
+11925 I5031   1 Acute diastolic (congestive) heart failure                   Acute diastolic (congestive) heart failure
+11926 I5032   1 Chronic diastolic (congestive) heart failure                 Chronic diastolic (congestive) heart failure
+11927 I5033   1 Acute on chronic diastolic (congestive) heart failure        Acute on chronic diastolic (congestive) heart failure
+11928 I504    0 Combined systolic and diastolic (congestive) hrt fail        Combined systolic (congestive) and diastolic (congestive) heart failure
+11929 I5040   1 Unsp combined systolic and diastolic (congestive) hrt fail   Unspecified combined systolic (congestive) and diastolic (congestive) heart failure
+11930 I5041   1 Acute combined systolic and diastolic (congestive) hrt fail  Acute combined systolic (congestive) and diastolic (congestive) heart failure
+11931 I5042   1 Chronic combined systolic and diastolic hrt fail             Chronic combined systolic (congestive) and diastolic (congestive) heart failure
+11932 I5043   1 Acute on chronic combined systolic and diastolic hrt fail    Acute on chronic combined systolic (congestive) and diastolic (congestive) heart failure
+11944 I509    1 Heart failure, unspecified                                   Heart failure, unspecified
+25032 N18     0 Chronic kidney disease (CKD)                                 Chronic kidney disease (CKD)
+25033 N181    1 Chronic kidney disease, stage 1                              Chronic kidney disease, stage 1
+25034 N182    1 Chronic kidney disease, stage 2 (mild)                       Chronic kidney disease, stage 2 (mild)
+25035 N183    0 Chronic kidney disease, stage 3 (moderate)                   Chronic kidney disease, stage 3 (moderate)
+25036 N1830   1 Chronic kidney disease, stage 3 unspecified                  Chronic kidney disease, stage 3 unspecified
+25037 N1831   1 Chronic kidney disease, stage 3a                             Chronic kidney disease, stage 3a
+25038 N1832   1 Chronic kidney disease, stage 3b                             Chronic kidney disease, stage 3b
+25039 N184    1 Chronic kidney disease, stage 4 (severe)                     Chronic kidney disease, stage 4 (severe)
+25040 N185    1 Chronic kidney disease, stage 5                              Chronic kidney disease, stage 5
+25041 N186    1 End stage renal disease                                      End stage renal disease
+25042 N189    1 Chronic kidney disease, unspecified                          Chronic kidney disease, unspecified
+97698 Z794    1 Long term (current) use of insulin                           Long term (current) use of insulin
+97726 Z7984   1 Long term (current) use of oral hypoglycemic drugs           Long term (current) use of oral hypoglycemic drugs

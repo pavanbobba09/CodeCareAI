@@ -1,0 +1,6 @@
+# Lint config for repo-level scripts/ and eval/; backend/ uses backend/pyproject.toml.
+extend = "backend/pyproject.toml"
+
+[lint.isort]
+known-third-party = ["alembic"]
+known-first-party = ["app", "_common"]

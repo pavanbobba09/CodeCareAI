@@ -1,0 +1,23 @@
+abbr,expansion
+DM,diabetes mellitus
+DM2,type 2 diabetes mellitus
+T2DM,type 2 diabetes mellitus
+DM1,type 1 diabetes mellitus
+T1DM,type 1 diabetes mellitus
+CKD,chronic kidney disease
+ESRD,end stage renal disease
+ESKD,end stage kidney disease
+AKI,acute kidney injury
+HTN,hypertension
+HF,heart failure
+CHF,congestive heart failure
+HFrEF,systolic heart failure
+HFpEF,diastolic heart failure
+HFmrEF,combined systolic and diastolic heart failure
+LVEF,left ventricular ejection fraction
+GFR,glomerular filtration rate
+eGFR,estimated glomerular filtration rate
+HbA1c,hemoglobin A1c
+A1c,hemoglobin A1c
+BMP,basic metabolic panel
+CMP,comprehensive metabolic panel

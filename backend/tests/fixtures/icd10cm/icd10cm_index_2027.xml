@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Excerpt of the public CMS FY2027 ICD-10-CM Alphabetic Index XML, for tests. -->
+<ICD10CM.index>
+  <letter>
+    <title>D</title>
+    <mainTerm>
+      <title>Diabetes, diabetic<nemod>(mellitus) (sugar)</nemod></title>
+      <code>E11.9</code>
+      <term level="1">
+        <title>with</title>
+        <term level="2">
+          <title>chronic kidney disease</title>
+          <code>E11.22</code>
+        </term>
+      </term>
+      <term level="1">
+        <title>type 2</title>
+        <code>E11.9</code>
+        <term level="2">
+          <title>with</title>
+          <term level="3">
+            <title>chronic kidney disease</title>
+            <code>E11.22</code>
+          </term>
+        </term>
+      </term>
+    </mainTerm>
+    <mainTerm>
+      <title>Disease, diseased</title>
+      <term level="1">
+        <title>kidney<nemod>(functional) (pelvis)</nemod></title>
+        <term level="2">
+          <title>chronic</title>
+          <code>N18.9</code>
+          <term level="3">
+            <title>stage 3<nemod>(moderate)</nemod></title>
+            <code>N18.30</code>
+          </term>
+          <term level="3">
+            <title>stage 3b</title>
+            <code>N18.32</code>
+          </term>
+        </term>
+      </term>
+    </mainTerm>
+  </letter>
+  <letter>
+    <title>F</title>
+    <mainTerm>
+      <title>Failure, failed</title>
+      <term level="1">
+        <title>heart<nemod>(acute) (senile) (sudden)</nemod></title>
+        <code>I50.9</code>
+        <term level="2">
+          <title>with</title>
+          <term level="3">
+            <title>decompensation</title>
+            <code>I50.9</code>
+            <term level="4">
+              <title>with</title>
+              <term level="5">
+                <title>reduced ejection fraction</title>
+                <code>I50.23</code>
+              </term>
+            </term>
+          </term>
+        </term>
+        <term level="2">
+          <title>diastolic<nemod>(congestive) (left ventricular)</nemod></title>
+          <code>I50.30</code>
+          <term level="3">
+            <title>combined with systolic<nemod>(congestive)</nemod></title>
+            <code>I50.40</code>
+          </term>
+        </term>
+      </term>
+      <!-- Real CMS quirk: a guidance note is encoded as a heading that wraps subterms. -->
+      <term level="1">
+        <title>Note: heart failure stages A, B, C, and D are based on the American College of Cardiology and American Heart Association stages of heart failure, which complement and should not be confused with the New York Heart Association Classification of Heart Failure, into Class I, Class II, Class III, and Class IV</title>
+        <term level="2">
+          <title>systolic<nemod>(congestive) (left ventricular)</nemod></title>
+          <code>I50.20</code>
+          <term level="3">
+            <title>combined with diastolic<nemod>(congestive)</nemod></title>
+            <code>I50.40</code>
+          </term>
+        </term>
+      </term>
+    </mainTerm>
+  </letter>
+  <letter>
+    <title>H</title>
+    <mainTerm>
+      <title>Hypertension, hypertensive<nemod>(accelerated) (benign) (essential)</nemod></title>
+      <code>I10</code>
+      <term level="1">
+        <title>with</title>
+        <term level="2">
+          <title>heart failure</title>
+          <code>I50.-</code>
+        </term>
+      </term>
+    </mainTerm>
+  </letter>
+</ICD10CM.index>
