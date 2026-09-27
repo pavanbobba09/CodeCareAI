@@ -43,7 +43,9 @@ E2E_EXTRACT = {
 E2E_SELECT = {
     "selections": [
         {"fact_id": "f1", "code": "E11.22", "evidence": [1], "rationale": "diabetes with CKD"},
-        {"fact_id": "f2", "code": "N18.32", "evidence": [2], "rationale": "stage 3b"},
+        # Deliberately less specific so R9 rebuilds N18.32 and the UI can prove it
+        # renders the generated added_by_rule field.
+        {"fact_id": "f2", "code": "N18.30", "evidence": [2], "rationale": "stage 3 CKD"},
     ]
 }
 

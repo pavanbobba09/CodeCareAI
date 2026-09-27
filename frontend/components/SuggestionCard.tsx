@@ -86,9 +86,16 @@ export function SuggestionCard({
           <p className="font-mono text-lg font-semibold">{s.code}</p>
           <p className="text-sm text-slate-700">{s.description}</p>
         </div>
-        <span className={`shrink-0 rounded px-2 py-0.5 text-xs font-medium ${CONFIDENCE_STYLE[s.confidence]}`}>
-          {s.confidence.replace("_", " ")}
-        </span>
+        <div className="flex shrink-0 flex-wrap justify-end gap-1">
+          {s.added_by_rule && (
+            <span className="rounded bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-900">
+              Added by rule {s.added_by_rule}
+            </span>
+          )}
+          <span className={`rounded px-2 py-0.5 text-xs font-medium ${CONFIDENCE_STYLE[s.confidence]}`}>
+            {s.confidence.replace("_", " ")}
+          </span>
+        </div>
       </header>
 
       <p className="mt-2 text-xs text-slate-500">

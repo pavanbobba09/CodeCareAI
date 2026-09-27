@@ -31,6 +31,8 @@ test("smoke: create a note, analyze, see evidence, accept, edit and reject", asy
   const n18 = page.getByRole("article", { name: "Suggestion N18.32" });
   await expect(e11).toBeVisible();
   await expect(n18).toBeVisible();
+  await expect(n18.getByText("Added by rule R9", { exact: true })).toBeVisible();
+  await expect(e11.getByText(/Added by rule/)).toHaveCount(0);
 
   // Each card highlights only its own evidence, and keeps it after the pointer leaves.
   const s1 = page.locator('[data-sentence="1"]');

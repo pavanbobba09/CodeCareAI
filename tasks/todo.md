@@ -9,11 +9,19 @@ Each milestone ends with its own passing check. Don't start a milestone until th
 
 Approved integration-only work; no real LLM calls and no push.
 
-1. [ ] Merge `m4-rules`, `m7-review`, then `m8-frontend` into a branch created from `main`.
-2. [ ] Resolve documentation, error-code, and API-contract conflicts without weakening M4 rule guarantees or M7 append-only review behavior.
-3. [ ] Regenerate frontend API types and show `added_by_rule` on suggestion cards.
-4. [ ] Run backend unit and integration tests, Ruff, mypy for `app` and `eval`, frontend lint and typecheck, and both fake-LLM Playwright tests.
-5. [ ] Record verification results and commit only on `integration`.
+1. [x] Merge `m4-rules`, `m7-review`, then `m8-frontend` into a branch created from `main`.
+2. [x] Resolve documentation, error-code, and API-contract conflicts without weakening M4 rule guarantees or M7 append-only review behavior.
+3. [x] Regenerate frontend API types and show `added_by_rule` on suggestion cards.
+4. [x] Run backend unit and integration tests, Ruff, mypy for `app` and `eval`, frontend lint and typecheck, and both fake-LLM Playwright tests.
+5. [x] Record verification results and commit only on `integration`.
+
+### Integration review (2026-09-27)
+
+**Done:** created `integration` from `main` in an isolated worktree and merged `m4-rules`, `m7-review`, then `m8-frontend`. The M4 merge conflict kept this integration plan plus the complete M4 task history; the M7 conflict kept both M4 and M7 history while the automatic model merge retained `Suggestion.added_by_rule` beside the review/history types; the M8 conflicts kept the combined M4/M7 design and added M8's frontend/testing and future-work sections. The final API contract includes every M7 route and error code, and generated frontend types now include nullable `Suggestion.added_by_rule`.
+
+Suggestion cards show an `Added by rule Rn` badge when that field is set. The fake E2E selection deliberately supplies valid but less-specific `N18.30`; R9 rebuilds it as `N18.32`, so the browser test proves the badge is rule-driven and still verifies separate evidence highlights.
+
+**Verified without a real LLM:** backend unit tests: 246 passed. Backend integration tests: 66 passed and only the approved `test_worked_example_from_recorded_llm` prompt-drift test failed. Ruff passed for `backend`, `eval`, and `scripts`; strict mypy passed for 73 `backend/app` and `eval` source files. `npm run gen:types` was repeatable; frontend lint and typecheck passed. Both Playwright tests passed against `scripts/fake_llm.py` (2 passed). No source branch was moved and nothing was pushed.
 
 ---
 

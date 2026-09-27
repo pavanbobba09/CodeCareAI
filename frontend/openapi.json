@@ -753,6 +753,17 @@
       },
       "Suggestion": {
         "properties": {
+          "added_by_rule": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Added By Rule"
+          },
           "code": {
             "title": "Code",
             "type": "string"

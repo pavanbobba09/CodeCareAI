@@ -407,6 +407,8 @@ export interface components {
         };
         /** Suggestion */
         Suggestion: {
+            /** Added By Rule */
+            added_by_rule?: string | null;
             /** Code */
             code: string;
             /**
