@@ -106,13 +106,13 @@ When `CodeSetSelection.cpt` is null, R13 and R14 are skipped (no CPT codes or E/
 
 Sources (FY2027 Official Guidelines unless noted): R1 I.B.2 and 45 CFR 162.1002; R2 I.A.15 and the E11.22 Tabular note; R3 I.C.9.a.2; R4 I.C.9.a.1; R5 I.C.9.a.3; R6 I.C.9.a.1 and I.C.9.a.3; R7 I.C.4.a.2; R8 I.C.4.a.3 plus FDA labels (DailyMed) for drug class in `data/diabetes_drug_classes.csv`; R9 I.C.14.a.1; R10 I.C.9.a.1, I.C.9.a.3 and the I50 Tabular axes; R11 IV.H; R12 I.A.12.a. Each rule module cites its source in `source_ref`.
 
-Rules work on the codes the LLM selected plus fact status, details and links. Order: R11, R1, R2, R5, R4, R3, R6, R7, R8, R9, R10, R12, then R1 again.
+Rules work on the codes the LLM selected plus fact status, details and links. Conditions (diabetes, CKD, heart failure, hypertension) and the CKD stage count as documented only when an active condition fact states them; a selected code is never evidence for its own parts. Order: R11, R1, R2, R5, R4, R3, R6, R7, R8, R9, R10, R12, then R1 again. Any rule result with outcome `fail` makes a code `not_suggested`: kept to show the coder why, never reported, ignored by later rules.
 
 - **R11** keeps a code whose facts are all suspected, ruled out or denied as `not_suggested` (outcome `fail`), so the coder sees why; later rules ignore it.
 - **R2-R5 and R8 add codes** from `CodeLookup` for the visit's code set, with `added_by_rule` set and `fact_ids`/evidence taken from the facts that triggered them. The final R1 pass checks every added code (exists, billable, valid on the visit date) and drops it if not.
-- **R2** turns E1x.9 + N18.x into E1x.22 + N18.x, or adds E1x.22 next to another E1x complication. **R3/R4/R5** add I12.9/I12.0, I11.0 and I13.0/I13.2 (stage 5 or ESRD picks the .0/.2 variant). CKD counts as present from a selected N18 code, a selected I12/I13 code, or an active CKD fact. E1x.22, I12 and I13 carry "use additional code to identify the stage" (Tabular): when no N18 code was selected, R2/R3/R5 add the stage the CKD fact documents (details or concept, e.g. stage 5 -> N18.5, ESRD -> N18.6), or N18.9 when none is written. The link is presumed (I.A.15, I.C.9.a) unless a CKD or heart-failure fact has a `caused_by` link to a fact other than the diabetes (R2) or hypertension (R3-R5); then no code is added and the codes get `needs_review`.
+- **R2** replaces only the uncomplicated E1x.9 with E1x.22 and adds E1x.22 next to other complications (E1x.21, E1x.29, E1x.65) when diabetes and CKD are documented. **R3/R4/R5** leave exactly one variant, chosen from the documented facts: I12.9 or I12.0, I11.0 (I11.9 becomes I11.0 when heart failure is documented), I13.0 or I13.2 (stage 5 or ESRD documented picks .0/.2 for I12 and .2 for I13). A selected E1x.22, I11.x, I12.x or I13.x whose conditions are not documented is kept as `not_suggested`. **R7** replaces a selected E10 or E13 code with its E11 counterpart when no diabetes type is documented. **R8** cites the diabetes and medication facts together. E1x.22, I12 and I13 carry "use additional code to identify the stage" (Tabular): when no N18 code was selected, R2/R3/R5 add the stage the CKD fact documents (details or concept, e.g. stage 5 -> N18.5, ESRD -> N18.6), or N18.9 when none is written. The link is presumed (I.A.15, I.C.9.a) unless a CKD or heart-failure fact has a `caused_by` link to a fact other than the diabetes (R2) or hypertension (R3-R5); then no code is added and the codes get `needs_review`.
 - **R6, R2 and R9 drop codes** as coding decisions (duplicate I10, I11/I12 under I13, E1x.9 replaced, CKD stage next to ESRD). Only R1 dropping an LLM pick counts as a model error.
-- **R9** raises its gap only when the note documents no stage (N18.9) or no 3a/3b (N18.30); when the LLM picked N18.9/N18.30 but the fact documents a more specific stage, that stage's code replaces it. **R10** keeps the less specific code and raises a neutral `missing` gap (I50.9, I50.20/30/40). **R12** marks both codes of an Excludes1 pair `needs_review` and raises a `conflicting` gap; it never drops a code.
+- **R9** reconciles every selected N18 code with the documented stage in both directions (more or less specific; N18.9 when CKD has no stage; N18.6 when ESRD is documented, even next to stage 5) and keeps an N18 code with no documented CKD as `not_suggested`; its gap is raised only when no stage (N18.9) or no 3a/3b (N18.30) is documented. **R10** keeps the less specific code and raises a neutral `missing` gap (I50.9, I50.20/30/40). **R12** marks both codes of an Excludes1 pair `needs_review` and raises a `conflicting` gap; it never drops a code.
 
 Known limits (not handled by the rules):
 
@@ -120,7 +120,7 @@ Known limits (not handled by the rules):
 - A `caused_by` link from extraction is trusted as documented; a wrong link blocks a presumed combination (the codes are marked for review).
 - Secondary diabetes (E08, E09, E13) combinations are not built.
 - Temporary insulin use, which I.C.4.a.3 says does not get Z79.4, is not detected. Drugs outside `data/diabetes_drug_classes.csv` (for example semaglutide, which has both oral and injectable labels) get no Z79 code.
-- I11.9/I12 variants for hypertensive heart disease without heart failure are not built; only I50 heart failure triggers R4/R5.
+- I11.9 (hypertensive heart disease without heart failure) is not checked against a documented heart condition other than heart failure; only I50 heart failure triggers R4/R5.
 
 ## 4. Data Flow
 
@@ -181,7 +181,7 @@ sequenceDiagram
 |---|---|
 | LLM timeout, 429, or HTTP error | Wait up to `Retry-After` capped at 20 seconds; retry once; then return `LLM_UNAVAILABLE`. |
 | Invalid model JSON | Retry once with the validation error; then return `LLM_BAD_OUTPUT`. |
-| Invalid sentence evidence | Drop the fact (or selection) and increment `model_errors`. |
+| Invalid sentence evidence | Drop the fact (or selection) and increment `model_errors`. A selection's evidence must be a non-empty subset of its own fact's evidence. |
 | Selected code outside candidates | Drop the selection and increment `model_errors`. |
 | R1 rejects a code | Drop the suggestion and log the code and fact IDs. It counts in `model_errors` only when the code was an LLM pick (candidates are already real and billable, so this is a guard); a rule-added code that fails R1 is a code-table problem. Drops by R2, R6 and R9 are coding decisions, not errors. |
 | Unexpected exception in a stage | Store a failed analysis; return `500 PIPELINE_ERROR`. |
@@ -467,7 +467,7 @@ class NoteRun(BaseModel):             # eval/records.py; one file per note per r
     error: str | None
     attempts: int
     n_sentences: int
-    predicted: list[PredictedCode]    # code, evidence, in_code_set, billable (checked at run time)
+    predicted: list[PredictedCode]    # code, evidence, in_code_set, billable, supported, support_reason (checked at run time)
     gap_rules: list[str]
     em_code: str | None
     model_errors: int
@@ -488,7 +488,7 @@ class SavedLlmOutputs(BaseModel):     # app/pipeline/state.py
     model_errors: int                 # validation drops before the rules ran
 ```
 
-Runs are saved to `eval/results/runs/<run_id>/<note_id>.json` (default run id `<date>-<setup>-<model>`), so they can be re-scored without the db or the LLM. Metrics compare exact code strings, micro-averaged over notes; a failed note counts as predicting nothing. Invented = predicted code not in the code set for the visit date. Invalid = predicted code that is invented or not billable in that code set (a superset of invented; catches category headers such as `N18.3`). Unsupported = predicted code with no evidence or evidence outside the note's sentence numbers. The baseline's missing dots are added before scoring (`E1122` -> `E11.22`). Each run's `meta.json` records setup, model and prompt version (`--extract-prompt`, default `extract_v2`); a resumed run must match it. **Replay** (`run_eval.py --replay-of RUN_ID`) reruns only `run_rules` and `assemble` (`pipeline.graph.rerun_rules`) on a run's saved `llm_outputs`, with no LLM or embedder calls; its `meta.json` adds `replay_of`. Notes without saved outputs replay as failed.
+Runs are saved to `eval/results/runs/<run_id>/<note_id>.json` (default run id `<date>-<setup>-<model>`), so they can be re-scored without the db or the LLM. Metrics compare exact code strings, micro-averaged over notes; a failed note counts as predicting nothing. Invented = predicted code not in the code set for the visit date. Invalid = predicted code that is invented or not billable in that code set (a superset of invented; catches category headers such as `N18.3`). Evidence-reference invalid = predicted code with no evidence or evidence outside the note's sentence numbers. Unsupported = predicted code that fails the rule-based support check (`eval/support.py`): its cited sentences must name the condition (description, Index paths, or each part of a combination code, after abbreviation expansion), not negate it, carry the details the code needs (e.g. `3b` for N18.32, type and acuity for I50.xx) and, when facts are known, come from an active fact; tested with 28 hand-labeled pairs. Runs saved before this check report it as n/a. Each run's `meta.json` stores its gold scope as a hash per gold note; a report with any scoped note missing or failed is marked INCOMPLETE and judges no metric pass or fail; replay refuses a source run whose gold notes changed or that has no hashes. The baseline's missing dots are added before scoring (`E1122` -> `E11.22`). Each run's `meta.json` records setup, model and prompt version (`--extract-prompt`, default `extract_v2`); a resumed run must match it. **Replay** (`run_eval.py --replay-of RUN_ID`) reruns only `run_rules` and `assemble` (`pipeline.graph.rerun_rules`) on a run's saved `llm_outputs`, with no LLM or embedder calls; its `meta.json` adds `replay_of`. Notes without saved outputs replay as failed.
 
 ## 6. API Contracts
 
@@ -588,7 +588,8 @@ Where each eval runs:
 |---|---|
 | Invented-code rate | `0` — hard gate |
 | Invalid-code rate (pipeline) | `0` — hard gate |
-| Unsupported-code rate | `≤ 5%` |
+| Evidence-reference invalid rate | `≤ 5%` |
+| Unsupported-code rate (support check) | `≤ 5%` |
 | Code precision | `≥ 0.85` |
 | Code recall | `≥ 0.80` |
 | Expected-gap recall | `≥ 0.80` |

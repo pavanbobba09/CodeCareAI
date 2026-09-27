@@ -15,6 +15,8 @@ class PredictedCode(BaseModel):
     evidence: list[int]
     in_code_set: bool  # False = invented: not in the code set for the visit date
     billable: bool
+    supported: bool | None = None  # eval/support.py; None for runs saved before the check
+    support_reason: str | None = None
 
 
 class NoteRun(BaseModel):

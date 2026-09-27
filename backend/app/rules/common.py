@@ -3,7 +3,7 @@
 import re
 from collections.abc import Iterable
 
-from app.models import ClinicalFact, Gap, RuleInput, RuleResult, Suggestion
+from app.models import ClinicalFact, DroppedCode, Gap, RuleInput, RuleResult, Suggestion
 from app.terminology.lookup import CodeLookup
 
 
@@ -25,8 +25,9 @@ def is_hypertension(code: str) -> bool:
 
 
 def not_suggested(s: Suggestion) -> bool:
-    """R11 kept this suggestion only to explain why it is not coded."""
-    return any(r.rule_id == "R11" and r.outcome == "fail" for r in s.rule_results)
+    """A rule failed this code (R11 uncertain diagnosis, or a combination code whose parts
+    are not documented). It is kept only to show the coder why it is not reported."""
+    return any(r.outcome == "fail" for r in s.rule_results)
 
 
 def active(suggestions: Iterable[Suggestion]) -> list[Suggestion]:
@@ -118,48 +119,53 @@ def present(suggestions: Iterable[Suggestion], code: str) -> bool:
     return any(s.code == code for s in suggestions)
 
 
-def stage5_or_esrd(ckd: Iterable[Suggestion]) -> bool:
-    return any(s.code in {"N18.5", "N18.6"} for s in ckd)
-
-
-class Hypertension:
-    """What the hypertension rules (R3-R5) need to know about one note.
-
-    CKD counts as present when an N18 code was selected, an I12/I13 code was selected
-    (both include CKD), or an active fact documents CKD without an N18 code picked.
-    """
-
-    def __init__(self, inp: RuleInput) -> None:
-        live = active(inp.suggestions)
-        self.htn = [s for s in live if is_hypertension(s.code)]
-        self.hf = [s for s in live if is_heart_failure(s.code)]
-        self.ckd = [s for s in live if is_ckd(s.code)]
-        self.ckd_facts = ckd_facts(inp)
-        self.has_i13 = any(s.code.startswith("I13") for s in self.htn)
-        self.has_ckd = bool(
-            self.ckd or self.ckd_facts or any(s.code[:3] in {"I12", "I13"} for s in self.htn)
-        )
-        htn_ids = fact_ids(self.htn)
-        self.ckd_ids = sorted({*fact_ids(self.ckd), *(f.fact_id for f in self.ckd_facts)})
-        # I.C.9.a presumes the link unless the note ties the condition to another cause.
-        self.hf_linked = bool(self.htn and self.hf) and not caused_by_other(
-            inp, fact_ids(self.hf), htn_ids
-        )
-        self.ckd_linked = bool(self.htn and self.has_ckd) and not caused_by_other(
-            inp, self.ckd_ids, htn_ids
-        )
-
-    def stage5_or_esrd(self) -> bool:
-        if self.ckd:
-            return stage5_or_esrd(self.ckd)
-        return any(documented_stage_code(f) in {"N18.5", "N18.6"} for f in self.ckd_facts)
-
-
 def review_all(
     suggestions: list[Suggestion], targets: Iterable[Suggestion], r: RuleResult
 ) -> list[Suggestion]:
     ids = {s.suggestion_id for s in targets}
     return [with_result(s, r) if s.suggestion_id in ids else s for s in suggestions]
+
+
+# Conditions are documented only by active condition facts (a combined fact such as
+# "hypertension with chronic kidney disease stage 5" documents both). A selected code is
+# never evidence that its own parts are documented.
+DIABETES_TEXT = re.compile(r"diabet|\bdm\s*[12]?\b|\bt[12]dm\b|\bn?iddm\b", re.IGNORECASE)
+CKD_TEXT = re.compile(
+    r"chronic kidney|\bckd\b|kidney disease|end[- ]stage (renal|kidney)|\besrd\b|\beskd\b",
+    re.IGNORECASE,
+)
+HEART_FAILURE_TEXT = re.compile(
+    r"heart failure|cardiac failure|\bchf\b|\bhf\b|\bhf(r|p|mr)ef\b", re.IGNORECASE
+)
+HYPERTENSION_TEXT = re.compile(r"hypertensi|\bhtn\b", re.IGNORECASE)
+
+
+def _documented(inp: RuleInput, pattern: re.Pattern[str]) -> list[ClinicalFact]:
+    return [
+        f
+        for f in inp.facts
+        if f.kind == "condition" and f.status == "active" and pattern.search(f.concept)
+    ]
+
+
+def diabetes_facts(inp: RuleInput) -> list[ClinicalFact]:
+    return _documented(inp, DIABETES_TEXT)
+
+
+def ckd_facts(inp: RuleInput) -> list[ClinicalFact]:
+    return _documented(inp, CKD_TEXT)
+
+
+def heart_failure_facts(inp: RuleInput) -> list[ClinicalFact]:
+    return _documented(inp, HEART_FAILURE_TEXT)
+
+
+def hypertension_facts(inp: RuleInput) -> list[ClinicalFact]:
+    return _documented(inp, HYPERTENSION_TEXT)
+
+
+def ids_of(facts: Iterable[ClinicalFact]) -> list[str]:
+    return sorted({f.fact_id for f in facts})
 
 
 # CKD stage -> N18 code (I.C.14.a.1: stages 1-5, stage 3 split 3a/3b; ESRD is N18.6).
@@ -173,32 +179,93 @@ STAGE_CODES = {
     "5": "N18.5",
 }
 N18_CODES = frozenset({*STAGE_CODES.values(), "N18.6", "N18.9"})
-_CKD = re.compile(
-    r"chronic kidney|\bckd\b|kidney disease|end[- ]stage (renal|kidney)|\besrd\b|\beskd\b",
-    re.IGNORECASE,
-)
-_ESRD = re.compile(r"end[- ]stage (renal|kidney)|\besrd\b|\beskd\b", re.IGNORECASE)
+ESRD_TEXT = re.compile(r"end[- ]stage (renal|kidney)|\besrd\b|\beskd\b", re.IGNORECASE)
 _STAGE = re.compile(r"\bstage\s*(1|2|3a|3b|3|4|5)\b|^\s*(1|2|3a|3b|3|4|5)\s*$", re.IGNORECASE)
 
 
-def ckd_facts(inp: RuleInput) -> list[ClinicalFact]:
-    """Active condition facts about chronic kidney disease (including combined facts)."""
-    return [
-        f
-        for f in inp.facts
-        if f.kind == "condition" and f.status == "active" and _CKD.search(f.concept)
-    ]
-
-
 def documented_stage_code(fact: ClinicalFact) -> str | None:
-    """The N18 code for the stage the fact documents, or None when no stage is written."""
-    for text in (fact.details.get("stage", ""), fact.concept):
-        if _ESRD.search(text):
-            return "N18.6"
+    """The N18 code for the stage the fact documents (details first, then the concept), or
+    None when no stage is written. ESRD wins over a stage (I.C.14.a.1: N18.6 only)."""
+    texts = (fact.details.get("stage", ""), fact.concept)
+    if any(ESRD_TEXT.search(t) for t in texts):
+        return "N18.6"
+    for text in texts:
         m = _STAGE.search(text)
         if m:
             return STAGE_CODES[(m[1] or m[2]).lower()]
     return None
+
+
+def documented_ckd_codes(facts: Iterable[ClinicalFact]) -> list[str]:
+    """Distinct N18 codes the CKD facts document: N18.6 alone when ESRD is documented,
+    N18.9 when CKD is documented without a stage, [] when CKD is not documented."""
+    facts = list(facts)
+    found = {c for f in facts if (c := documented_stage_code(f)) is not None}
+    if "N18.6" in found:
+        return ["N18.6"]
+    if found:
+        return sorted(found)
+    return ["N18.9"] if facts else []
+
+
+def stage5_or_esrd(facts: Iterable[ClinicalFact]) -> bool:
+    return any(c in {"N18.5", "N18.6"} for c in documented_ckd_codes(facts))
+
+
+class Conditions:
+    """Which of diabetes, CKD, heart failure and hypertension the note documents, and whether
+    the presumed links hold (I.A.15, I.C.9.a): not when the condition is `caused_by` a fact
+    other than the diabetes (R2) or hypertension (R3-R5)."""
+
+    def __init__(self, inp: RuleInput) -> None:
+        self.diabetes = diabetes_facts(inp)
+        self.ckd = ckd_facts(inp)
+        self.hf = heart_failure_facts(inp)
+        self.htn = hypertension_facts(inp)
+        htn_ids = ids_of(self.htn)
+        self.hf_linked = bool(self.htn and self.hf) and not caused_by_other(
+            inp, ids_of(self.hf), htn_ids
+        )
+        self.ckd_linked = bool(self.htn and self.ckd) and not caused_by_other(
+            inp, ids_of(self.ckd), htn_ids
+        )
+
+
+def fail_all(
+    suggestions: list[Suggestion], targets: Iterable[Suggestion], r: RuleResult
+) -> list[Suggestion]:
+    """Keep the targets only as "not suggested", with the reason (outcome fail)."""
+    return review_all(suggestions, targets, r)
+
+
+def settle_variant(
+    inp: RuleInput,
+    codes: CodeLookup,
+    out: list[Suggestion],
+    variants: set[str],
+    target: str,
+    rule_id: str,
+    r: RuleResult,
+    trigger_ids: list[str],
+) -> tuple[list[Suggestion], list[DroppedCode]]:
+    """Leave exactly one of mutually exclusive `variants`: `target`. Other selected variants
+    are dropped; `target` is added (from the code table) when it is not already there."""
+    wrong = [s for s in active(out) if s.code in variants and s.code != target]
+    dropped = [
+        DroppedCode(
+            code=s.code,
+            fact_ids=s.fact_ids,
+            rule_id=rule_id,
+            reason=f"The documented facts call for {target}, not {s.code}.",
+        )
+        for s in wrong
+    ]
+    wrong_ids = {s.suggestion_id for s in wrong}
+    out = [s for s in out if s.suggestion_id not in wrong_ids]
+    if not present(active(out), target):
+        ids = sorted({*trigger_ids, *fact_ids(wrong)})
+        out.append(added(inp, codes, target, rule_id, wrong, r, ids))
+    return out, dropped
 
 
 def stage_additions(
@@ -207,15 +274,15 @@ def stage_additions(
     """N18 codes to add when a CKD combination is coded but no N18 code was selected.
 
     The combination codes say "use additional code to identify the stage" (Tabular E11.22,
-    I12, I13). A documented stage gives its code; no stage gives N18.9, which R9 flags.
+    I12, I13). The stage comes from the CKD facts; no stage gives N18.9, which R9 flags.
     """
     if any(is_ckd(s.code) for s in active(inp.suggestions)) or not facts:
         return []
-    by_code: dict[str, list[str]] = {}
-    for f in facts:
-        by_code.setdefault(documented_stage_code(f) or "N18.9", []).append(f.fact_id)
-    staged = {c: ids for c, ids in by_code.items() if c != "N18.9"}
-    return [
-        added(inp, codes, code, rule_id, [], r, sorted(ids))
-        for code, ids in sorted((staged or by_code).items())
-    ]
+    documented = documented_ckd_codes(facts)
+    out = []
+    for code in documented:
+        ids = [f.fact_id for f in facts if (documented_stage_code(f) or "N18.9") == code]
+        if code == "N18.6" or not ids:
+            ids = ids_of(facts)
+        out.append(added(inp, codes, code, rule_id, [], r, ids))
+    return out

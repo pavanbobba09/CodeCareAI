@@ -1,5 +1,6 @@
 """Load and check gold notes (DESIGN.md §5.4)."""
 
+import hashlib
 import json
 import re
 from collections.abc import Callable
@@ -20,6 +21,18 @@ def load_gold(directory: Path = GOLD_DIR) -> list[GoldNote]:
         GoldNote.model_validate(json.loads(p.read_text()))
         for p in sorted(directory.glob("n*.json"))
     ]
+
+
+def gold_hash(note: GoldNote) -> str:
+    """Content hash of a gold note; a run stores one per note so changes are detected."""
+    canonical = json.dumps(note.model_dump(mode="json"), sort_keys=True)
+    return hashlib.sha256(canonical.encode()).hexdigest()
+
+
+def changed_notes(hashes: dict[str, str], golds: list[GoldNote]) -> list[str]:
+    """Note ids whose gold note is gone or no longer matches the stored hash."""
+    current = {g.note_id: gold_hash(g) for g in golds}
+    return sorted(n for n, h in hashes.items() if current.get(n) != h)
 
 
 def check_gold(notes: list[GoldNote], code_check: CodeCheck | None = None) -> list[str]:

@@ -13,6 +13,7 @@ from eval.records import NoteRun
 THRESHOLDS: dict[str, tuple[str, float]] = {
     "invented_rate": ("==", 0.0),
     "invalid_rate": ("==", 0.0),
+    "evidence_ref_invalid_rate": ("<=", 0.05),
     "unsupported_rate": ("<=", 0.05),
     "precision": (">=", 0.85),
     "recall": (">=", 0.80),
@@ -30,7 +31,9 @@ class NoteScore(BaseModel):
     extra: list[str]
     invented: list[str]
     invalid: list[str]
-    unsupported: list[str]
+    evidence_ref_invalid: list[str]  # no evidence, or a sentence number not in the note
+    unsupported: list[str]  # the support check failed (eval/support.py)
+    unchecked: list[str]  # no support result (runs saved before the check)
     gaps_expected: list[str]
     gaps_raised: list[str]
 
@@ -38,12 +41,15 @@ class NoteScore(BaseModel):
 class Summary(BaseModel):
     notes: int
     failed_notes: int
+    missing_notes: list[str]  # gold notes in the run's scope with no result
+    complete: bool  # every gold note in scope has a completed result
     predicted_codes: int
     precision: float | None
     recall: float | None
     invented_rate: float | None
     invalid_rate: float | None
-    unsupported_rate: float | None
+    evidence_ref_invalid_rate: float | None
+    unsupported_rate: float | None  # None when any predicted code has no support result
     gap_recall: float | None
     em_match: float | None  # None while no gold note has expected_em
     mean_latency_ms: int
@@ -58,7 +64,7 @@ def score_note(gold: GoldNote, run: NoteRun) -> NoteScore:
     expected = {c.code for c in gold.expected_codes}
     predicted = {p.code for p in run.predicted}
     valid_sentences = set(range(1, run.n_sentences + 1))
-    unsupported = {
+    bad_refs = {
         p.code
         for p in run.predicted
         if not p.evidence or any(n not in valid_sentences for n in p.evidence)
@@ -72,7 +78,9 @@ def score_note(gold: GoldNote, run: NoteRun) -> NoteScore:
         extra=sorted(predicted - expected),
         invented=sorted({p.code for p in run.predicted if not p.in_code_set}),
         invalid=sorted({p.code for p in run.predicted if not (p.in_code_set and p.billable)}),
-        unsupported=sorted(unsupported),
+        evidence_ref_invalid=sorted(bad_refs),
+        unsupported=sorted({p.code for p in run.predicted if p.supported is False}),
+        unchecked=sorted({p.code for p in run.predicted if p.supported is None}),
         gaps_expected=sorted(gold.expected_gap_rules),
         gaps_raised=sorted(set(run.gap_rules)),
     )
@@ -88,20 +96,38 @@ def summarize(golds: list[GoldNote], runs: dict[str, NoteRun]) -> Summary:
     em_golds = [g for g in golds if g.expected_em is not None and g.note_id in runs]
     em_hits = sum(1 for g in em_golds if runs[g.note_id].em_code == g.expected_em)
     latencies = [runs[s.note_id].latency_ms for s in scores]
+    missing = sorted(g.note_id for g in golds if g.note_id not in runs)
+    failed = sum(1 for s in scores if s.status != "completed")
+    unchecked = sum(len(s.unchecked) for s in scores)
     return Summary(
         notes=len(scores),
-        failed_notes=sum(1 for s in scores if s.status != "completed"),
+        failed_notes=failed,
+        missing_notes=missing,
+        complete=not missing and failed == 0,
         predicted_codes=n_pred,
         precision=_ratio(tp, n_pred),
         recall=_ratio(tp, n_exp),
         invented_rate=_ratio(sum(len(s.invented) for s in scores), n_pred),
         invalid_rate=_ratio(sum(len(s.invalid) for s in scores), n_pred),
-        unsupported_rate=_ratio(sum(len(s.unsupported) for s in scores), n_pred),
+        evidence_ref_invalid_rate=_ratio(sum(len(s.evidence_ref_invalid) for s in scores), n_pred),
+        unsupported_rate=None
+        if unchecked
+        else _ratio(sum(len(s.unsupported) for s in scores), n_pred),
         gap_recall=_ratio(gaps_hit, gaps_exp),
         em_match=_ratio(em_hits, len(em_golds)),
         mean_latency_ms=int(sum(latencies) / len(latencies)) if latencies else 0,
         per_note=scores,
     )
+
+
+def judge(metric: str, value: float | None, complete: bool) -> str:
+    """The mark a report shows: an incomplete run claims neither pass nor fail."""
+    ok = meets(metric, value)
+    if ok is None:
+        return ""
+    if not complete:
+        return " (incomplete)"
+    return " ✓" if ok else " ✗"
 
 
 def meets(metric: str, value: float | None) -> bool | None:

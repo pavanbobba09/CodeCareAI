@@ -34,6 +34,8 @@ def test_replay_reproduces_the_live_run_from_saved_outputs(seeded: Engine) -> No
     assert [f.fact_id for f in live.llm_outputs.facts] == ["f1", "f2"]
     assert live.llm_outputs.candidate_sets and live.llm_outputs.selections
     assert live.prompt_version == "extract_v1+select_v1"
+    # The support check ran: sentence 1 names diabetes with CKD and the stage "3".
+    assert {(p.code, p.supported) for p in live.predicted} == {("E11.22", True), ("N18.30", True)}
 
     with Session(seeded) as session:
         replay = predict_replay(session, live, GOLD)  # raises if it reaches the LLM

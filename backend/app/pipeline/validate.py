@@ -37,9 +37,12 @@ def validate_facts(facts: list[ClinicalFact], valid: set[int]) -> tuple[list[Cli
 
 
 def validate_selections(
-    selections: list[CodeSelection], candidate_sets: list[CandidateSet], valid: set[int]
+    selections: list[CodeSelection],
+    candidate_sets: list[CandidateSet],
+    fact_evidence: dict[str, set[int]],
 ) -> tuple[list[CodeSelection], int]:
-    """Keep selections whose code is in that fact's candidates and whose evidence is real."""
+    """Keep selections whose code is in that fact's candidates and whose evidence is a
+    non-empty subset of that fact's evidence (a code can only cite what its fact cites)."""
     allowed = {cs.fact_id: {c.code for c in cs.candidates} for cs in candidate_sets}
     kept: list[CodeSelection] = []
     errors = 0
@@ -51,8 +54,13 @@ def validate_selections(
             log.warning("dropped selection %s for fact %s: not a candidate", sel.code, sel.fact_id)
             errors += 1
             continue
-        if not _evidence_ok(sel.evidence, valid):
-            log.warning("dropped selection %s for fact %s: bad evidence", sel.code, sel.fact_id)
+        if not _evidence_ok(sel.evidence, fact_evidence.get(sel.fact_id, set())):
+            log.warning(
+                "dropped selection %s for fact %s: evidence %s not in the fact's evidence",
+                sel.code,
+                sel.fact_id,
+                sel.evidence,
+            )
             errors += 1
             continue
         key = (sel.fact_id, sel.code)

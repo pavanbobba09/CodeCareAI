@@ -59,3 +59,15 @@ def test_check_gold_uses_code_check() -> None:
         "n001: N18.3 is not billable",
         "n001: Q99.99 not in the code set for 2026-10-05",
     ]
+
+
+def test_changed_gold_notes_are_detected_by_hash() -> None:
+    from eval.gold import changed_notes, gold_hash, load_gold
+
+    golds = load_gold()[:3]
+    hashes = {g.note_id: gold_hash(g) for g in golds}
+    assert changed_notes(hashes, golds) == []
+
+    edited = golds[1].model_copy(update={"text": golds[1].text + " Extra sentence."})
+    assert changed_notes(hashes, [golds[0], edited, golds[2]]) == [golds[1].note_id]
+    assert changed_notes(hashes, golds[:2]) == [golds[2].note_id]  # a removed note counts

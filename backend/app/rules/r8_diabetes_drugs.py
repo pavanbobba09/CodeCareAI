@@ -15,7 +15,16 @@ import re
 from pathlib import Path
 
 from app.models import RuleInput, RuleOutput, Suggestion
-from app.rules.common import active, added, is_diabetes, present, result
+from app.rules.common import (
+    active,
+    added,
+    diabetes_facts,
+    fact_ids,
+    ids_of,
+    is_diabetes,
+    present,
+    result,
+)
 from app.terminology.lookup import CodeLookup
 
 RULE_ID = "R8"
@@ -64,5 +73,7 @@ def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
             SOURCE_REF,
             [target],
         )
-        out.append(added(inp, codes, target, RULE_ID, diabetes, r, sorted(med_ids)))
+        # Evidence: the diabetes facts and the medication facts together.
+        ids = sorted({*med_ids, *ids_of(diabetes_facts(inp)), *fact_ids(diabetes)})
+        out.append(added(inp, codes, target, RULE_ID, diabetes, r, ids))
     return RuleOutput(suggestions=out, dropped=[], gaps=[])

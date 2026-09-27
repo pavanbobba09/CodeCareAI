@@ -18,7 +18,8 @@ def test_insulin_and_oral_get_both_codes() -> None:
 
     assert codes_of(out) == ["E11.9", "Z79.4", "Z79.84"]
     z = by_code(out, "Z79.4")
-    assert (z.added_by_rule, z.fact_ids, z.evidence) == ("R8", ["f3"], [3])
+    # Evidence: the diabetes fact and the medication fact together (Codex finding 11).
+    assert (z.added_by_rule, z.fact_ids, z.evidence) == ("R8", ["f1", "f3"], [1, 3])
 
 
 def test_injectable_non_insulin_gets_z79_85() -> None:

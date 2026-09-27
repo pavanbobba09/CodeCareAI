@@ -68,6 +68,32 @@ Why the README waits (2026-09-27): no single branch had every feature (replay an
 
 ---
 
+## Current task: Codex review fixes on m4-rules (owner, 2026-09-27)
+
+Owner-directed fixes before tomorrow's M4 eval; no LLM calls. Each fix gets a regression test that feeds the wrong-but-valid code and fails without the fix. Findings 16-18 skipped (owner). Supersedes parts of steps 5, 9 and 23 of the M4 plan (combination presence and stage come from facts only).
+
+1. [x] Combination codes need documented parts: HTN/CKD/HF/diabetes presence only from active facts, never from a selected I12/I13/E1x.22 code. A selected E1x.22, I11.x, I12.x or I13.x whose conditions are not documented is kept as `not_suggested` (rule result `fail`). n007: stage from the CKD fact, not the selected code.
+2. [x] Stage reconciliation both ways: every selected N18 code is replaced by the documented stage's code (up or down; N18.9 when none); stage 5 and ESRD both documented -> N18.6.
+3. [x] Exclusive variants from documented facts: I12.9 <-> I12.0, I13.0 <-> I13.2, I11.9 -> I11.0 when heart failure is documented; never both variants.
+4. [x] R7: E10 or E13 without a documented type -> E11 counterpart.
+5. [x] R2: add E1x.22 next to E1x.21/E1x.29 when CKD is documented; replace only the uncomplicated E1x.9.
+6. [x] Selection evidence must be a subset of its fact's evidence; otherwise dropped and counted as a model error.
+7. [x] R8: added Z79 codes cite the union of the diabetes and medication facts.
+8. [x] Eval: rename the old check to evidence-reference validity; add a rule-based support check (cited sentences name the condition via description, Index terms or abbreviations; not negated; carry the needed details, e.g. "3b" for N18.32; code comes from an active fact); 20-30 hand-labeled pairs test it.
+9. [x] Eval coverage: a run with a missing or failed gold note is "incomplete" and claims no pass/fail; runs store a hash per gold note; replay refuses if a gold note changed.
+10. [x] Full-pipeline test: suspected heart failure plus a documented symptom -> no I50 code, symptom code present.
+11. [ ] m8-frontend: review buttons disabled while re-analysis runs; e2e suggestions cite different sentences so the highlight test can fail.
+
+### Review (2026-09-27)
+
+**Done on `m4-rules`** (no LLM calls): items 1-10 above. Rules now read conditions and stage only from active facts (`rules/common.py` `Conditions`, `documented_ckd_codes`); `settle_variant` leaves one of I12.0/I12.9, I13.0/I13.10/I13.11/I13.2, I11.0/I11.9; R9 reconciles N18 both ways; R7 swaps untyped E10/E13 for E11 (counterparts preloaded); R2 replaces only E1x.9; R8 cites diabetes + medication facts; selection evidence must be within its fact's evidence. Eval: `evidence_ref_invalid_rate` (the old check) plus `unsupported_rate` from `eval/support.py`; runs store gold hashes, reports mark INCOMPLETE and judge nothing, replay refuses changed gold. Fixture code table gained R06.02.
+
+**Verified:** 204 unit + 39 of 40 integration tests pass; ruff, ruff format, mypy clean. The only failure is still `test_worked_example_from_recorded_llm` (waits on re-recording tomorrow). Every fix's new test was run against the pre-fix rules in a throwaway worktree: all 16 finding tests for items 1-5, the R8 evidence test and the pipeline evidence-subset test fail there; the one guard test (typed E10 stays E10) passes on both, as intended. `rescore.py` gates pass; the two M3 10-note runs now show INCOMPLETE (no stored scope, so they are scored against all 20 notes).
+
+**Open:** support checker is a deterministic proxy (word matching over descriptions and Index paths), not a coder; thresholds for the two evidence metrics kept at <= 5% pending owner review.
+
+---
+
 ## Current task: M4 detailed plan (approved 2026-09-27)
 
 Touches DESIGN §3.4 (R2-R12), §4.1 step 6 (retrieval), §4.4 (what counts as `model_errors`), §5.1 (confidence bands), §5.2 (`CodeLookup`, rule contract), §9 (smoke eval before/after). Milestone M4. Baseline to beat: M3 20-note pipeline run `2026-09-27-n20-pipeline-openai_gpt-oss-120b` (precision 0.78, recall 0.82, gap recall 0.00, invented 0, invalid 0).
@@ -414,6 +440,7 @@ Touches DESIGN.md §3.3 (tech, env vars), §5.3 (tables), §6 (`/health`), §7 (
 - [ ] Complete gold set to 50 notes
 - [ ] `eval-full.yml`: full eval + baseline; compare with thresholds in `DESIGN.md` Section 9.2
 - [ ] README: setup, architecture, results table, limitations
+- [ ] Public API accepts real notes (Codex finding 14): before any public deploy, add a guard (for example a synthetic-data notice plus request limits, or no public write access) so the demo cannot be used to process real patient notes
 - **Done when:** full eval runs and results are in the README
 
 ---

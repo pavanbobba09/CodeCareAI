@@ -1,7 +1,7 @@
 from datetime import date
 
 from app.models.eval import ExpectedCode, GoldNote
-from eval.metrics import meets, summarize
+from eval.metrics import judge, meets, summarize
 from eval.records import NoteRun, PredictedCode
 
 
@@ -70,7 +70,9 @@ def test_invented_and_unsupported_rates() -> None:
     }
     s = summarize(golds, runs)
     assert s.invented_rate == 0.25
-    assert s.unsupported_rate == 0.5  # no evidence, and sentence 7 of a 3-sentence note
+    # Evidence-reference validity: no evidence, and sentence 7 of a 3-sentence note.
+    assert s.evidence_ref_invalid_rate == 0.5
+    assert s.unsupported_rate is None  # these predictions carry no support result
     assert s.per_note[0].invented == ["X99.9"]
 
 
@@ -122,3 +124,30 @@ def test_thresholds() -> None:
     assert meets("recall", 0.8) is True
     assert meets("unsupported_rate", 0.06) is False
     assert meets("em_match", None) is None
+
+
+def test_unsupported_rate_counts_failed_support_checks() -> None:
+    ok = PredictedCode(code="I10", evidence=[1], in_code_set=True, billable=True, supported=True)
+    bad = ok.model_copy(update={"code": "N18.32", "supported": False})
+    s = summarize([_gold("n001", ["I10"])], {"n001": _run("n001", [ok, bad])})
+
+    assert (s.unsupported_rate, s.per_note[0].unsupported) == (0.5, ["N18.32"])
+
+
+def test_missing_or_failed_notes_make_the_run_incomplete() -> None:
+    golds = [_gold("n001", ["I10"]), _gold("n002", ["I10"]), _gold("n003", ["I10"])]
+    runs = {
+        "n001": _run("n001", [_p("I10")]),
+        "n002": _run("n002", [], status="failed", error="LLM_UNAVAILABLE"),
+    }
+    s = summarize(golds, runs)
+
+    assert (s.complete, s.missing_notes, s.failed_notes) == (False, ["n003"], 1)
+    # Even a metric that meets its threshold is not claimed as a pass.
+    assert judge("invented_rate", 0.0, s.complete) == " (incomplete)"
+    assert judge("invented_rate", 0.0, True) == " ✓"
+
+
+def test_complete_run() -> None:
+    s = summarize([_gold("n001", ["I10"])], {"n001": _run("n001", [_p("I10")])})
+    assert (s.complete, s.missing_notes) == (True, [])

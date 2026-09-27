@@ -4,7 +4,7 @@ from typing import Any
 from app.models import CodeSystem, RuleInput, Suggestion
 from app.pipeline.nodes import Node
 from app.pipeline.state import PipelineDeps, PipelineState
-from app.rules import TARGET_CODES, run_all
+from app.rules import codes_to_preload, run_all
 from app.terminology.lookup import preload_lookup
 
 log = logging.getLogger(__name__)
@@ -53,7 +53,8 @@ def make(deps: PipelineDeps) -> Node:
             code_set_id = state.code_sets.cpt if system == "CPT" else state.code_sets.icd10cm
             if code_set_id is not None:
                 wanted.setdefault(code_set_id, set()).add(s.code)
-        wanted.setdefault(state.code_sets.icd10cm, set()).update(TARGET_CODES)
+        icd = wanted.setdefault(state.code_sets.icd10cm, set())
+        icd.update(codes_to_preload(set(icd)))
         picked = {s.code for s in drafts}
         out = run_all(
             RuleInput(

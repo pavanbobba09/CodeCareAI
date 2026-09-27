@@ -8,11 +8,13 @@ from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.db.models import IndexTerm
 from app.llm.client import JsonLlm, LlmError
 from app.llm.prompts import load_prompt
-from app.models import AnalysisResult, Note
+from app.models import AnalysisResult, ClinicalFact, Note
 from app.models.eval import BaselineOutput, GoldNote
 from app.pipeline.graph import rerun_rules, run_pipeline_state
 from app.pipeline.state import (
@@ -23,10 +25,12 @@ from app.pipeline.state import (
     prompt_version,
 )
 from app.segment.segmenter import segment_note
+from app.terminology.abbreviations import load_abbreviations
 from app.terminology.code_sets import resolve_code_sets
 from app.terminology.embedder import Embedder
 from app.terminology.lookup import DbCodeLookup
 from eval.records import NoteRun, PredictedCode
+from eval.support import SupportContext, check_support
 
 BASELINE_PROMPT_VERSION = "baseline_v1"
 _UNDOTTED = re.compile(r"^[A-Z]\d{2}[0-9A-Z]+$")
@@ -51,27 +55,61 @@ def _note(gold: GoldNote) -> Note:
 
 
 def _predicted(
-    session: Session, code_set_id: str, codes: list[tuple[str, list[int]]]
+    session: Session,
+    code_set_id: str,
+    codes: list[tuple[str, list[int], list[str] | None]],
+    sentences: dict[int, str],
 ) -> list[PredictedCode]:
+    """Score-ready predictions: code-set validity plus the rule-based support check.
+
+    Each item is (code, evidence, statuses of the code's facts); statuses are None when the
+    setup has no facts (the LLM-only baseline).
+    """
     lookup = DbCodeLookup(session)
-    out: dict[str, PredictedCode] = {}
-    for code, evidence in codes:
-        found = lookup.get_code(code, code_set_id)
-        prior = out.get(code)
-        merged = sorted({*evidence, *(prior.evidence if prior else [])})
-        out[code] = PredictedCode(
-            code=code,
-            evidence=merged,
-            in_code_set=found is not None,
-            billable=found is not None and lookup.is_billable(code, code_set_id),
+    abbreviations = load_abbreviations(session)
+    merged: dict[str, tuple[list[int], list[str] | None]] = {}
+    for code, evidence, statuses in codes:
+        prior_ev, prior_st = merged.get(code, ([], None))
+        all_st = (
+            None
+            if statuses is None and prior_st is None
+            else [*(prior_st or []), *(statuses or [])]
         )
-    return list(out.values())
+        merged[code] = (sorted({*evidence, *prior_ev}), all_st)
+    out = []
+    for code, (evidence, statuses) in merged.items():
+        found = lookup.get_code(code, code_set_id)
+        ctx = SupportContext(
+            description=found.description if found else "",
+            index_paths=list(
+                session.scalars(
+                    select(IndexTerm.path).where(
+                        IndexTerm.code_set_id == code_set_id, IndexTerm.code == code
+                    )
+                )
+            ),
+            abbreviations=abbreviations,
+        )
+        cited = [sentences[n] for n in evidence if n in sentences]
+        supported, reason = check_support(code, cited, ctx, statuses)
+        out.append(
+            PredictedCode(
+                code=code,
+                evidence=evidence,
+                in_code_set=found is not None,
+                billable=found is not None and lookup.is_billable(code, code_set_id),
+                supported=supported,
+                support_reason=reason,
+            )
+        )
+    return out
 
 
 def _pipeline_run(
     session: Session,
     gold: GoldNote,
-    note_sentences: int,
+    note: Note,
+    facts: list[ClinicalFact],
     code_set_id: str,
     result: AnalysisResult,
     model: str,
@@ -80,6 +118,7 @@ def _pipeline_run(
 ) -> NoteRun:
     # "not_suggested" codes are shown to the coder with the reason, not reported.
     reported = [s for s in result.suggestions if s.confidence != "not_suggested"]
+    by_id = {f.fact_id: f for f in facts}
     return NoteRun(
         note_id=gold.note_id,
         setup="pipeline",
@@ -88,8 +127,16 @@ def _pipeline_run(
         status=result.status,
         error=result.error.code if result.error else None,
         attempts=1,
-        n_sentences=note_sentences,
-        predicted=_predicted(session, code_set_id, [(s.code, s.evidence) for s in reported]),
+        n_sentences=len(note.sentences),
+        predicted=_predicted(
+            session,
+            code_set_id,
+            [
+                (s.code, s.evidence, [by_id[f].status for f in s.fact_ids if f in by_id])
+                for s in reported
+            ],
+            {x.n: x.text for x in note.sentences},
+        ),
         gap_rules=sorted({g.rule_id for g in result.gaps if g.rule_id}),
         em_code=result.em.code if result.em else None,
         model_errors=result.model_errors,
@@ -123,7 +170,8 @@ def predict_pipeline(
         return _pipeline_run(
             session,
             gold,
-            len(note.sentences),
+            note,
+            state.facts,
             sets.icd10cm,
             state.result,
             llm.model,
@@ -176,7 +224,8 @@ def predict_replay(session: Session, source: NoteRun, gold: GoldNote) -> NoteRun
         return _pipeline_run(
             session,
             gold,
-            len(note.sentences),
+            note,
+            source.llm_outputs.facts,
             sets.icd10cm,
             result,
             source.model,
@@ -221,7 +270,10 @@ def predict_baseline(session: Session, llm: JsonLlm, gold: GoldNote) -> NoteRun:
     with session.begin():
         sets = resolve_code_sets(session, note.visit_date)
         predicted = _predicted(
-            session, sets.icd10cm, [(normalize_code(c.code), c.evidence) for c in out.codes]
+            session,
+            sets.icd10cm,
+            [(normalize_code(c.code), c.evidence, None) for c in out.codes],
+            {x.n: x.text for x in note.sentences},
         )
     return NoteRun(
         **base,

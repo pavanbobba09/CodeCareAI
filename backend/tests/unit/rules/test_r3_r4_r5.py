@@ -17,7 +17,8 @@ def test_r3_adds_i12_9_for_stage_1_to_4() -> None:
 
 
 def test_r3_adds_i12_0_for_stage_5_or_esrd() -> None:
-    out = run(r3_htn_ckd.apply, [sug("s1", "I10", ["f1"]), sug("s2", "N18.6", ["f3"])], [HTN, CKD])
+    esrd = fact("f3", "end-stage renal disease", [3])
+    out = run(r3_htn_ckd.apply, [sug("s1", "I10", ["f1"]), sug("s2", "N18.6", ["f3"])], [HTN, esrd])
 
     assert "I12.0" in codes_of(out)
 
@@ -74,8 +75,9 @@ def test_r5_adds_i13_0_for_stage_1_to_4() -> None:
 
 
 def test_r5_adds_i13_2_for_esrd() -> None:
+    esrd = fact("f3", "ESRD", [3])
     sugs = [sug("s1", "I10", ["f1"]), sug("s2", "I50.22", ["f2"]), sug("s3", "N18.6", ["f3"])]
-    out = run(r5_htn_hf_ckd.apply, sugs, [HTN, HF, CKD])
+    out = run(r5_htn_hf_ckd.apply, sugs, [HTN, HF, esrd])
 
     assert "I13.2" in codes_of(out)
 

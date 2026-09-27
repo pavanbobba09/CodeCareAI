@@ -5,43 +5,74 @@ Source: ICD-10-CM Official Guidelines for Coding and Reporting FY2027, Section I
 I11; use an additional I50 code; code separately only if the provider documents the heart
 failure as unrelated). Skipped when R5 (I13) applies.
 
-When the note links the heart failure `caused_by` something other than the hypertension,
-the link is not presumed and the codes are marked for review.
+Both conditions must be documented by active facts. With heart failure documented, I11.9
+(without heart failure) becomes I11.0; a selected I11.0 without documented heart failure,
+or any I11 without documented hypertension, is kept as not suggested. When the note links
+the heart failure `caused_by` something other than the hypertension, the link is not
+presumed and the codes are marked for review.
 """
 
-from app.models import RuleInput, RuleOutput
-from app.rules.common import Hypertension, added, present, result, review_all
+from app.models import DroppedCode, RuleInput, RuleOutput
+from app.rules.common import (
+    Conditions,
+    active,
+    fail_all,
+    ids_of,
+    is_heart_failure,
+    is_hypertension,
+    result,
+    review_all,
+    settle_variant,
+)
 from app.terminology.lookup import CodeLookup
 
 RULE_ID = "R4"
 SOURCE_REF = "ICD-10-CM Guidelines FY2027 §I.C.9.a.1"
 TARGET_CODES = frozenset({"I11.0"})
+VARIANTS = {"I11.0", "I11.9"}
 
 
 def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
-    h = Hypertension(inp)
     out = list(inp.suggestions)
-    if not (h.htn and h.hf) or h.has_i13:
-        return RuleOutput(suggestions=out, dropped=[], gaps=[])
-    if not h.hf_linked:
+    dropped: list[DroppedCode] = []
+    htn_codes = [s for s in active(out) if is_hypertension(s.code)]
+    if not htn_codes or any(s.code.startswith("I13") for s in htn_codes):
+        return RuleOutput(suggestions=out, dropped=dropped, gaps=[])
+    c = Conditions(inp)
+    i11 = [s for s in htn_codes if s.code.startswith("I11")]
+    unsupported = i11 if not c.htn else [s for s in i11 if s.code == "I11.0" and not c.hf]
+    if unsupported:
+        r = result(
+            RULE_ID,
+            "fail",
+            "I11.0 needs documented hypertension and heart failure; the note does not "
+            "document both.",
+            SOURCE_REF,
+            [s.code for s in unsupported],
+        )
+        out = fail_all(out, unsupported, r)
+    if not (c.htn and c.hf):
+        return RuleOutput(suggestions=out, dropped=dropped, gaps=[])
+    if not c.hf_linked:
         r = result(
             RULE_ID,
             "needs_review",
             "The note links the heart failure to another cause, so the hypertension link "
             "is not presumed; check whether I11.0 applies.",
             SOURCE_REF,
-            [s.code for s in h.htn + h.hf],
+            [s.code for s in htn_codes],
         )
-        return RuleOutput(suggestions=review_all(out, h.htn + h.hf, r), dropped=[], gaps=[])
-    if any(s.code == "I11.0" for s in h.htn):
-        return RuleOutput(suggestions=out, dropped=[], gaps=[])
+        hf_codes = [s for s in active(out) if is_heart_failure(s.code)]
+        return RuleOutput(
+            suggestions=review_all(out, htn_codes + hf_codes, r), dropped=dropped, gaps=[]
+        )
     r = result(
         RULE_ID,
         "pass",
         "Hypertension with heart failure: I11.0 with the I50 code.",
         SOURCE_REF,
-        ["I11.0", *(s.code for s in h.hf)],
+        ["I11.0"],
     )
-    if not present(out, "I11.0"):
-        out.append(added(inp, codes, "I11.0", RULE_ID, h.htn + h.hf, r))
-    return RuleOutput(suggestions=out, dropped=[], gaps=[])
+    ids = ids_of([*c.htn, *c.hf])
+    out, dropped = settle_variant(inp, codes, out, VARIANTS, "I11.0", RULE_ID, r, ids)
+    return RuleOutput(suggestions=out, dropped=dropped, gaps=[])

@@ -3,12 +3,23 @@
 Source: ICD-10-CM Official Guidelines for Coding and Reporting FY2027, Section I.C.4.a.2
 (Type of diabetes mellitus not documented: the default is E11.-, Type 2 diabetes mellitus).
 Owner decision G (M3): the default is correct coding, so no gap is raised.
+
+A selected E10 (type 1) or E13 (other specified) code whose diabetes facts document no type
+is replaced by the E11 code with the same suffix (E10.9 -> E11.9), marked for review.
 """
 
 import re
 
-from app.models import RuleInput, RuleOutput
-from app.rules.common import facts_by_id, not_suggested, result, with_result
+from app.models import DroppedCode, RuleInput, RuleOutput, Suggestion
+from app.rules.common import (
+    added,
+    diabetes_facts,
+    facts_by_id,
+    not_suggested,
+    present,
+    result,
+    with_result,
+)
 from app.terminology.lookup import CodeLookup
 
 RULE_ID = "R7"
@@ -21,28 +32,51 @@ TYPED = re.compile(
 )
 
 
+def counterpart(code: str) -> str | None:
+    """The E11 code with the same suffix, for an E10 or E13 code."""
+    return f"E11{code[3:]}" if code[:3] in {"E10", "E13"} else None
+
+
+def _untyped(inp: RuleInput, s: Suggestion) -> bool:
+    by_id = facts_by_id(inp)
+    diabetes = [f for f in diabetes_facts(inp) if f.fact_id in s.fact_ids] or [
+        by_id[f] for f in s.fact_ids if f in by_id and "diabet" in by_id[f].concept.lower()
+    ]
+    return bool(diabetes) and all(
+        not f.details.get("type") and not TYPED.search(f.concept) for f in diabetes
+    )
+
+
 def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
-    facts = facts_by_id(inp)
-    out = []
+    review = result(
+        RULE_ID,
+        "needs_review",
+        "Diabetes type is not documented; E11 (type 2) is the guideline default.",
+        SOURCE_REF,
+        [],
+    )
+    out: list[Suggestion] = []
+    dropped: list[DroppedCode] = []
     for s in inp.suggestions:
-        diabetes = [
-            facts[f]
-            for f in s.fact_ids
-            if f in facts and facts[f].kind == "condition" and "diabet" in facts[f].concept.lower()
-        ]
-        untyped = diabetes and all(
-            not f.details.get("type") and not TYPED.search(f.concept) for f in diabetes
-        )
-        if s.code.startswith("E11") and untyped and not not_suggested(s):
-            s = with_result(
-                s,
-                result(
-                    RULE_ID,
-                    "needs_review",
-                    "Diabetes type is not documented; E11 (type 2) is the guideline default.",
-                    SOURCE_REF,
-                    [s.code],
-                ),
+        if not_suggested(s) or not _untyped(inp, s):
+            out.append(s)
+            continue
+        e11 = counterpart(s.code)
+        if e11 is not None and codes.get_code(e11, inp.code_sets.icd10cm) is not None:
+            dropped.append(
+                DroppedCode(
+                    code=s.code,
+                    fact_ids=s.fact_ids,
+                    rule_id=RULE_ID,
+                    reason=f"Diabetes type is not documented; {e11} is the default.",
+                )
             )
-        out.append(s)
-    return RuleOutput(suggestions=out, dropped=[], gaps=[])
+            if present(out, e11) or present(inp.suggestions, e11):
+                continue
+            r = review.model_copy(update={"affects_codes": [e11]})
+            out.append(added(inp, codes, e11, RULE_ID, [s], r, s.fact_ids))
+        elif s.code.startswith("E11"):
+            out.append(with_result(s, review.model_copy(update={"affects_codes": [s.code]})))
+        else:
+            out.append(s)
+    return RuleOutput(suggestions=out, dropped=dropped, gaps=[])

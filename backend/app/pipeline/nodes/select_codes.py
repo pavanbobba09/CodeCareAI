@@ -37,7 +37,7 @@ def make(deps: PipelineDeps) -> Node:
         )
         out = deps.llm.complete_json("select", system, user, SelectionOutput, state.deadline)
         selections, errors = validate_selections(
-            out.selections, state.candidate_sets, set(sentences)
+            out.selections, state.candidate_sets, {f.fact_id: set(f.evidence) for f in state.facts}
         )
         return {"selections": selections, "model_errors": state.model_errors + errors}
 

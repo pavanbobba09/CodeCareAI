@@ -52,7 +52,8 @@ def test_added_code_from_another_release_is_dropped_by_r1() -> None:
 
 def test_gap_on_a_removed_code_is_dropped() -> None:
     ckd = fact("f3", "chronic kidney disease", [3])
-    out = run_chain([sug("s1", "N18.9", ["f3"]), sug("s2", "N18.6", ["f3"])], [ckd])
+    esrd = fact("f4", "end-stage renal disease", [4])
+    out = run_chain([sug("s1", "N18.9", ["f3"]), sug("s2", "N18.6", ["f4"])], [ckd, esrd])
 
     assert codes_of(out) == ["N18.6"]
     assert out.gaps == []

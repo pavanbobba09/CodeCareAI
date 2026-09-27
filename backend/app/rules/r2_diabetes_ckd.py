@@ -5,20 +5,24 @@ Sources: ICD-10-CM Official Guidelines for Coding and Reporting FY2027, Section 
 "with" in the Index, unless the documentation clearly states they are unrelated); Tabular
 E11.22 "Use additional code to identify stage of chronic kidney disease (N18.1-N18.6)".
 
-When the note links the CKD `caused_by` something other than the diabetes, the link is not
-presumed and both codes are marked for review. When E1x.22 is coded but no N18 code was
-selected, the stage the CKD fact documents is added (N18.9 when none is written, which R9
-flags). Secondary diabetes (E08, E09, E13) is out of scope (DESIGN.md known limits).
+Diabetes and CKD count only when active facts document them; a selected E1x.22 is never
+its own evidence. A selected E1x.22 without both documented is kept as not suggested.
+E1x.22 replaces only the uncomplicated E1x.9; other complications (E1x.21, E1x.29, E1x.65)
+stay and E1x.22 is added next to them. When the note links the CKD `caused_by` something
+other than the diabetes, the link is not presumed and the codes are marked for review.
+The N18 code comes from the stage the CKD facts document (N18.9 when none is written).
+Secondary diabetes (E08, E09, E13) is out of scope (DESIGN.md known limits).
 """
 
 from app.models import DroppedCode, RuleInput, RuleOutput, Suggestion
 from app.rules.common import (
     N18_CODES,
+    Conditions,
     active,
     added,
     caused_by_other,
-    ckd_facts,
-    fact_ids,
+    fail_all,
+    ids_of,
     is_ckd,
     present,
     result,
@@ -30,32 +34,46 @@ from app.terminology.lookup import CodeLookup
 RULE_ID = "R2"
 SOURCE_REF = "ICD-10-CM Guidelines FY2027 §I.A.15; Tabular E11.22 use additional code"
 TARGET_CODES = frozenset({"E10.22", "E11.22", *N18_CODES})
-KIDNEY = {".21", ".22", ".29"}  # diabetic nephropathy, CKD, other kidney complication
 
 
 def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
     out: list[Suggestion] = list(inp.suggestions)
     dropped: list[DroppedCode] = []
-    cfacts = ckd_facts(inp)
+    c = Conditions(inp)
     for prefix in ("E10", "E11"):
-        live = active(out)
-        dm = [s for s in live if s.code.startswith(prefix)]
-        ckd = [s for s in live if is_ckd(s.code)]
-        if not dm or not (ckd or cfacts):
-            continue
         target = f"{prefix}.22"
-        ckd_ids = sorted({*fact_ids(ckd), *(f.fact_id for f in cfacts)})
-        dm_ids = fact_ids(dm)
-        if caused_by_other(inp, ckd_ids, dm_ids):
+        dm = [s for s in active(out) if s.code.startswith(prefix)]
+        if not dm:
+            continue
+        combo = [s for s in dm if s.code == target]
+        if not (c.diabetes and c.ckd):
+            if combo:
+                missing = (
+                    "diabetes and CKD"
+                    if not c.diabetes and not c.ckd
+                    else ("diabetes" if not c.diabetes else "CKD")
+                )
+                r = result(
+                    RULE_ID,
+                    "fail",
+                    f"{target} needs documented diabetes and CKD; the note does not document "
+                    f"{missing}.",
+                    SOURCE_REF,
+                    [target],
+                )
+                out = fail_all(out, combo, r)
+            continue
+        if caused_by_other(inp, ids_of(c.ckd), ids_of(c.diabetes)):
             r = result(
                 RULE_ID,
                 "needs_review",
                 "The note links the CKD to another cause, so the diabetes-CKD link is not "
                 f"presumed; check whether {target} applies.",
                 SOURCE_REF,
-                [s.code for s in dm + ckd],
+                [s.code for s in dm],
             )
-            out = review_all(out, dm + ckd, r)
+            ckd_codes = [s for s in active(out) if is_ckd(s.code)]
+            out = review_all(out, dm + ckd_codes, r)
             continue
         r = result(
             RULE_ID,
@@ -65,24 +83,21 @@ def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
             SOURCE_REF,
             [target],
         )
-        other_kidney = any(s.code[3:] in KIDNEY and s.code != target for s in dm)
-        if not other_kidney:
-            for s in dm:
-                if s.code == f"{prefix}.9":  # "without complications" is replaced
-                    dropped.append(
-                        DroppedCode(
-                            code=s.code,
-                            fact_ids=s.fact_ids,
-                            rule_id=RULE_ID,
-                            reason=f"Replaced by {target}: diabetes with CKD is not uncomplicated.",
-                        )
+        for s in dm:
+            if s.code == f"{prefix}.9":  # only "without complications" is replaced
+                dropped.append(
+                    DroppedCode(
+                        code=s.code,
+                        fact_ids=s.fact_ids,
+                        rule_id=RULE_ID,
+                        reason=f"Replaced by {target}: diabetes with CKD is not uncomplicated.",
                     )
-                    out = [x for x in out if x.suggestion_id != s.suggestion_id]
-            if not present(out, target):
-                out.append(
-                    added(inp, codes, target, RULE_ID, dm + ckd, r, sorted({*dm_ids, *ckd_ids}))
                 )
-        if present(out, target):
-            staged = inp.model_copy(update={"suggestions": out})
-            out += stage_additions(staged, codes, RULE_ID, r, cfacts)
+                out = [x for x in out if x.suggestion_id != s.suggestion_id]
+        if not present(active(out), target):
+            ids = ids_of([*c.diabetes, *c.ckd])
+            out.append(added(inp, codes, target, RULE_ID, dm, r, ids))
+        out += stage_additions(
+            inp.model_copy(update={"suggestions": out}), codes, RULE_ID, r, c.ckd
+        )
     return RuleOutput(suggestions=out, dropped=dropped, gaps=[])

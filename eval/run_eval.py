@@ -15,6 +15,7 @@ import os
 import sys
 from datetime import UTC, date, datetime
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -28,7 +29,7 @@ from app.pipeline.state import EXTRACT_PROMPT, prompt_version
 from app.terminology.embedder import get_embedder
 from eval import budget
 from eval.budget import UsageLedger
-from eval.gold import load_gold
+from eval.gold import changed_notes, gold_hash, load_gold
 from eval.records import NoteRun
 from eval.report import RUNS, markdown, score_run, write_report
 from eval.runner import DEFAULT_CALL_INTERVAL_S, PacedLlm, load_runs, run_notes
@@ -40,7 +41,7 @@ from eval.setups import (
 )
 
 
-def _start_run(run_dir: Path, meta: dict[str, str]) -> None:
+def _start_run(run_dir: Path, meta: dict[str, Any]) -> None:
     run_dir.mkdir(parents=True, exist_ok=True)
     meta_path = run_dir / "meta.json"
     if meta_path.exists():
@@ -58,10 +59,16 @@ def _replay(source_id: str, run_id: str | None, limit: int | None) -> Path:
         sys.exit("only pipeline runs can be replayed")
     run_id = run_id or f"{date.today().isoformat()}-replay-{source_id}"
     run_dir = RUNS / run_id
+    if "gold" not in source_meta:
+        sys.exit(f"{source_id} has no gold note hashes (saved before M4); rerun it live")
+    current = {g.note_id: g for g in load_gold()}
+    changed = changed_notes(source_meta["gold"], list(current.values()))
+    if changed:
+        sys.exit(f"gold notes changed since {source_id} ran: {', '.join(changed)}; rerun it live")
     meta = {**source_meta, "run_id": run_id, "replay_of": source_id}
     _start_run(run_dir, meta)
     sources = load_runs(source_dir)
-    golds = [g for g in load_gold() if g.note_id in sources]
+    golds = [current[n] for n in sorted(source_meta["gold"]) if n in sources]
     golds = golds[:limit] if limit else golds
     engine = get_engine()
 
@@ -89,9 +96,14 @@ def _live(args: argparse.Namespace) -> Path:
     version = (
         prompt_version(args.extract_prompt) if args.setup == "pipeline" else BASELINE_PROMPT_VERSION
     )
-    meta = {"run_id": run_id, "setup": args.setup, "model": llm.model, "prompt_version": version}
-
     golds = load_gold()[: args.limit] if args.limit else load_gold()
+    meta = {
+        "run_id": run_id,
+        "setup": args.setup,
+        "model": llm.model,
+        "prompt_version": version,
+        "gold": {g.note_id: gold_hash(g) for g in golds},  # scope + change detection
+    }
     done = load_runs(run_dir) if run_dir.exists() else {}
     todo = [
         g for g in golds if done.get(g.note_id) is None or done[g.note_id].status != "completed"

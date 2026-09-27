@@ -56,6 +56,13 @@ TARGET_CODES: frozenset[str] = frozenset().union(
 )
 
 
+def codes_to_preload(selected: set[str]) -> set[str]:
+    """ICD-10-CM codes a note's rules may need: every rule target, plus the E11 counterparts
+    R7 may put in place of an untyped E10/E13 code."""
+    counterparts = {c for code in selected if (c := r7_diabetes_type.counterpart(code))}
+    return {*TARGET_CODES, *counterparts}
+
+
 def _number_new(suggestions: list[Suggestion]) -> list[Suggestion]:
     """Give suggestions added by a rule the next free id (s1..sn are the LLM's picks)."""
     used = [int(s.suggestion_id[1:]) for s in suggestions if s.suggestion_id]

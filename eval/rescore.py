@@ -25,7 +25,7 @@ def main() -> None:
         print(
             f"{meta['run_id']}: notes={s.notes} failed={s.failed_notes} "
             f"precision={s.precision} recall={s.recall} invented_rate={s.invented_rate} "
-            f"invalid_rate={s.invalid_rate}"
+            f"invalid_rate={s.invalid_rate}" + ("" if s.complete else " INCOMPLETE")
         )
         if meta["setup"] != "pipeline":
             continue
