@@ -5,6 +5,18 @@ Each milestone ends with its own passing check. Don't start a milestone until th
 
 ---
 
+## Current task: integrate M4, M7, and M8 (2026-09-27)
+
+Approved integration-only work; no real LLM calls and no push.
+
+1. [ ] Merge `m4-rules`, `m7-review`, then `m8-frontend` into a branch created from `main`.
+2. [ ] Resolve documentation, error-code, and API-contract conflicts without weakening M4 rule guarantees or M7 append-only review behavior.
+3. [ ] Regenerate frontend API types and show `added_by_rule` on suggestion cards.
+4. [ ] Run backend unit and integration tests, Ruff, mypy for `app` and `eval`, frontend lint and typecheck, and both fake-LLM Playwright tests.
+5. [ ] Record verification results and commit only on `integration`.
+
+---
+
 ## Previous task: M3 detailed plan (done 2026-09-27)
 
 Touches DESIGN.md §3.3 (model choice), §5.4 (GoldNote, added), §9 (metrics, thresholds), §10 (M3).
@@ -361,4 +373,3 @@ Plus 0 index rows containing "Note:" text.
 - Groq free-tier rate limits: back-to-back runs hit 429s. The M3 eval (20+ notes x 2 calls, plus the baseline) needs pacing between notes.
 - The extractor put `{'type': 'renal function test'}` in a planned test's details. Harmless now (planned facts are not coded); watch in M3.
 - `AnalysisResult.created_at` is the pipeline start time; the db row uses the same value.
-
