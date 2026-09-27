@@ -6,6 +6,9 @@ Owner decision G (M3): the default is correct coding, so no gap is raised.
 
 A selected E10 (type 1) or E13 (other specified) code whose diabetes facts document no type
 is replaced by the E11 code with the same suffix (E10.9 -> E11.9), marked for review.
+
+Any diabetes code (E08-E13) with no active diabetes fact (for example only "history of
+diabetes", or a code attached to another fact) is kept as not suggested.
 """
 
 import re
@@ -15,6 +18,7 @@ from app.rules.common import (
     added,
     diabetes_facts,
     facts_by_id,
+    is_diabetes,
     not_suggested,
     present,
     result,
@@ -55,9 +59,20 @@ def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
         SOURCE_REF,
         [],
     )
+    documented = bool(diabetes_facts(inp))
     out: list[Suggestion] = []
     dropped: list[DroppedCode] = []
     for s in inp.suggestions:
+        if not documented and is_diabetes(s.code) and not not_suggested(s):
+            r = result(
+                RULE_ID,
+                "fail",
+                f"{s.code} needs documented active diabetes.",
+                SOURCE_REF,
+                [s.code],
+            )
+            out.append(with_result(s, r))
+            continue
         if not_suggested(s) or not _untyped(inp, s):
             out.append(s)
             continue

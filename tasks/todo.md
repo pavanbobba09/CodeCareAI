@@ -92,6 +92,8 @@ Owner-directed fixes before tomorrow's M4 eval; no LLM calls. Each fix gets a re
 
 **Follow-up (owner, 2026-09-27):** full-pipeline test for a historical diagnosis (`test_historical_diagnosis.py`): it failed on `cf69134` (the model attached I50.20 to the active hypertension fact, whose test-db candidates include I50 codes, and it was reported); fixed by R10 keeping an I50 code without an active heart failure fact as not suggested. Runs now record git commit, prompt names and code sets in `meta.json` and the report header (`eval/provenance.py`); the resume guard still covers setup, model, prompt version and gold scope only, and replay does not refuse a different commit. 213 unit + 41 of 42 integration tests pass (only the fixture re-record test fails).
 
+**Follow-up 2 (owner, 2026-09-27):** the "no active fact" guard existed only for N18 (R9), I50 (R10) and the combination codes (R2-R5); plain diabetes codes and I10 were not covered. Added: R7 keeps E08-E13 without an active diabetes fact as not suggested, R6 does the same for I10-I13 without an active hypertension fact. Full-pipeline test `test_history_of_diabetes_and_hypertension_codes_are_never_reported` (the model attaches E11.9 and I10 to an active fatigue fact whose test-db candidates include them) plus one unit test per rule; all three fail on `12dfad2`. 215 unit + 42 of 43 integration tests pass.
+
 **Open:** support checker is a deterministic proxy (word matching over descriptions and Index paths), not a coder; thresholds for the two evidence metrics kept at <= 5% pending owner review.
 
 ---

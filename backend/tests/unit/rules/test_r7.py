@@ -32,3 +32,10 @@ def test_type_in_details_or_abbreviation_counts_as_typed() -> None:
 
     assert outcomes(by_code(out, "E11.9"), "R7") == []
     assert outcomes(by_code(out, "E11.65"), "R7") == []
+
+
+def test_diabetes_code_without_active_diabetes_is_not_suggested() -> None:
+    history = [fact("f1", "type 2 diabetes mellitus", [1], status="history")]
+    out = run(r7_diabetes_type.apply, [sug("s1", "E11.9", ["f2"])], history)
+
+    assert outcomes(by_code(out, "E11.9"), "R7") == ["fail"]
