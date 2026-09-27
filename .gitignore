@@ -19,3 +19,6 @@ node_modules/
 
 # OS
 .DS_Store
+
+# Eval
+eval/.usage_ledger.jsonl

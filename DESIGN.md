@@ -311,10 +311,10 @@ class AnalysisResult(BaseModel):
     error: PipelineError | None
     created_at: datetime
 
-class ReviewRequest(BaseModel):
+class ReviewRequest(BaseModel):     # 422 VALIDATION_ERROR when fields don't match the action
     action: ReviewAction
-    replacement_code: str | None = None # required for edit
-    reason: str | None = None           # required for reject
+    replacement_code: str | None = None # required for edit; not allowed for accept or reject
+    reason: str | None = None           # required (non-blank) for reject; optional for edit; not allowed for accept
 
 class ReviewEvent(BaseModel):
     id: str
@@ -324,6 +324,13 @@ class ReviewEvent(BaseModel):
     replacement_code: str | None
     reason: str | None
     created_at: datetime
+
+class NoteHistory(BaseModel):      # GET /notes/{note_id}/history
+    note: Note
+    previous_versions: list[str]    # note ids, oldest first, following parent_note_id
+    later_versions: list[str]       # ids of notes revised from this one (directly or later), oldest first
+    analyses: list[AnalysisResult]  # this note's analyses, newest first
+    reviews: list[ReviewEvent]      # reviews of those analyses, oldest first
 
 class SelectionOutput(BaseModel):  # LLM call 2 response; JSON mode needs an object root
     selections: list[CodeSelection]
@@ -462,8 +469,10 @@ Base path: `/api/v1`. All request and response bodies are JSON.
 | `GET` | `/notes/{note_id}` | path ID | `Note` | `404 NOTE_NOT_FOUND` |
 | `POST` | `/notes/{note_id}/analyze` | path ID | `200 AnalysisResult` | `404 NOTE_NOT_FOUND`, `409 CODE_SET_MISSING`, `503 LLM_UNAVAILABLE`/`LLM_BAD_OUTPUT`/`TIMEOUT` (with `analysis_id`), `500 PIPELINE_ERROR`/`DB_ERROR` |
 | `GET` | `/analyses/{analysis_id}` | path ID | `AnalysisResult` | `404 ANALYSIS_NOT_FOUND` |
-| `POST` | `/analyses/{analysis_id}/suggestions/{suggestion_id}/reviews` | `ReviewRequest` | `201 ReviewEvent` | `404`, `422 INVALID_REPLACEMENT_CODE` |
-| `GET` | `/notes/{note_id}/history` | path ID | note, analyses, and reviews | `404 NOTE_NOT_FOUND` |
+| `POST` | `/analyses/{analysis_id}/suggestions/{suggestion_id}/reviews` | `ReviewRequest` | `201 ReviewEvent` | `404 ANALYSIS_NOT_FOUND`, `404 SUGGESTION_NOT_FOUND`, `422 VALIDATION_ERROR`, `422 INVALID_REPLACEMENT_CODE`, `500 DB_ERROR` |
+| `GET` | `/notes/{note_id}/history` | path ID | `NoteHistory` | `404 NOTE_NOT_FOUND` |
+
+Reviews: every review is a new row (append-only, CLAUDE.md rule 8); a suggestion may be reviewed more than once and the latest review is the current decision. An `edit` replacement must differ from the suggested code and exist and be billable in the analysis's own code set for the suggestion's system (the release valid on the visit date); otherwise `422 INVALID_REPLACEMENT_CODE` (a same-code edit says to use accept). All three actions are allowed on `not_suggested` codes: the coder has the final say, and the UI hides those codes. `GET /analyses/{id}` returns failed analyses too; they have no suggestions, so reviewing one is `404 SUGGESTION_NOT_FOUND`.
 
 CORS permits only `http://localhost:3000` and the configured Vercel origin.
 

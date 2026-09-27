@@ -1,12 +1,16 @@
-"""Read and write helpers over the db tables. No business logic here."""
+"""Read and write helpers over the db tables. No business logic here.
+
+Reviews are append-only (CLAUDE.md rule 8): there is an insert and reads, and no update or
+delete function for `reviews`. A db trigger also rejects UPDATE and DELETE.
+"""
 
 import uuid
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.db.models import AnalysisRow, CodeSet, NoteRow
-from app.models import AnalysisResult, Note, NoteCreate, Sentence
+from app.db.models import AnalysisRow, CodeSet, NoteRow, ReviewRow
+from app.models import AnalysisResult, Note, NoteCreate, ReviewEvent, ReviewRequest, Sentence
 
 
 def code_set_ids(session: Session) -> list[str]:
@@ -62,3 +66,74 @@ def insert_analysis(session: Session, result: AnalysisResult) -> None:
         )
     )
     session.flush()
+
+
+def get_analysis(session: Session, analysis_id: str) -> AnalysisResult | None:
+    row = session.get(AnalysisRow, analysis_id)
+    return None if row is None else AnalysisResult.model_validate(row.result_json)
+
+
+def list_analyses(session: Session, note_id: str) -> list[AnalysisResult]:
+    """Newest first."""
+    rows = session.scalars(
+        select(AnalysisRow)
+        .where(AnalysisRow.note_id == note_id)
+        .order_by(AnalysisRow.created_at.desc(), AnalysisRow.id)
+    )
+    return [AnalysisResult.model_validate(r.result_json) for r in rows]
+
+
+def _to_review(row: ReviewRow) -> ReviewEvent:
+    return ReviewEvent.model_validate(row, from_attributes=True)
+
+
+def insert_review(
+    session: Session, analysis_id: str, suggestion_id: str, body: ReviewRequest
+) -> ReviewEvent:
+    row = ReviewRow(
+        id=str(uuid.uuid4()),
+        analysis_id=analysis_id,
+        suggestion_id=suggestion_id,
+        action=body.action,
+        replacement_code=body.replacement_code,
+        reason=body.reason,
+    )
+    session.add(row)
+    session.flush()
+    session.refresh(row)  # server default created_at
+    return _to_review(row)
+
+
+def list_reviews(session: Session, analysis_ids: list[str]) -> list[ReviewEvent]:
+    """Oldest first."""
+    if not analysis_ids:
+        return []
+    rows = session.scalars(
+        select(ReviewRow)
+        .where(ReviewRow.analysis_id.in_(analysis_ids))
+        .order_by(ReviewRow.created_at, ReviewRow.id)
+    )
+    return [_to_review(r) for r in rows]
+
+
+def previous_versions(session: Session, note: Note) -> list[str]:
+    """Ids of the notes this one was revised from, oldest first."""
+    chain: list[str] = []
+    parent = note.parent_note_id
+    while parent is not None and parent not in chain:
+        chain.append(parent)
+        row = session.get(NoteRow, parent)
+        parent = row.parent_note_id if row is not None else None
+    return list(reversed(chain))
+
+
+def later_versions(session: Session, note_id: str) -> list[str]:
+    """Ids of every note revised from this one (directly or through later versions)."""
+    found: list[NoteRow] = []
+    frontier = [note_id]
+    while frontier:
+        rows = list(session.scalars(select(NoteRow).where(NoteRow.parent_note_id.in_(frontier))))
+        rows = [r for r in rows if r.id not in {f.id for f in found}]
+        found += rows
+        frontier = [r.id for r in rows]
+    return [r.id for r in sorted(found, key=lambda r: (r.created_at, r.id))]

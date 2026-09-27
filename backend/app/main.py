@@ -3,7 +3,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import health, notes
+from app.api import analyses, health, notes
 from app.config import get_settings
 from app.errors import install_error_handlers
 
@@ -23,6 +23,7 @@ def create_app() -> FastAPI:
     install_error_handlers(app)
     app.include_router(health.router, prefix=API_PREFIX)
     app.include_router(notes.router, prefix=API_PREFIX)
+    app.include_router(analyses.router, prefix=API_PREFIX)
     return app
 
 

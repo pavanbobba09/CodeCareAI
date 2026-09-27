@@ -10,7 +10,7 @@ from app.db import repo
 from app.db.session import get_session
 from app.errors import ApiError
 from app.llm.client import JsonLlm
-from app.models import AnalysisResult, ErrorResponse, Note, NoteCreate
+from app.models import AnalysisResult, ErrorResponse, Note, NoteCreate, NoteHistory
 from app.pipeline.graph import run_pipeline
 from app.pipeline.state import PipelineDeps
 from app.segment.segmenter import segment_note
@@ -54,6 +54,27 @@ def read_note(note_id: str, session: SessionDep) -> Note:
     if note is None:
         raise ApiError(404, "NOTE_NOT_FOUND", "Note not found.")
     return note
+
+
+@router.get(
+    "/notes/{note_id}/history",
+    response_model=NoteHistory,
+    responses={404: {"model": ErrorResponse}},
+)
+def note_history(note_id: str, session: SessionDep) -> NoteHistory:
+    """One note version: its analyses and their reviews. A revised note is a new note, so
+    reviews of an earlier version never carry forward (DESIGN.md §4.2)."""
+    note = repo.get_note(session, note_id)
+    if note is None:
+        raise ApiError(404, "NOTE_NOT_FOUND", "Note not found.")
+    analyses = repo.list_analyses(session, note_id)
+    return NoteHistory(
+        note=note,
+        previous_versions=repo.previous_versions(session, note),
+        later_versions=repo.later_versions(session, note_id),
+        analyses=analyses,
+        reviews=repo.list_reviews(session, [a.analysis_id for a in analyses]),
+    )
 
 
 @router.post(
