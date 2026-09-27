@@ -10,44 +10,59 @@ async function createFromSample(page: Page, label: string): Promise<string> {
   return page.url().split("/").pop() as string;
 }
 
+// Must match E2E_NOTE in scripts/fake_llm.py: E11.22 cites sentence 1, N18.32 sentence 2.
+const E2E_NOTE =
+  "Assessment: Type 2 diabetes mellitus with chronic kidney disease.\n" +
+  "Chronic kidney disease stage 3b per recent labs.\n" +
+  "Plan: Recheck renal function in 3 months.\n";
+
 test("smoke: create a note, analyze, see evidence, accept, edit and reject", async ({
   page,
   request,
 }) => {
-  const noteId = await createFromSample(page, "Worked example: diabetes with CKD stage 3");
+  await page.goto("/");
+  await page.getByLabel("Note text").fill(E2E_NOTE);
+  await page.getByRole("button", { name: "Save note" }).click();
+  await page.waitForURL(/\/notes\/[0-9a-f-]+$/);
+  const noteId = page.url().split("/").pop() as string;
 
   await page.getByRole("button", { name: "Analyze" }).click();
   const e11 = page.getByRole("article", { name: "Suggestion E11.22" });
-  const n18 = page.getByRole("article", { name: "Suggestion N18.30" });
+  const n18 = page.getByRole("article", { name: "Suggestion N18.32" });
   await expect(e11).toBeVisible();
   await expect(n18).toBeVisible();
 
-  // Evidence: clicking a card selects it and highlights its supporting sentence (sentence 1),
-  // and the highlight stays after the pointer moves away.
-  const sentence1 = page.locator('[data-sentence="1"]');
+  // Each card highlights only its own evidence, and keeps it after the pointer leaves.
+  const s1 = page.locator('[data-sentence="1"]');
+  const s2 = page.locator('[data-sentence="2"]');
   await e11.getByText("E11.22", { exact: true }).click();
   await page.mouse.move(0, 0);
   await expect(e11).toHaveAttribute("aria-current", "true");
-  await expect(sentence1).toHaveAttribute("data-highlighted", "true");
-  await expect(sentence1).toContainText("Type 2 diabetes mellitus with chronic kidney disease stage 3.");
-  await expect(page.locator('[data-sentence="2"]')).not.toHaveAttribute("data-highlighted", "true");
+  await expect(s1).toHaveAttribute("data-highlighted", "true");
+  await expect(s2).not.toHaveAttribute("data-highlighted", "true");
+  await expect(s1).toContainText("Type 2 diabetes mellitus with chronic kidney disease.");
 
-  // Keyboard focus selects too; the previous card is no longer selected.
-  await n18.focus();
-  await expect(n18).toHaveAttribute("aria-current", "true");
-  await expect(e11).not.toHaveAttribute("aria-current", "true");
-  await expect(sentence1).toHaveAttribute("data-highlighted", "true"); // N18.30 also cites 1
+  await n18.getByText("N18.32", { exact: true }).click();
+  await page.mouse.move(0, 0);
+  await expect(s2).toHaveAttribute("data-highlighted", "true");
+  await expect(s1).not.toHaveAttribute("data-highlighted", "true");
+
+  // Keyboard focus selects too.
+  await e11.focus();
+  await expect(e11).toHaveAttribute("aria-current", "true");
+  await expect(s1).toHaveAttribute("data-highlighted", "true");
+  await expect(s2).not.toHaveAttribute("data-highlighted", "true");
 
   await e11.getByRole("button", { name: "Accept" }).click();
   await expect(e11.getByTestId("decision")).toContainText("accept");
 
   await n18.getByRole("button", { name: "Edit" }).click();
-  await n18.getByLabel("Replacement code for N18.30").fill("N18.31");
+  await n18.getByLabel("Replacement code for N18.32").fill("N18.31");
   await n18.getByRole("button", { name: "Save edit" }).click();
   await expect(n18.getByTestId("decision")).toContainText("edit to N18.31");
 
   await n18.getByRole("button", { name: "Reject" }).click();
-  await n18.getByLabel("Reason for N18.30").fill("Stage not addressed at this visit");
+  await n18.getByLabel("Reason for N18.32").fill("Stage not addressed at this visit");
   await n18.getByRole("button", { name: "Confirm reject" }).click();
   await expect(n18.getByTestId("decision")).toContainText("reject");
 
@@ -58,6 +73,24 @@ test("smoke: create a note, analyze, see evidence, accept, edit and reject", asy
     "edit",
     "reject",
   ]);
+
+  // While a re-analysis runs, no review button can be used (the request is only delayed).
+  let release = () => {};
+  const gate = new Promise<void>((resolve) => (release = resolve));
+  await page.route("**/analyze", async (route) => {
+    await gate;
+    await route.continue();
+  });
+  await page.getByRole("button", { name: "Analyze again" }).click();
+  await expect(page.getByRole("button", { name: "Analyzing…" })).toBeDisabled();
+  for (const name of ["Accept", "Edit", "Reject"]) {
+    const buttons = page.getByRole("button", { name, exact: true });
+    await expect(buttons).toHaveCount(2);
+    for (const button of await buttons.all()) await expect(button).toBeDisabled();
+  }
+  release();
+  await expect(page.getByRole("button", { name: "Analyze again" })).toBeEnabled();
+  await expect(e11.getByRole("button", { name: "Accept" })).toBeEnabled();
 });
 
 test("failed analysis: the LLM error is shown and nothing partial appears", async ({ page }) => {

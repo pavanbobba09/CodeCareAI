@@ -186,6 +186,7 @@ export default function ReviewPage() {
                 gaps={analysis.gaps.filter((g) => s.gap_ids.includes(g.gap_id))}
                 decision={decisions.get(s.suggestion_id)}
                 selected={pickedId === s.suggestion_id}
+                locked={analyzing}
                 onHover={(on) => setHoverId(on ? s.suggestion_id : null)}
                 onPick={() => setPickedId(s.suggestion_id)}
                 onReviewed={load}

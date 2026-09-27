@@ -31,6 +31,7 @@ export function SuggestionCard({
   gaps,
   decision,
   selected,
+  locked,
   onHover,
   onPick,
   onReviewed,
@@ -40,6 +41,8 @@ export function SuggestionCard({
   gaps: Gap[];
   decision: ReviewEvent | undefined;
   selected: boolean;
+  /** True while a new analysis runs: this card's analysis is about to be replaced. */
+  locked: boolean;
   onHover: (on: boolean) => void;
   onPick: () => void;
   onReviewed: () => void;
@@ -115,6 +118,9 @@ export function SuggestionCard({
       )}
 
       <div className="mt-3 border-t border-slate-100 pt-3" aria-live="polite">
+        {locked && (
+          <p className="mb-2 text-xs text-slate-500">Review is paused while the note is re-analyzed.</p>
+        )}
         {decision ? (
           <p data-testid="decision" className="mb-2 text-xs">
             Decision: <span className="font-semibold">{decision.action}</span>
@@ -128,21 +134,21 @@ export function SuggestionCard({
         {mode === "idle" && (
           <div className="flex gap-2">
             <button
-              disabled={busy}
+              disabled={busy || locked}
               onClick={() => send({ action: "accept" })}
               className="rounded bg-emerald-700 px-3 py-1 text-xs font-medium text-white disabled:opacity-40"
             >
               Accept
             </button>
             <button
-              disabled={busy}
+              disabled={busy || locked}
               onClick={() => setMode("edit")}
               className="rounded border border-slate-300 px-3 py-1 text-xs font-medium"
             >
               Edit
             </button>
             <button
-              disabled={busy}
+              disabled={busy || locked}
               onClick={() => setMode("reject")}
               className="rounded border border-red-300 px-3 py-1 text-xs font-medium text-red-700"
             >
@@ -184,7 +190,7 @@ export function SuggestionCard({
             <div className="flex gap-2">
               <button
                 type="submit"
-                disabled={busy}
+                disabled={busy || locked}
                 className="rounded bg-slate-900 px-3 py-1 text-xs font-medium text-white disabled:opacity-40"
               >
                 {mode === "edit" ? "Save edit" : "Confirm reject"}

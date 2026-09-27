@@ -2,8 +2,9 @@
 
 Local end-to-end tests only (M8). The backend reaches it through LLM_BASE_URL alone, so the
 app has no fake code path (CLAUDE.md rule 10). It answers POST .../chat/completions:
-- the extract call for the worked example gets the recorded extract response;
-- the select call gets the recorded select response;
+- the worked example gets its recorded extract and select responses;
+- the e2e note (E2E_NOTE) gets hand-written responses in which the two codes cite
+  different sentences, so an evidence-highlight test can tell them apart;
 - any other note gets HTTP 503, which the UI shows as a failed analysis.
 
 Usage: python scripts/fake_llm.py [--port 8765]
@@ -21,6 +22,31 @@ RECORDING = REPO / "backend" / "tests" / "fixtures" / "llm" / "worked_example"
 WORKED = json.loads((REPO / "data" / "examples" / "worked_example.json").read_text())
 FIRST_SENTENCE = WORKED["note"]["text"].split("\n")[0].removeprefix("Assessment: ")
 
+# Synthetic. Sentence 1 supports E11.22, sentence 2 supports N18.32.
+E2E_NOTE = (
+    "Assessment: Type 2 diabetes mellitus with chronic kidney disease.\n"
+    "Chronic kidney disease stage 3b per recent labs.\n"
+    "Plan: Recheck renal function in 3 months.\n"
+)
+E2E_MARKER = "Chronic kidney disease stage 3b per recent labs."
+_MDM = {"problems": None, "data": None, "risk": None, "evidence": []}
+E2E_EXTRACT = {
+    "facts": [
+        {"fact_id": "f1", "kind": "condition",
+         "concept": "type 2 diabetes mellitus with chronic kidney disease",
+         "status": "active", "details": {"type": "2"}, "links": [], "evidence": [1]},
+        {"fact_id": "f2", "kind": "condition", "concept": "chronic kidney disease",
+         "status": "active", "details": {"stage": "3b"}, "links": [], "evidence": [2]},
+    ],
+    "mdm": _MDM,
+}  # fmt: skip
+E2E_SELECT = {
+    "selections": [
+        {"fact_id": "f1", "code": "E11.22", "evidence": [1], "rationale": "diabetes with CKD"},
+        {"fact_id": "f2", "code": "N18.32", "evidence": [2], "rationale": "stage 3b"},
+    ]
+}
+
 
 def _recorded(step: str) -> dict[str, object]:
     response: dict[str, object] = json.loads((RECORDING / f"{step}.json").read_text())["response"]
@@ -34,11 +60,14 @@ def reply_for(body: dict[str, object]) -> tuple[int, dict[str, object]]:
         return 400, {"error": {"message": "expected system and user messages"}}
     system, user = str(messages[0].get("content", "")), str(messages[1].get("content", ""))
     if "extract clinical facts" in system:
-        if FIRST_SENTENCE not in user:
-            return 503, {"error": {"message": "fake LLM only knows the worked example"}}
-        content = _recorded("extract")
+        if E2E_MARKER in user:
+            content = E2E_EXTRACT
+        elif FIRST_SENTENCE in user:
+            content = _recorded("extract")
+        else:
+            return 503, {"error": {"message": "fake LLM only knows its two notes"}}
     else:
-        content = _recorded("select")
+        content = E2E_SELECT if '"3b"' in user else _recorded("select")
     return 200, {
         "choices": [{"message": {"role": "assistant", "content": json.dumps(content)}}],
         "usage": {"prompt_tokens": 0, "completion_tokens": 0},
