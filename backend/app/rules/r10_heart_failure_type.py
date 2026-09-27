@@ -4,10 +4,13 @@ Sources: ICD-10-CM Official Guidelines for Coding and Reporting FY2027, Sections
 and I.C.9.a.3 (assign an additional code from category I50 to identify the type of heart
 failure). Acuity has no guideline sentence of its own; it is the I50.2-/I50.3-/I50.4-
 subcode axis (acute, chronic, acute on chronic) in the Tabular List.
+
+An I50 code needs an active heart failure fact; without one (for example only "history of
+heart failure", or an I50 code attached to another fact) it is kept as not suggested.
 """
 
 from app.models import Gap, RuleInput, RuleOutput, Suggestion
-from app.rules.common import active, is_heart_failure, result, with_result
+from app.rules.common import active, heart_failure_facts, is_heart_failure, result, with_result
 from app.terminology.lookup import CodeLookup
 
 RULE_ID = "R10"
@@ -37,11 +40,22 @@ MISSING = {
 
 def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
     live = {s.suggestion_id for s in active(inp.suggestions)}
+    documented = bool(heart_failure_facts(inp))
     out: list[Suggestion] = []
     gaps: list[Gap] = []
     for s in inp.suggestions:
         if s.suggestion_id not in live or not is_heart_failure(s.code):
             out.append(s)
+            continue
+        if not documented:
+            r = result(
+                RULE_ID,
+                "fail",
+                f"{s.code} needs documented active heart failure.",
+                SOURCE_REF,
+                [s.code],
+            )
+            out.append(with_result(s, r))
             continue
         if s.code in MISSING:
             missing, query = MISSING[s.code]

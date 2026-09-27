@@ -51,6 +51,19 @@ def coverage_line(s: Summary) -> str | None:
     return f"**INCOMPLETE**: {'; '.join(parts)}. No metric is judged pass or fail."
 
 
+def provenance_line(meta: dict[str, Any]) -> str:
+    """Commit and code sets; runs saved before provenance was recorded say so."""
+    commit = meta.get("git_commit", "not recorded")
+    sets = ", ".join(meta.get("code_sets", [])) or "not recorded"
+    line = f"Code commit `{commit}`, code sets {sets}."
+    if "replay_of" in meta:
+        source = meta.get("source_git_commit") or "not recorded"
+        line += f" Replay of `{meta['replay_of']}` (LLM outputs from commit `{source}`)."
+    if meta.get("resumed_at_commits"):
+        line += f" Resumed at {', '.join(f'`{c}`' for c in meta['resumed_at_commits'])}."
+    return line
+
+
 def markdown(meta: dict[str, Any], s: Summary) -> str:
     incomplete = coverage_line(s)
     lines = [f"# Eval {meta['run_id']}", ""]
@@ -58,6 +71,7 @@ def markdown(meta: dict[str, Any], s: Summary) -> str:
         lines += [incomplete, ""]
     lines += [
         f"Setup `{meta['setup']}`, model `{meta['model']}`, prompts `{meta['prompt_version']}`.",
+        provenance_line(meta),
         f"{s.notes} notes ({s.failed_notes} failed), {s.predicted_codes} predicted codes, "
         f"mean latency {s.mean_latency_ms} ms.",
         "",

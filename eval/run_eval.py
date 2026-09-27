@@ -25,11 +25,12 @@ from app.config import get_settings
 from app.db.session import get_engine
 from app.llm.client import LlmClient
 from app.models.eval import GoldNote
-from app.pipeline.state import EXTRACT_PROMPT, prompt_version
+from app.pipeline.state import EXTRACT_PROMPT, SELECT_PROMPT, prompt_version
 from app.terminology.embedder import get_embedder
 from eval import budget
 from eval.budget import UsageLedger
 from eval.gold import changed_notes, gold_hash, load_gold
+from eval.provenance import code_set_ids, git_commit, resume_meta
 from eval.records import NoteRun
 from eval.report import RUNS, markdown, score_run, write_report
 from eval.runner import DEFAULT_CALL_INTERVAL_S, PacedLlm, load_runs, run_notes
@@ -45,11 +46,12 @@ def _start_run(run_dir: Path, meta: dict[str, Any]) -> None:
     run_dir.mkdir(parents=True, exist_ok=True)
     meta_path = run_dir / "meta.json"
     if meta_path.exists():
-        # Resuming: a run must not mix setups, models, prompt versions or replay sources.
-        saved = json.loads(meta_path.read_text())
-        if saved != meta:
-            sys.exit(f"run {meta['run_id']} was started with {saved}; this run would use {meta}")
-    meta_path.write_text(json.dumps(meta) + "\n")
+        # Resuming: a run must not mix setups, models, prompt versions, gold or replay sources.
+        try:
+            meta = resume_meta(json.loads(meta_path.read_text()), meta)
+        except ValueError as exc:
+            sys.exit(str(exc))
+    meta_path.write_text(json.dumps(meta, indent=2) + "\n")
 
 
 def _replay(source_id: str, run_id: str | None, limit: int | None) -> Path:
@@ -65,12 +67,22 @@ def _replay(source_id: str, run_id: str | None, limit: int | None) -> Path:
     changed = changed_notes(source_meta["gold"], list(current.values()))
     if changed:
         sys.exit(f"gold notes changed since {source_id} ran: {', '.join(changed)}; rerun it live")
-    meta = {**source_meta, "run_id": run_id, "replay_of": source_id}
-    _start_run(run_dir, meta)
     sources = load_runs(source_dir)
     golds = [current[n] for n in sorted(source_meta["gold"]) if n in sources]
     golds = golds[:limit] if limit else golds
     engine = get_engine()
+    with Session(engine) as session:
+        sets = code_set_ids(session, golds)
+    meta = {
+        **source_meta,
+        "run_id": run_id,
+        "replay_of": source_id,
+        # LLM outputs come from the source run; the rules come from this commit.
+        "source_git_commit": source_meta.get("git_commit"),
+        "git_commit": git_commit(),
+        "code_sets": sets,
+    }
+    _start_run(run_dir, meta)
 
     def predict(gold: GoldNote) -> NoteRun:
         with Session(engine) as session:
@@ -97,11 +109,21 @@ def _live(args: argparse.Namespace) -> Path:
         prompt_version(args.extract_prompt) if args.setup == "pipeline" else BASELINE_PROMPT_VERSION
     )
     golds = load_gold()[: args.limit] if args.limit else load_gold()
+    prompts = (
+        {"extract": args.extract_prompt, "select": SELECT_PROMPT}
+        if args.setup == "pipeline"
+        else {"baseline": BASELINE_PROMPT_VERSION}
+    )
+    with Session(get_engine()) as session:
+        sets = code_set_ids(session, golds)
     meta = {
         "run_id": run_id,
         "setup": args.setup,
         "model": llm.model,
         "prompt_version": version,
+        "prompts": prompts,
+        "git_commit": git_commit(),
+        "code_sets": sets,
         "gold": {g.note_id: gold_hash(g) for g in golds},  # scope + change detection
     }
     done = load_runs(run_dir) if run_dir.exists() else {}

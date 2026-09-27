@@ -74,3 +74,10 @@ def test_completed_note_without_saved_outputs_replays_as_failed_with_no_codes(
         replay = predict_replay(session, old_style, GOLD)
 
     assert (replay.status, replay.error, replay.predicted) == ("failed", "NO_SAVED_OUTPUTS", [])
+
+
+def test_code_set_ids_follow_the_visit_dates(seeded: Engine) -> None:
+    from eval.provenance import code_set_ids
+
+    with Session(seeded) as session:
+        assert code_set_ids(session, [GOLD]) == ["ICD10CM-FY2027"]

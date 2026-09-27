@@ -90,6 +90,8 @@ Owner-directed fixes before tomorrow's M4 eval; no LLM calls. Each fix gets a re
 
 **Verified:** 204 unit + 39 of 40 integration tests pass; ruff, ruff format, mypy clean. The only failure is still `test_worked_example_from_recorded_llm` (waits on re-recording tomorrow). Every fix's new test was run against the pre-fix rules in a throwaway worktree: all 16 finding tests for items 1-5, the R8 evidence test and the pipeline evidence-subset test fail there; the one guard test (typed E10 stays E10) passes on both, as intended. `rescore.py` gates pass; the two M3 10-note runs now show INCOMPLETE (no stored scope, so they are scored against all 20 notes).
 
+**Follow-up (owner, 2026-09-27):** full-pipeline test for a historical diagnosis (`test_historical_diagnosis.py`): it failed on `cf69134` (the model attached I50.20 to the active hypertension fact, whose test-db candidates include I50 codes, and it was reported); fixed by R10 keeping an I50 code without an active heart failure fact as not suggested. Runs now record git commit, prompt names and code sets in `meta.json` and the report header (`eval/provenance.py`); the resume guard still covers setup, model, prompt version and gold scope only, and replay does not refuse a different commit. 213 unit + 41 of 42 integration tests pass (only the fixture re-record test fails).
+
 **Open:** support checker is a deterministic proxy (word matching over descriptions and Index paths), not a coder; thresholds for the two evidence metrics kept at <= 5% pending owner review.
 
 ---
