@@ -3,7 +3,7 @@ from typing import Any
 from app.models import AnalysisResult
 from app.pipeline.nodes import Node
 from app.pipeline.nodes.assemble import latency_ms
-from app.pipeline.state import PROMPT_VERSION, PipelineDeps, PipelineState
+from app.pipeline.state import PipelineDeps, PipelineState, prompt_version
 
 
 def make(deps: PipelineDeps, clock: Any) -> Node:
@@ -20,7 +20,7 @@ def make(deps: PipelineDeps, clock: Any) -> Node:
                 gaps=[],
                 em=None,
                 model=deps.llm.model,
-                prompt_version=PROMPT_VERSION,
+                prompt_version=prompt_version(deps.extract_prompt),
                 model_errors=state.model_errors,
                 latency_ms=latency_ms(state, clock()),
                 error=state.error,

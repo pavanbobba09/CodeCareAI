@@ -59,18 +59,28 @@ def test_selection_outside_candidates_is_dropped_and_counted() -> None:
         _sel("f9", "E11.22", [1]),  # unknown fact
         _sel("f2", "Z99.99", [1]),  # invented code
     ]
-    kept, errors = validate_selections(sels, sets, {1})
+    kept, errors = validate_selections(sels, sets, {"f1": {1}, "f2": {1}})
     assert [(s.fact_id, s.code) for s in kept] == [("f1", "E11.22")]
     assert errors == 3
 
 
 def test_selection_with_bad_evidence_is_dropped() -> None:
-    kept, errors = validate_selections([_sel("f1", "E11.22", [4])], [_cands("f1", "E11.22")], {1})
+    kept, errors = validate_selections(
+        [_sel("f1", "E11.22", [4])], [_cands("f1", "E11.22")], {"f1": {1}}
+    )
     assert (kept, errors) == ([], 1)
 
 
 def test_null_code_and_duplicates_are_not_errors() -> None:
     sels = [_sel("f1", None, []), _sel("f1", "E11.22", [1]), _sel("f1", "E11.22", [1])]
-    kept, errors = validate_selections(sels, [_cands("f1", "E11.22")], {1})
+    kept, errors = validate_selections(sels, [_cands("f1", "E11.22")], {"f1": {1}})
     assert len(kept) == 1
     assert errors == 0
+
+
+def test_selection_citing_a_real_sentence_outside_its_fact_is_dropped() -> None:
+    # Sentence 2 exists in the note, but fact f1 is documented only in sentence 1.
+    kept, errors = validate_selections(
+        [_sel("f1", "E11.22", [1, 2])], [_cands("f1", "E11.22")], {"f1": {1}}
+    )
+    assert (kept, errors) == ([], 1)

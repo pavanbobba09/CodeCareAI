@@ -9,7 +9,7 @@ from app.pipeline.validate import validate_facts
 
 
 def make(deps: PipelineDeps) -> Node:
-    system = load_prompt("extract_v1", ExtractionOutput)
+    system = load_prompt(deps.extract_prompt, ExtractionOutput)
 
     def extract_facts(state: PipelineState) -> dict[str, Any]:
         user = json.dumps(

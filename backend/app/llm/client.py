@@ -40,6 +40,29 @@ class JsonLlm(Protocol):
     ) -> T: ...
 
 
+class CallUsage(BaseModel):
+    """Tokens one HTTP call spent, as the provider reports them in `usage`."""
+
+    step: str
+    prompt_tokens: int
+    completion_tokens: int
+    reasoning_tokens: int | None  # None when the provider does not report it separately
+
+
+def _usage(step: str, body: object) -> CallUsage | None:
+    usage = body.get("usage") if isinstance(body, dict) else None
+    if not isinstance(usage, dict):
+        return None
+    details = usage.get("completion_tokens_details")
+    reasoning = details.get("reasoning_tokens") if isinstance(details, dict) else None
+    return CallUsage(
+        step=step,
+        prompt_tokens=int(usage.get("prompt_tokens", 0)),
+        completion_tokens=int(usage.get("completion_tokens", 0)),
+        reasoning_tokens=int(reasoning) if isinstance(reasoning, int) else None,
+    )
+
+
 class _Transient(Exception):
     def __init__(self, message: str, wait_s: float) -> None:
         super().__init__(message)
@@ -68,6 +91,7 @@ class LlmClient:
         transport: httpx.BaseTransport | None = None,
         sleep: Callable[[float], None] = time.sleep,
         clock: Callable[[], float] = time.monotonic,
+        on_usage: Callable[[CallUsage], None] | None = None,
     ) -> None:
         # Missing config is reported when a call is made, so the API can still answer
         # 404/409 first and a failed analysis is stored with LLM_UNAVAILABLE.
@@ -80,6 +104,7 @@ class LlmClient:
         )
         self._sleep = sleep
         self._clock = clock
+        self._on_usage = on_usage
 
     @property
     def model(self) -> str:
@@ -91,7 +116,7 @@ class LlmClient:
             raise LlmError("TIMEOUT", "Analysis time limit reached.")
         return remaining
 
-    def _post(self, messages: list[dict[str, str]], deadline: float) -> str:
+    def _post(self, step: str, messages: list[dict[str, str]], deadline: float) -> str:
         timeout = min(PER_CALL_TIMEOUT_S, self._remaining(deadline))
         try:
             response = self._http.post(
@@ -117,7 +142,13 @@ class LlmClient:
         if response.status_code >= 400:
             raise LlmError("LLM_UNAVAILABLE", f"LLM HTTP {response.status_code}.")
         try:
-            content = response.json()["choices"][0]["message"]["content"]
+            body = response.json()
+        except ValueError as exc:
+            raise LlmError("LLM_UNAVAILABLE", "LLM response was not JSON.") from exc
+        if self._on_usage is not None and (usage := _usage(step, body)) is not None:
+            self._on_usage(usage)  # spent even if the content turns out invalid
+        try:
+            content = body["choices"][0]["message"]["content"]
         except (ValueError, KeyError, IndexError, TypeError) as exc:
             raise LlmError("LLM_UNAVAILABLE", "LLM response had no message content.") from exc
         if not isinstance(content, str):
@@ -142,7 +173,7 @@ class LlmClient:
         retried = False
         while True:
             try:
-                return self._parse(self._post(messages, deadline), schema)
+                return self._parse(self._post(step, messages, deadline), schema)
             except _Transient as exc:
                 if retried:
                     raise LlmError("LLM_UNAVAILABLE", str(exc)) from exc

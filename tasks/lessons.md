@@ -25,3 +25,9 @@ Corrections from the owner and the rule that prevents each one. Review at the st
 **What went wrong:** `data/abbreviations.csv` mapped HFmrEF to "combined systolic and diastolic heart failure", and a unit test, two integration cases and `scripts/check_search.py` locked it in as I50.40. Neither the FY2027 Alphabetic Index nor the Guidelines support it; it came from memory of coding practice. The Index has "reduced ejection fraction: see Failure, heart, systolic" and "preserved ejection fraction: see Failure, heart, diastolic", and no entry for mildly reduced.
 
 **Rule:** Every abbreviation mapping must cite the Index entry or guideline section that supports it, checked in that fiscal year's files in `data/raw/`. When there is no source, the abbreviation expands only to its literal words (HFmrEF -> "heart failure with mildly reduced ejection fraction") and search handles the rest. Tests may assert only mappings that have a cited source.
+
+## 2026-09-27: Validate code support from that suggestion's own facts
+
+**What went wrong:** Family guards accepted diabetes, hypertension, CKD or heart failure documented anywhere in the note. A code attached to an unrelated active fact could therefore borrow another suggestion's condition and pass.
+
+**Rule:** Every condition code must own an active matching fact in its own `fact_ids`; combination codes must own every family they assert. A rule-added or normalized code carries only the facts and evidence that produced that code. Tests include a correctly documented condition elsewhere in the note so a global-presence check cannot pass.

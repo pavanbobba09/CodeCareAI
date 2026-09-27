@@ -93,16 +93,34 @@ Chosen model: **`openai/gpt-oss-120b`** (set via `LLM_MODEL`). Reason: both inve
 | R4 | Hypertension with heart failure: evaluate I11.0 plus I50.x. |
 | R5 | Hypertension, heart failure, and CKD: evaluate I13.x plus I50.x and N18.x. |
 | R6 | Remove duplicate I10 when a supported I11/I12/I13 combination applies. |
-| R7 | Missing diabetes type: default only when guidelines allow and mark for review. |
+| R7 | Reconcile the selected diabetes family with the documented type; default an untyped fact to E11 and mark it for review. |
 | R8 | Add supported long-term medication status codes for documented insulin/oral therapy. |
 | R9 | Missing CKD stage or stage 3 subtype: keep the supported less-specific code and raise a neutral gap. |
-| R10 | Missing heart-failure type or acuity: use supported specificity and raise a gap. |
+| R10 | Reconcile I50 specificity with documented type and acuity; raise a neutral gap for a missing axis. |
 | R11 | Outpatient probable/suspected/rule-out diagnoses are not coded as confirmed. |
 | R12 | Apply Excludes1/tabular conflicts; allow review only where the official exception can apply. |
 | R13 | Flag CPT without a supporting diagnosis; apply effective NCCI PTP pairs and modifier indicator. |
 | R14 | Compute E/M from extracted MDM; return no E/M code when required elements are missing. |
 
 When `CodeSetSelection.cpt` is null, R13 and R14 are skipped (no CPT codes or E/M code can be suggested). R1–R12 still run.
+
+Sources (FY2027 Official Guidelines unless noted): R1 I.B.2 and 45 CFR 162.1002; R2 I.A.15 and the E11.22 Tabular note; R3 I.C.9.a.2; R4 I.C.9.a.1; R5 I.C.9.a.3; R6 I.C.9.a.1 and I.C.9.a.3; R7 I.C.4.a.2; R8 I.C.4.a.3 plus FDA labels (DailyMed) for drug class in `data/diabetes_drug_classes.csv`; R9 I.C.14.a.1; R10 I.C.9.a.1, I.C.9.a.3 and the I50 Tabular axes; R11 IV.H; R12 I.A.12.a. Each rule module cites its source in `source_ref`.
+
+Rules work on the codes the LLM selected plus fact status, details and links. One shared classifier maps active condition facts to diabetes, hypertension, CKD and heart-failure families, including Index-supported synonyms such as "high blood pressure", "chronic renal failure" and "left ventricular failure". Every condition code must cite, in its own `fact_ids`, an active fact for every condition family that code asserts; a condition documented elsewhere in the note cannot support an unrelated suggestion. Order: R11, R1; normalizers R7, R9, R10; combination rules R2, R5, R4, R3; a second idempotent R9/R10 pass for N18/I50 codes added by combinations; dedupe/support rules R6, R8, R12; then R1 again. Any rule result with outcome `fail` makes a code `not_suggested`: kept to show the coder why, never reported, ignored by later rules.
+
+- **R11** keeps a code whose facts are all suspected, ruled out or denied as `not_suggested` (outcome `fail`), so the coder sees why; later rules ignore it.
+- **R2-R5 and R8 add codes** from `CodeLookup` for the visit's code set, with `added_by_rule` set and `fact_ids`/evidence taken only from the facts that triggered each code. R4 and R5 always add the I50 code supported by the heart-failure facts when it was not selected; an untyped fact produces I50.9, then R10 raises the type gap. The final R1 pass checks every added code (exists, billable, valid on the visit date) and drops it if not.
+- **R2** replaces only the uncomplicated E1x.9 with E1x.22 and adds E1x.22 next to other complications (E1x.21, E1x.29, E1x.65) when diabetes and CKD are documented. **R3/R4/R5** leave exactly one variant, chosen from the documented facts: I12.9 or I12.0, I11.0 (I11.9 becomes I11.0 when heart failure is documented), I13.0 or I13.2 (stage 5 or ESRD documented picks .0/.2 for I12 and .2 for I13). A selected E1x.22, I11.x, I12.x or I13.x whose own facts do not document its parts is kept as `not_suggested`. **R7** changes E10/E11 to match a documented type 1/type 2 fact and defaults an untyped E10/E13 selection to its E11 counterpart; a diabetes code without its own active diabetes fact is `not_suggested`. **R6** does the same ownership check for I10-I13 (R3-R5 also check every combination part). R9 applies it to N18 and R10 to I50. **R8** cites the diabetes and medication facts together. E1x.22, I12 and I13 carry "use additional code to identify the stage" (Tabular): when no N18 code was selected, R2/R3/R5 add the stage the CKD fact documents (details or concept, e.g. stage 5 -> N18.5, ESRD -> N18.6), or N18.9 when none is written. The link is presumed (I.A.15, I.C.9.a) unless a CKD or heart-failure fact has a `caused_by` link to a fact other than the diabetes (R2) or hypertension (R3-R5); then no code is added and the codes get `needs_review`.
+- **R6, R2 and R9 drop codes** as coding decisions (duplicate I10, I11/I12 under I13, E1x.9 replaced, CKD stage next to ESRD). Only R1 dropping an LLM pick counts as a model error.
+- **R9** reconciles every selected N18 code with the documented stage in both directions (more or less specific; N18.9 when CKD has no stage; N18.6 when ESRD is documented, even next to stage 5) and keeps an N18 code with no owned active CKD fact as `not_suggested`; its gap is raised only when no stage (N18.9) or no 3a/3b (N18.30) is documented. **R10** likewise reconciles I50 in both directions from the owned heart-failure facts: type (systolic/diastolic/combined/left ventricular) and acuity determine the code, while missing type gives I50.9 and missing acuity gives I50.20/30/40 with a neutral gap. An I50 code with no owned active heart-failure fact is `not_suggested`. **R12** marks both codes of an Excludes1 pair `needs_review` and raises a `conflicting` gap; it never drops a code.
+
+Known limits (not handled by the rules):
+
+- A note that calls CKD or heart failure unrelated to the hypertension or diabetes without naming another cause is not detected; extraction has no "unrelated" link.
+- A `caused_by` link from extraction is trusted as documented; a wrong link blocks a presumed combination (the codes are marked for review).
+- Secondary diabetes (E08, E09, E13) combinations are not built.
+- Temporary insulin use, which I.C.4.a.3 says does not get Z79.4, is not detected. Drugs outside `data/diabetes_drug_classes.csv` (for example semaglutide, which has both oral and injectable labels) get no Z79 code.
+- I11.9 (hypertensive heart disease without heart failure) is not checked against a documented heart condition other than heart failure; only I50 heart failure triggers R4/R5.
 
 ## 4. Data Flow
 
@@ -113,7 +131,7 @@ When `CodeSetSelection.cpt` is null, R13 and R14 are skipped (no CPT codes or E/
 3. `web` calls `POST /api/v1/notes/{note_id}/analyze`.
 4. `terminology` selects the ICD-10-CM set from `Note.visit_date`: FY2026 (the April 1, 2026 update, valid 2026-04-01 to 2026-09-30) or FY2027 (2026-10-01 to 2027-09-30). The October 2025 FY2026 release is not loaded, so earlier visits return `CODE_SET_MISSING`. A CPT set is selected when one covers the date; otherwise `CodeSetSelection.cpt` is null.
 5. `llm_client` converts the numbered sentences into `ExtractionOutput`; it must not output codes.
-6. `terminology` returns up to 20 real, billable `CodeCandidate` values per active/performed fact. The fact text (concept plus details) is abbreviation-expanded, then searched three ways: trigram match on Alphabetic Index term paths (a category hit such as `N18.3-` expands to its billable descendants), full-text search on descriptions, and vector search on description embeddings. Results merge by reciprocal rank fusion (k=60). `sources` lists every search that found the code, plus `abbreviation` when the fact text was expanded.
+6. `terminology` returns up to 20 real, billable `CodeCandidate` values per active/performed fact. The fact text (concept plus details) is abbreviation-expanded, then searched three ways: trigram match on Alphabetic Index term paths (a category hit such as `N18.3-` expands to its billable descendants; a `<see>` cross-reference such as "Diabetes, poorly controlled: see Diabetes, by type, with hyperglycemia" is stored with the codes of the term it points to, per I.A.16; "Note:" pseudo-headings are dropped and their subterms reattached to the term before them), full-text search on descriptions, and vector search on description embeddings. Results merge by reciprocal rank fusion (k=60). `sources` lists every search that found the code, plus `abbreviation` when the fact text was expanded.
 7. `llm_client` returns `CodeSelection` values chosen only from those candidates.
 8. `rules` validates and transforms suggestions, adds `RuleResult` values, and emits `Gap` values.
 9. `em` computes `EmResult` from `MdmElements` using deterministic MDM logic.
@@ -163,9 +181,9 @@ sequenceDiagram
 |---|---|
 | LLM timeout, 429, or HTTP error | Wait up to `Retry-After` capped at 20 seconds; retry once; then return `LLM_UNAVAILABLE`. |
 | Invalid model JSON | Retry once with the validation error; then return `LLM_BAD_OUTPUT`. |
-| Invalid sentence evidence | Drop the fact (or selection) and increment `model_errors`. |
+| Invalid sentence evidence | Drop the fact (or selection) and increment `model_errors`. A selection's evidence must be a non-empty subset of its own fact's evidence. |
 | Selected code outside candidates | Drop the selection and increment `model_errors`. |
-| R1 rejects a code | Drop the suggestion, increment `model_errors`, and log the code and fact IDs. Candidates are already real and billable, so this is a guard. |
+| R1 rejects a code | Drop the suggestion and log the code and fact IDs. It counts in `model_errors` only when the code was an LLM pick (candidates are already real and billable, so this is a guard); a rule-added code that fails R1 is a code-table problem. Drops by R2, R6 and R9 are coding decisions, not errors. |
 | Unexpected exception in a stage | Store a failed analysis; return `500 PIPELINE_ERROR`. |
 | No ICD-10-CM set covers the visit date | Return `409 CODE_SET_MISSING`; do not run the pipeline. |
 | No CPT set covers the visit date | Not an error. `cpt` is null, procedure facts get no candidates, CPT-dependent rules (R13, R14) are skipped, and `em` is null. |
@@ -285,6 +303,7 @@ class Suggestion(BaseModel):
     rule_results: list[RuleResult]
     gap_ids: list[str]
     confidence: Confidence
+    added_by_rule: str | None = None  # rule id when a rule, not the LLM, added the code
 
 class CodeSetSelection(BaseModel):
     icd10cm: str              # e.g. ICD10CM-FY2027
@@ -353,6 +372,7 @@ class CodeLookup(Protocol):  # the only way rules read code tables; tests use an
     def get_code(self, code: str, code_set_id: str) -> CodeCandidate | None: ...
     def children_of(self, code: str, code_set_id: str) -> list[str]: ...
     def is_billable(self, code: str, code_set_id: str) -> bool: ...
+    def excludes1_of(self, code: str, code_set_id: str) -> list[str]: ...  # patterns ("E10", "O10-O11") from the code's and its ancestors' Excludes1 notes
 
 def ncci_conflict(code_a: str, code_b: str, visit_date: date) -> RuleResult | None: ...
 def run_rules(note: Note, facts: list[ClinicalFact], selections: list[CodeSelection]) -> tuple[list[Suggestion], list[Gap]]: ...
@@ -379,11 +399,16 @@ class RuleOutput(BaseModel):
     gaps: list[Gap]
 
 def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput: ...
-# run_rules preloads the needed codes into an InMemoryCodeLookup, so rules never touch the db.
-# Rules run in order; each sees the previous rule's kept suggestions.
+# run_rules preloads the selected codes, every rule's TARGET_CODES, and their ancestors (with
+# Excludes1 notes) into an InMemoryCodeLookup, so rules never touch the db.
+# Rules run in order; each sees the previous rule's kept suggestions. A rule may append
+# suggestions (added_by_rule set, id assigned by run_all as the next s<n>) or drop them
+# (DroppedCode). Gaps on dropped codes are removed at the end.
 ```
 
-Pipeline state and nodes (`backend/app/pipeline/`): `PipelineState` holds the note, code sets, a monotonic deadline (150 s from start), facts, MDM, candidate sets, selections, suggestions, gaps, `model_errors`, `error`, and the final `result`. Nodes `extract_facts -> retrieve_candidates -> select_codes -> run_rules -> assemble` each live in their own file; any node that sets `error` routes to `fail`, which stores no partial facts or suggestions. Services (db session, LLM, embedder) are passed by closure, never stored in state. Prompts are versioned files (`extract_v1.md`, `select_v1.md`); `extract_v1` returns MDM as nulls until `extract_v2` in M6.
+Confidence bands (set in `assemble`, `backend/app/pipeline/confidence.py`): `not_suggested` when a rule result failed (R11); `review` when any rule result is `needs_review`, a gap is linked, or evidence is empty; otherwise `strong`. `assemble` also links a `conflicting` gap (`rule_id` null, id `conflict-N18` / `conflict-I50`) when a note has two different codes in the N18 or I50 family.
+
+Pipeline state and nodes (`backend/app/pipeline/`): `PipelineState` holds the note, code sets, a monotonic deadline (150 s from start), facts, MDM, candidate sets, selections, suggestions, gaps, `model_errors` (and `rule_model_errors`, the part R1 added), `error`, and the final `result`. `PipelineDeps` carries the services and `extract_prompt` (default `extract_v2`). Nodes `extract_facts -> retrieve_candidates -> select_codes -> run_rules -> assemble` each live in their own file; any node that sets `error` routes to `fail`, which stores no partial facts or suggestions. Services (db session, LLM, embedder) are passed by closure, never stored in state. Prompts are versioned files (`extract_v1.md`, `extract_v2.md`, `select_v1.md`). `extract_v2` (M4) adds: for a suspected, probable or possible diagnosis, also extract the documented symptoms or signs behind it as their own active facts (IV.H). Both return MDM as nulls until `extract_v3` in M6.
 
 Sentences (`backend/app/segment/`): known headers (`HPI:`, `Assessment:`, `Plan:`, `A/P:`, ...) set a normalized section; other `Word:` lines stay in the current section; text before any header is section `note`. Sentences split at `.`/`!`/`?` plus whitespace (not after `Dr.`, `vs.`, `e.g.`, ...) and at line ends; list bullets are stripped. `text[start:end] == Sentence.text` always holds.
 
@@ -442,14 +467,28 @@ class NoteRun(BaseModel):             # eval/records.py; one file per note per r
     error: str | None
     attempts: int
     n_sentences: int
-    predicted: list[PredictedCode]    # code, evidence, in_code_set, billable (checked at run time)
+    predicted: list[PredictedCode]    # code, evidence, in_code_set, billable, supported, support_reason (checked at run time)
     gap_rules: list[str]
     em_code: str | None
     model_errors: int
     latency_ms: int
+    usage: list[CallUsage] = []                   # every LLM call, across retry attempts
+    llm_outputs: SavedLlmOutputs | None = None    # pipeline: facts, candidate_sets, selections
+
+class CallUsage(BaseModel):           # app/llm/client.py; from the provider's `usage` block
+    step: str
+    prompt_tokens: int
+    completion_tokens: int
+    reasoning_tokens: int | None      # None when the provider does not report it separately
+
+class SavedLlmOutputs(BaseModel):     # app/pipeline/state.py
+    facts: list[ClinicalFact]
+    candidate_sets: list[CandidateSet]
+    selections: list[CodeSelection]
+    model_errors: int                 # validation drops before the rules ran
 ```
 
-Runs are saved to `eval/results/runs/<run_id>/<note_id>.json` (default run id `<date>-<setup>-<model>`), so they can be re-scored without the db or the LLM. Metrics compare exact code strings, micro-averaged over notes; a failed note counts as predicting nothing. Invented = predicted code not in the code set for the visit date. Invalid = predicted code that is invented or not billable in that code set (a superset of invented; catches category headers such as `N18.3`). Unsupported = predicted code with no evidence or evidence outside the note's sentence numbers. The baseline's missing dots are added before scoring (`E1122` -> `E11.22`).
+Runs are saved to `eval/results/runs/<run_id>/<note_id>.json` (default run id `<date>-<setup>-<model>`), so they can be re-scored without the db or the LLM. Metrics compare exact code strings, micro-averaged over notes; a failed note counts as predicting nothing. Invented = predicted code not in the code set for the visit date. Invalid = predicted code that is invented or not billable in that code set (a superset of invented; catches category headers such as `N18.3`). Evidence-reference invalid = predicted code with no evidence or evidence outside the note's sentence numbers. Unsupported = predicted code that fails the rule-based support check (`eval/support.py`): its cited sentences must name the condition (description, Index paths, or each part of a combination code, after abbreviation expansion), keep negation/history/uncertainty scoped to the condition's clause, match E10/E11 to any documented diabetes type, and carry details such as a CKD stage phrase (`stage 4` or `3b`) and I50 type/acuity; when facts are known, support must come from an active fact. The checker is tested with 35 hand-labeled pairs and remains a reported proxy, not a CI gate. Runs saved before this check report it as n/a. Each run's `meta.json` stores its gold scope as a hash per gold note; a report with any stored scoped ID absent from the current gold set, or any scoped result missing or failed, is marked INCOMPLETE and judges no metric pass or fail. Replay refuses a source run whose gold notes changed or that has no hashes. The baseline's missing dots are added before scoring (`E1122` -> `E11.22`). Each run's `meta.json` records setup, model, prompt version and prompt names (`--extract-prompt`, default `extract_v2`), the git commit (`-dirty` when tracked files had uncommitted changes), and the code sets its notes resolve to; the report header shows them. A live resume must match setup, model, prompt version, gold scope and git commit. **Replay** (`run_eval.py --replay-of RUN_ID`) reruns only `run_rules` and `assemble` (`pipeline.graph.rerun_rules`) on a run's saved `llm_outputs`, with no LLM or embedder calls; its `meta.json` adds `replay_of`, `source_git_commit` (where the LLM outputs came from) and its own `git_commit`; replay may resume across commits and records them in `resumed_at_commits`, since it exists to test new rule code on old outputs. Notes without saved outputs replay as failed.
 
 ## 6. API Contracts
 
@@ -496,6 +535,7 @@ CodeCareAI/
 │   ├── raw/                   # downloaded files; gitignored
 │   ├── cpt_subset.csv         # approved demo codes and custom labels
 │   ├── abbreviations.csv      # DM2, CKD, HFrEF, etc.
+│   ├── diabetes_drug_classes.csv  # R8: drug -> insulin/oral/injectable, with FDA label source
 │   └── gold_notes/            # 50 synthetic labeled notes
 ├── scripts/                   # ICD, NCCI, CPT, and abbreviation loaders
 ├── eval/                      # baseline, runner, metrics, reports
@@ -539,15 +579,17 @@ Use 50 synthetic `GoldNote` cases and the same model for both the full pipeline 
 
 Where each eval runs:
 
-- **Local, live:** `eval/run_eval.py` and `eval/baseline_llm_only.py` call the real LLM against the loaded code tables. The 10-note smoke run is required before any pipeline, prompt, retrieval, or rule change. Runs are paced, retry notes that fail with `LLM_UNAVAILABLE`/`TIMEOUT` with backoff, and resume from saved per-note results.
-- **CI (every push):** re-scores the committed per-note results of the latest local run and fails on any invented or invalid code in a pipeline run, or a metrics error. CI has no LLM key and no loaded code tables.
+- **Local, live:** `eval/run_eval.py` and `eval/baseline_llm_only.py` call the real LLM against the loaded code tables. The 10-note smoke run is required before any pipeline, prompt, or retrieval change; the full gold set runs once per milestone. Every call's token usage goes into the run file and a local, gitignored ledger (`eval/.usage_ledger.jsonl`); before a live run, a budget check estimates the tokens needed (mean of saved runs, else 4k per pipeline note, 800 per baseline note) against the daily limit (200k for gpt-oss-120b on Groq's free tier) minus the ledger's last 24 hours, and stops unless `--ignore-budget`.
+- **Local, replay:** rule and assemble changes are measured by replaying saved runs; no tokens are spent. Runs are paced, retry notes that fail with `LLM_UNAVAILABLE`/`TIMEOUT` with backoff, and resume from saved per-note results.
+- **CI (every push):** re-scores committed runs and fails a pipeline run when it is incomplete, when either hard-gate metric is unmeasured, or when any invented or invalid code exists. The support checker remains report-only. CI has no LLM key and no loaded code tables.
 - **CI with secrets (M9):** `eval-full.yml` runs the full live eval.
 
 | Metric | Required threshold |
 |---|---|
 | Invented-code rate | `0` — hard gate |
 | Invalid-code rate (pipeline) | `0` — hard gate |
-| Unsupported-code rate | `≤ 5%` |
+| Evidence-reference invalid rate | `≤ 5%` |
+| Unsupported-code rate (support check) | `≤ 5%` reported target; not a CI gate |
 | Code precision | `≥ 0.85` |
 | Code recall | `≥ 0.80` |
 | Expected-gap recall | `≥ 0.80` |
@@ -589,4 +631,3 @@ Expected: E11.22 and N18.30, both with evidence `[1]`. Its recorded LLM response
 2. Is the public-demo use of the CPT subset and hand-built MDM logic acceptable without additional licensing review? If uncertain, keep CPT labels project-written and clearly mark the feature as educational.
 3. Can a certified coder review 10–15 gold notes later?
 4. Are free Hugging Face Space cold starts acceptable for the final demo?
-

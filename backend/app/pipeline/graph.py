@@ -24,7 +24,7 @@ from app.pipeline.nodes import (
     run_rules,
     select_codes,
 )
-from app.pipeline.state import ANALYSIS_TIME_LIMIT_S, PipelineDeps, PipelineState
+from app.pipeline.state import ANALYSIS_TIME_LIMIT_S, PipelineDeps, PipelineState, SavedLlmOutputs
 
 log = logging.getLogger(__name__)
 
@@ -77,14 +77,8 @@ def build_graph(deps: PipelineDeps, clock: Callable[[], float] = time.monotonic)
     return graph.compile()
 
 
-def run_pipeline(
-    deps: PipelineDeps,
-    note: Note,
-    code_sets: CodeSetSelection,
-    clock: Callable[[], float] = time.monotonic,
-) -> AnalysisResult:
-    now = clock()
-    state = PipelineState(
+def _start(note: Note, code_sets: CodeSetSelection, now: float) -> PipelineState:
+    return PipelineState(
         analysis_id=str(uuid.uuid4()),
         note=note,
         code_sets=code_sets,
@@ -92,7 +86,50 @@ def run_pipeline(
         started_monotonic=now,
         deadline=now + ANALYSIS_TIME_LIMIT_S,
     )
-    out = build_graph(deps, clock).invoke(state)
-    result = out["result"]
+
+
+def run_pipeline_state(
+    deps: PipelineDeps,
+    note: Note,
+    code_sets: CodeSetSelection,
+    clock: Callable[[], float] = time.monotonic,
+) -> PipelineState:
+    """Run the graph and return the final state (facts, candidates, selections, result)."""
+    out = build_graph(deps, clock).invoke(_start(note, code_sets, clock()))
+    return PipelineState.model_validate(out)
+
+
+def run_pipeline(
+    deps: PipelineDeps,
+    note: Note,
+    code_sets: CodeSetSelection,
+    clock: Callable[[], float] = time.monotonic,
+) -> AnalysisResult:
+    result = run_pipeline_state(deps, note, code_sets, clock).result
+    assert isinstance(result, AnalysisResult)
+    return result
+
+
+def rerun_rules(
+    deps: PipelineDeps,
+    note: Note,
+    code_sets: CodeSetSelection,
+    saved: SavedLlmOutputs,
+    clock: Callable[[], float] = time.monotonic,
+) -> AnalysisResult:
+    """Replay: run only run_rules and assemble on saved LLM outputs. No LLM calls.
+
+    Used by the eval to measure rule changes without spending tokens (DESIGN.md §9).
+    """
+    state = _start(note, code_sets, clock()).model_copy(
+        update={
+            "facts": saved.facts,
+            "candidate_sets": saved.candidate_sets,
+            "selections": saved.selections,
+            "model_errors": saved.model_errors,
+        }
+    )
+    state = state.model_copy(update=run_rules.make(deps)(state))
+    result = assemble.make(deps, clock)(state)["result"]
     assert isinstance(result, AnalysisResult)
     return result

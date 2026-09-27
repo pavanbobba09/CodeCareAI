@@ -47,5 +47,8 @@
 25040 N185    1 Chronic kidney disease, stage 5                              Chronic kidney disease, stage 5
 25041 N186    1 End stage renal disease                                      End stage renal disease
 25042 N189    1 Chronic kidney disease, unspecified                          Chronic kidney disease, unspecified
+40001 R06     0 Abnormalities of breathing                                   Abnormalities of breathing
+40002 R060    0 Dyspnea                                                      Dyspnea
+40004 R0602   1 Shortness of breath                                          Shortness of breath
 97698 Z794    1 Long term (current) use of insulin                           Long term (current) use of insulin
 97726 Z7984   1 Long term (current) use of oral hypoglycemic drugs           Long term (current) use of oral hypoglycemic drugs

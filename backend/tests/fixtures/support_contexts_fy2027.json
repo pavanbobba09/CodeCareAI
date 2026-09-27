@@ -1,0 +1,272 @@
+{
+ "_source": "FY2027 ICD-10-CM codes and Alphabetic Index paths (CMS, public), exported from the loaded tables",
+ "E10.9": {
+  "description": "Type 1 diabetes mellitus without complications",
+  "index_paths": [
+   "Diabetes, diabetic (mellitus) (sugar) > brittle (see Diabetes, type 1)",
+   "Diabetes, diabetic (mellitus) (sugar) > due to > autoimmune process (see Diabetes, type 1)",
+   "Diabetes, diabetic (mellitus) (sugar) > due to > immune mediated pancreatic islet beta-cell destruction (see Diabetes, type 1)",
+   "Diabetes, diabetic (mellitus) (sugar) > idiopathic (see Diabetes, type 1)",
+   "Diabetes, diabetic (mellitus) (sugar) > juvenile-onset (see Diabetes, type 1)",
+   "Diabetes, diabetic (mellitus) (sugar) > ketosis-prone (see Diabetes, type 1)",
+   "Diabetes, diabetic (mellitus) (sugar) > type 1"
+  ]
+ },
+ "E11.9": {
+  "description": "Type 2 diabetes mellitus without complications",
+  "index_paths": [
+   "Diabetes, diabetic (mellitus) (sugar)",
+   "Diabetes, diabetic (mellitus) (sugar) > type 2",
+   "Disease, diseased > Willis' (see Diabetes)",
+   "Mellitus, diabetes (see Diabetes)"
+  ]
+ },
+ "E11.22": {
+  "description": "Type 2 diabetes mellitus with diabetic chronic kidney disease",
+  "index_paths": [
+   "Diabetes, diabetic (mellitus) (sugar) > type 2 > with > chronic kidney disease",
+   "Diabetes, diabetic (mellitus) (sugar) > with > chronic kidney disease"
+  ]
+ },
+ "E11.65": {
+  "description": "Type 2 diabetes mellitus with hyperglycemia",
+  "index_paths": [
+   "Diabetes, diabetic (mellitus) (sugar) > inadequately controlled (see Diabetes, by type, with hyperglycemia)",
+   "Diabetes, diabetic (mellitus) (sugar) > out of control (see Diabetes, by type, with hyperglycemia)",
+   "Diabetes, diabetic (mellitus) (sugar) > poorly controlled (see Diabetes, by type, with hyperglycemia)",
+   "Diabetes, diabetic (mellitus) (sugar) > type 2 > with > hyperglycemia",
+   "Diabetes, diabetic (mellitus) (sugar) > uncontrolled > meaning > hyperglycemia (see Diabetes, by type, with, hyperglycemia)",
+   "Diabetes, diabetic (mellitus) (sugar) > with > hyperglycemia"
+  ]
+ },
+ "I10": {
+  "description": "Essential (primary) hypertension",
+  "index_paths": [
+   "Blood > pressure > high (see Hypertension)",
+   "Degeneration, degenerative > vascular (senile) > hypertensive (see Hypertension)",
+   "Disease, diseased > hypertensive (see Hypertension)",
+   "Disease, diseased > vascular > hypertensive (see Hypertension)",
+   "High > arterial tension (see Hypertension)",
+   "Hyperpiesis, hyperpiesia (see Hypertension)",
+   "Hypertension, hypertensive (accelerated) (benign) (essential) (idiopathic) (malignant) (systemic)",
+   "Hypertensive urgency (see Hypertension)",
+   "Urgency > hypertensive (see Hypertension)"
+  ]
+ },
+ "I11.0": {
+  "description": "Hypertensive heart disease with heart failure",
+  "index_paths": [
+   "Hypertension, hypertensive (accelerated) (benign) (essential) (idiopathic) (malignant) (systemic) > heart (disease) (conditions in I51.4-I51.9 due to hypertension) > with > heart failure (congestive)",
+   "Hypertension, hypertensive (accelerated) (benign) (essential) (idiopathic) (malignant) (systemic) > with > heart failure (congestive)"
+  ]
+ },
+ "I12.0": {
+  "description": "Hypertensive chronic kidney disease with stage 5 chronic kidney disease or end stage renal disease",
+  "index_paths": [
+   "Disease, diseased > end stage renal (ESRD) > due to hypertension",
+   "Disease, diseased > renal (functional) (pelvis) > end-stage (failure) > due to hypertension",
+   "Failure, failed > renal > end stage (chronic) > due to hypertension",
+   "Hypertension, hypertensive (accelerated) (benign) (essential) (idiopathic) (malignant) (systemic) > kidney > with > stage 5 chronic kidney disease (CKD) or end stage renal disease (ESRD)"
+  ]
+ },
+ "I12.9": {
+  "description": "Hypertensive chronic kidney disease with stage 1 through stage 4 chronic kidney disease, or unspecified chronic kidney disease",
+  "index_paths": [
+   "Arteriolitis > renal (see Hypertension, kidney)",
+   "Arterionephrosclerosis (see Hypertension, kidney)",
+   "Arteriosclerosis, arteriosclerotic (diffuse) (obliterans) (of) (senile) (with calcification) > kidney (see Hypertension, kidney)",
+   "Bright's disease > arteriosclerotic (see Hypertension, kidney)",
+   "Disease, diseased > Bright's > arteriosclerotic (see Hypertension, kidney)",
+   "Disease, diseased > arteriorenal (see Hypertension, kidney)",
+   "Disease, diseased > kidney (functional) (pelvis) > chronic > hypertensive (see Hypertension, kidney)",
+   "Disease, diseased > kidney (functional) (pelvis) > hypertensive (see Hypertension, kidney)",
+   "Disease, diseased > renal (functional) (pelvis) > hypertensive (see Hypertension, kidney)",
+   "Disease, diseased > renovascular (arteriosclerotic) (see Hypertension, kidney)",
+   "Failure, failed > renal > chronic > hypertensive (see Hypertension, kidney)",
+   "Failure, failed > renal > hypertensive (see Hypertension, kidney)",
+   "Hypertension, hypertensive (accelerated) (benign) (essential) (idiopathic) (malignant) (systemic) > kidney",
+   "Hypertension, hypertensive (accelerated) (benign) (essential) (idiopathic) (malignant) (systemic) > kidney > with > stage 1 through stage 4 chronic kidney disease",
+   "Hypertension, hypertensive (accelerated) (benign) (essential) (idiopathic) (malignant) (systemic) > renal (see Hypertension, kidney)",
+   "Hypertension, hypertensive (accelerated) (benign) (essential) (idiopathic) (malignant) (systemic) > with > kidney involvement (see Hypertension, kidney)",
+   "Insufficiency, insufficient > vascular > renal (see Hypertension, kidney)",
+   "Nephritis, nephritic (albuminuric) (azotemic) (congenital) (disseminated) (epithelial) (familial) (focal) (granulomatous) (hemorrhagic) (infantile) (nonsuppurative, excretory) (uremic) > arteriolar (see Hypertension, kidney)",
+   "Nephritis, nephritic (albuminuric) (azotemic) (congenital) (disseminated) (epithelial) (familial) (focal) (granulomatous) (hemorrhagic) (infantile) (nonsuppurative, excretory) (uremic) > arteriosclerotic (see Hypertension, kidney)",
+   "Nephritis, nephritic (albuminuric) (azotemic) (congenital) (disseminated) (epithelial) (familial) (focal) (granulomatous) (hemorrhagic) (infantile) (nonsuppurative, excretory) (uremic) > cardiac (see Hypertension, kidney)",
+   "Nephritis, nephritic (albuminuric) (azotemic) (congenital) (disseminated) (epithelial) (familial) (focal) (granulomatous) (hemorrhagic) (infantile) (nonsuppurative, excretory) (uremic) > cardiovascular (see Hypertension, kidney)",
+   "Nephritis, nephritic (albuminuric) (azotemic) (congenital) (disseminated) (epithelial) (familial) (focal) (granulomatous) (hemorrhagic) (infantile) (nonsuppurative, excretory) (uremic) > chronic > arteriosclerotic (see Hypertension, kidney)",
+   "Nephritis, nephritic (albuminuric) (azotemic) (congenital) (disseminated) (epithelial) (familial) (focal) (granulomatous) (hemorrhagic) (infantile) (nonsuppurative, excretory) (uremic) > vascular (see Hypertension, kidney)",
+   "Nephropathy > hypertensive (see Hypertension, kidney)",
+   "Nephrosclerosis (arteriolar)(arteriosclerotic) (chronic) (hyaline) > hyperplastic (see Hypertension, kidney)",
+   "Sclerosis, sclerotic > renal > arteriolar (hyaline) (hyperplastic) (see Hypertension, kidney)"
+  ]
+ },
+ "I13.0": {
+  "description": "Hypertensive heart and chronic kidney disease with heart failure and stage 1 through stage 4 chronic kidney disease, or unspecified chronic kidney disease",
+  "index_paths": [
+   "Hypertension, hypertensive (accelerated) (benign) (essential) (idiopathic) (malignant) (systemic) > cardiorenal (disease) > with heart failure",
+   "Hypertension, hypertensive (accelerated) (benign) (essential) (idiopathic) (malignant) (systemic) > cardiorenal (disease) > with heart failure > with stage 1 through stage 4 chronic kidney disease"
+  ]
+ },
+ "I50.9": {
+  "description": "Heart failure, unspecified",
+  "index_paths": [
+   "Anasarca > cardiac (see Failure, heart, congestive)",
+   "Asthenia, asthenic > cardiac",
+   "Asthenia, asthenic > cardiovascular",
+   "Asthenia, asthenic > heart",
+   "Asthenia, asthenic > myocardial",
+   "Congestion, congestive > heart (see Failure, heart, congestive)",
+   "Crisis > heart (see Failure, heart)",
+   "Dropsy, dropsical > cardiac, heart (see Failure, heart, congestive)",
+   "Dropsy, dropsical > heart (see Failure, heart, congestive)",
+   "Dysfunction > ventricular > with congestive heart failure",
+   "Edema, edematous (infectious) (pitting) (toxic) > cardiac (see Failure, heart, congestive)",
+   "Edema, edematous (infectious) (pitting) (toxic) > cardiovascular (see Failure, heart, congestive)",
+   "Edema, edematous (infectious) (pitting) (toxic) > heart (see Failure, heart, congestive)",
+   "Exhaustion, exhaustive (physical NEC) > cardiac (see Failure, heart)",
+   "Exhaustion, exhaustive (physical NEC) > heart (see Failure, heart)",
+   "Exhaustion, exhaustive (physical NEC) > myocardium, myocardial (see Failure, heart)",
+   "Failure, failed > cardiac (see Failure, heart)",
+   "Failure, failed > cardiorenal (chronic)",
+   "Failure, failed > cardiovascular (chronic) (see Failure, heart)",
+   "Failure, failed > congestive (see Failure, heart, congestive)",
+   "Failure, failed > heart (acute) (senile) (sudden)",
+   "Failure, failed > heart (acute) (senile) (sudden) > compensated",
+   "Failure, failed > heart (acute) (senile) (sudden) > congestive",
+   "Failure, failed > heart (acute) (senile) (sudden) > decompensated",
+   "Failure, failed > heart (acute) (senile) (sudden) > low output (syndrome) NOS",
+   "Failure, failed > heart (acute) (senile) (sudden) > stage B",
+   "Failure, failed > heart (acute) (senile) (sudden) > stage C",
+   "Failure, failed > heart (acute) (senile) (sudden) > with > decompensation",
+   "Failure, failed > myocardial, myocardium",
+   "Failure, failed > myocardial, myocardium > chronic",
+   "Failure, failed > myocardial, myocardium > congestive",
+   "Failure, failed > ventricular",
+   "Fatigue > myocardium (see Failure, heart)",
+   "Fluid > heart (see Failure, heart, congestive)",
+   "Hydrops > cardiac (see Failure, heart, congestive)",
+   "Insufficiency, insufficient > myocardial, myocardium (with arteriosclerosis)",
+   "Low > output syndrome (cardiac) (see Failure, heart)",
+   "Myasthenia > cordis (see Failure, heart)",
+   "Paralysis, paralytic (complete) (incomplete) > cardiac",
+   "Paralysis, paralytic (complete) (incomplete) > cordis (see Failure, heart)",
+   "Paresis > heart (see Failure, heart)",
+   "Stasis > cardiac (see Failure, heart, congestive)",
+   "Sudden > heart failure (see Failure, heart)",
+   "Syndrome > low > output (cardiac)",
+   "Weak, weakening, weakness (generalized) > heart, cardiac (see Failure, heart)",
+   "Weak, weakening, weakness (generalized) > myocardium (see Failure, heart)"
+  ]
+ },
+ "I50.20": {
+  "description": "Unspecified systolic (congestive) heart failure",
+  "index_paths": [
+   "Failure, failed > heart (acute) (senile) (sudden) > left (ventricular) > systolic (see Failure, heart, systolic)",
+   "Failure, failed > heart (acute) (senile) (sudden) > systolic (congestive) (left ventricular)",
+   "Failure, failed > heart (acute) (senile) (sudden) > with > reduced ejection fraction (see Failure, heart, systolic)"
+  ]
+ },
+ "I50.22": {
+  "description": "Chronic systolic (congestive) heart failure",
+  "index_paths": [
+   "Failure, failed > heart (acute) (senile) (sudden) > systolic (congestive) (left ventricular) > chronic (congestive)"
+  ]
+ },
+ "I50.23": {
+  "description": "Acute on chronic systolic (congestive) heart failure",
+  "index_paths": [
+   "Failure, failed > heart (acute) (senile) (sudden) > systolic (congestive) (left ventricular) > acute (congestive) > and (on) chronic (congestive)",
+   "Failure, failed > heart (acute) (senile) (sudden) > systolic (congestive) (left ventricular) > chronic (congestive) > and (on) acute (congestive)",
+   "Failure, failed > heart (acute) (senile) (sudden) > with > decompensation > systolic",
+   "Failure, failed > heart (acute) (senile) (sudden) > with > decompensation > with > reduced ejection fraction"
+  ]
+ },
+ "N18.30": {
+  "description": "Chronic kidney disease, stage 3 unspecified",
+  "index_paths": [
+   "Disease, diseased > kidney (functional) (pelvis) > chronic > stage 3 (moderate)"
+  ]
+ },
+ "N18.31": {
+  "description": "Chronic kidney disease, stage 3a",
+  "index_paths": [
+   "Disease, diseased > kidney (functional) (pelvis) > chronic > stage 3a"
+  ]
+ },
+ "N18.32": {
+  "description": "Chronic kidney disease, stage 3b",
+  "index_paths": [
+   "Disease, diseased > kidney (functional) (pelvis) > chronic > stage 3b"
+  ]
+ },
+ "N18.4": {
+  "description": "Chronic kidney disease, stage 4 (severe)",
+  "index_paths": [
+   "Disease, diseased > kidney (functional) (pelvis) > chronic > stage 4 (severe)"
+  ]
+ },
+ "N18.5": {
+  "description": "Chronic kidney disease, stage 5",
+  "index_paths": [
+   "Disease, diseased > kidney (functional) (pelvis) > chronic > stage 5"
+  ]
+ },
+ "N18.6": {
+  "description": "End stage renal disease",
+  "index_paths": [
+   "Disease, diseased > end stage renal (ESRD)",
+   "Disease, diseased > renal (functional) (pelvis) > end-stage (failure)",
+   "Failure, failed > renal > end stage (chronic)",
+   "Lesion (s) (nontraumatic) > organ or site NEC (see Disease, by site)",
+   "Mass > specified organ NEC (see Disease, by site)"
+  ]
+ },
+ "N18.9": {
+  "description": "Chronic kidney disease, unspecified",
+  "index_paths": [
+   "Apoplexia, apoplexy, apoplectic > uremic",
+   "Disease, diseased > kidney (functional) (pelvis) > chronic",
+   "Disease, diseased > renal (functional) (pelvis) > chronic",
+   "Failure, failed > renal > chronic",
+   "Failure, failed > urinary (see Disease, kidney, chronic)",
+   "Glomerulonephritis > diffuse > sclerosing",
+   "Glomerulonephritis > sclerosing, diffuse",
+   "Insufficiency, insufficient > kidney > chronic",
+   "Insufficiency, insufficient > renal (acute) > chronic",
+   "Neuropathy, neuropathic > uremic",
+   "Paralysis, paralytic (complete) (incomplete) > uremic",
+   "Pericarditis (with decompensation) (with effusion) > uremic",
+   "Polyneuropathy (peripheral) > in (due to) > uremia",
+   "Retinitis > albuminurica",
+   "Retinitis > renal",
+   "Syndrome > uremia, chronic",
+   "Uremia, uremic > chronic NOS",
+   "Uremia, uremic > with > polyneuropathy"
+  ]
+ },
+ "R06.02": {
+  "description": "Shortness of breath",
+  "index_paths": [
+   "Breath > shortness",
+   "Distress > respiratory (adult) (child) > shortness of breath",
+   "Dyspnea (nocturnal) (paroxysmal) > shortness of breath",
+   "Short, shortening, shortness > breath"
+  ]
+ },
+ "Z79.4": {
+  "description": "Long term (current) use of insulin",
+  "index_paths": [
+   "Long-term (current) (prophylactic) drug therapy (use of) > insulin",
+   "Therapy > drug, long-term (current) (prophylactic) > insulin"
+  ]
+ },
+ "Z79.84": {
+  "description": "Long term (current) use of oral hypoglycemic drugs",
+  "index_paths": [
+   "Long-term (current) (prophylactic) drug therapy (use of) > oral > antidiabetic",
+   "Long-term (current) (prophylactic) drug therapy (use of) > oral > hypoglycemic",
+   "Therapy > drug, long-term (current) (prophylactic) > oral antidiabetic",
+   "Therapy > drug, long-term (current) (prophylactic) > oral hypoglycemic"
+  ]
+ }
+}

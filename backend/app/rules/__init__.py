@@ -6,16 +6,76 @@ No LLM calls and no db calls inside a rule.
 
 from collections.abc import Callable
 
-from app.models import DroppedCode, Gap, RuleInput, RuleOutput
-from app.rules import r1_code_validity
+from app.models import DroppedCode, Gap, RuleInput, RuleOutput, Suggestion
+from app.rules import (
+    r1_code_validity,
+    r2_diabetes_ckd,
+    r3_htn_ckd,
+    r4_htn_hf,
+    r5_htn_hf_ckd,
+    r6_duplicate_hypertension,
+    r7_diabetes_type,
+    r8_diabetes_drugs,
+    r9_ckd_stage,
+    r10_heart_failure_type,
+    r11_uncertain_diagnosis,
+    r12_excludes1,
+)
 from app.terminology.lookup import CodeLookup
 
 Rule = Callable[[RuleInput, CodeLookup], RuleOutput]
 
-# Order matters: each rule sees the previous rule's kept suggestions.
-ICD_RULES: list[Rule] = [r1_code_validity.apply]
+# Order matters: each rule sees the previous rule's kept suggestions. R11 and R1 reject
+# unsafe inputs first. R7/R9/R10 normalize documented type/stage before R2-R5 build
+# combinations; R9/R10 run idempotently once more for N18/I50 codes those rules add. R5
+# precedes R4 and R3 (I13 wins), and dedupe/exclusion rules follow combination building.
+ICD_RULES: list[Rule] = [
+    r11_uncertain_diagnosis.apply,
+    r1_code_validity.apply,
+    r7_diabetes_type.apply,
+    r9_ckd_stage.apply,
+    r10_heart_failure_type.apply,
+    r2_diabetes_ckd.apply,
+    r5_htn_hf_ckd.apply,
+    r4_htn_hf.apply,
+    r3_htn_ckd.apply,
+    r9_ckd_stage.apply,
+    r10_heart_failure_type.apply,
+    r6_duplicate_hypertension.apply,
+    r8_diabetes_drugs.apply,
+    r12_excludes1.apply,
+    r1_code_validity.apply,
+]
 # Skipped when CodeSetSelection.cpt is None (DESIGN.md §3.4). R13 and R14 arrive in M6.
 CPT_RULES: list[Rule] = []
+
+# Codes rules may add; run_rules preloads them so rules never touch the db.
+TARGET_CODES: frozenset[str] = frozenset().union(
+    r2_diabetes_ckd.TARGET_CODES,
+    r3_htn_ckd.TARGET_CODES,
+    r4_htn_hf.TARGET_CODES,
+    r5_htn_hf_ckd.TARGET_CODES,
+    r8_diabetes_drugs.TARGET_CODES,
+)
+
+
+def codes_to_preload(selected: set[str]) -> set[str]:
+    """ICD-10-CM codes a note's rules may need, including R7's type variants."""
+    counterparts = {c for code in selected for c in r7_diabetes_type.counterparts(code)}
+    return {*TARGET_CODES, *counterparts}
+
+
+def _number_new(suggestions: list[Suggestion]) -> list[Suggestion]:
+    """Give suggestions added by a rule the next free id (s1..sn are the LLM's picks)."""
+    used = [int(s.suggestion_id[1:]) for s in suggestions if s.suggestion_id]
+    next_id = max(used, default=0) + 1
+    out = []
+    for s in suggestions:
+        if not s.suggestion_id:
+            s = s.model_copy(update={"suggestion_id": f"s{next_id}"})
+            next_id += 1
+        out.append(s)
+    return out
 
 
 def run_all(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
@@ -25,7 +85,10 @@ def run_all(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
     gaps: list[Gap] = []
     for rule in rules:
         out = rule(inp.model_copy(update={"suggestions": suggestions}), codes)
-        suggestions = out.suggestions
+        suggestions = _number_new(out.suggestions)
         dropped += out.dropped
         gaps += out.gaps
+    # A gap on a code a later rule removed no longer applies.
+    live_gaps = {g for s in suggestions for g in s.gap_ids}
+    gaps = [g for g in gaps if g.gap_id in live_gaps]
     return RuleOutput(suggestions=suggestions, dropped=dropped, gaps=gaps)

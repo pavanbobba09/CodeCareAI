@@ -9,8 +9,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from eval.metrics import THRESHOLDS, meets
-from eval.report import METRICS, RUNS, score_run
+from eval.metrics import THRESHOLDS, judge
+from eval.report import METRICS, RUNS, coverage_line, score_run
 
 
 def main() -> None:
@@ -20,6 +20,9 @@ def main() -> None:
     args = parser.parse_args()
 
     scored = [score_run(RUNS / r, args.limit) for r in args.run_ids]
+    for meta, s in scored:
+        if (line := coverage_line(s)) is not None:
+            print(f"{meta['run_id']}: {line}")
     header = ["Metric", "Threshold"] + [f"{m['setup']} / {m['model']}" for m, _ in scored]
     print("| " + " | ".join(header) + " |")
     print("|" + "---|" * len(header))
@@ -28,10 +31,7 @@ def main() -> None:
         cells = []
         for _, s in scored:
             v = getattr(s, metric)
-            ok = meets(metric, v)
-            cells.append(
-                "n/a" if v is None else f"{v:.2f}" + ("" if ok is None else (" ✓" if ok else " ✗"))
-            )
+            cells.append("n/a" if v is None else f"{v:.2f}{judge(metric, v, s.complete)}")
         print(f"| {metric} | {op} {lim} | " + " | ".join(cells) + " |")
     rows = [
         ("notes (failed)", [f"{s.notes} ({s.failed_notes})" for _, s in scored]),

@@ -3,6 +3,9 @@
 Sources: ICD-10-CM Official Guidelines for Coding and Reporting FY2027, Section I.B.2
 (Level of Detail in Coding: report codes to the highest number of characters available);
 HIPAA code set standard, 45 CFR 162.1002 (use the code set in effect on the date of service).
+
+R1 runs first, on the codes the LLM selected, and again last, on codes later rules added.
+A suggestion that already carries an R1 result is not checked twice.
 """
 
 from app.models import DroppedCode, RuleInput, RuleOutput, RuleResult, Suggestion
@@ -27,6 +30,9 @@ def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
     kept: list[Suggestion] = []
     dropped: list[DroppedCode] = []
     for s in inp.suggestions:
+        if any(r.rule_id == RULE_ID for r in s.rule_results):
+            kept.append(s)
+            continue
         problem = _problem(s, inp, codes)
         if problem is not None:
             dropped.append(

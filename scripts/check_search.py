@@ -27,6 +27,13 @@ CHECKS = [
     ("HFrEF", {}, "I50.20", 3),
     ("systolic heart failure", {}, "I50.20", 3),
     ("HFpEF", {}, "I50.30", 3),
+    # Index <see> cross-references (M4): "poorly controlled" etc. -> "with hyperglycemia".
+    ("type 2 diabetes mellitus, poorly controlled", {}, "E11.65", 3),
+    ("type 2 diabetes mellitus, out of control", {}, "E11.65", 3),
+    ("type 2 diabetes mellitus, inadequately controlled", {}, "E11.65", 3),
+    ("heart failure with reduced ejection fraction", {}, "I50.20", 3),
+    # Index source ranks I50.30 first; FTS and vector push it to 5 in the merge (M4 note).
+    ("heart failure with preserved ejection fraction", {}, "I50.30", 20),
 ]
 
 

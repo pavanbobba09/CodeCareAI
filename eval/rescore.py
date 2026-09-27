@@ -10,7 +10,33 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from eval.metrics import Summary
 from eval.report import RUNS, score_run
+
+PIPELINE_GATES = ("invented_rate", "invalid_rate")
+
+
+def pipeline_gate_failures(run_id: str, summary: Summary) -> list[str]:
+    """CI failures for one pipeline run. Report-only metrics are intentionally absent."""
+    failures = []
+    if not summary.complete:
+        failures.append(f"{run_id}: incomplete run")
+    for metric in PIPELINE_GATES:
+        value = getattr(summary, metric)
+        if value is None:
+            failures.append(f"{run_id}: {metric} is unmeasured")
+        elif value > 0:
+            codes = sorted(
+                {
+                    code
+                    for note in summary.per_note
+                    for code in getattr(
+                        note, "invented" if metric == "invented_rate" else "invalid"
+                    )
+                }
+            )
+            failures.append(f"{run_id}: {metric} failed for codes {codes}")
+    return failures
 
 
 def main() -> None:
@@ -25,19 +51,14 @@ def main() -> None:
         print(
             f"{meta['run_id']}: notes={s.notes} failed={s.failed_notes} "
             f"precision={s.precision} recall={s.recall} invented_rate={s.invented_rate} "
-            f"invalid_rate={s.invalid_rate}"
+            f"invalid_rate={s.invalid_rate}" + ("" if s.complete else " INCOMPLETE")
         )
         if meta["setup"] != "pipeline":
             continue
-        if (s.invented_rate or 0) > 0:
-            invented = sorted({c for n in s.per_note for c in n.invented})
-            failures.append(f"{meta['run_id']}: invented codes {invented}")
-        if (s.invalid_rate or 0) > 0:
-            invalid = sorted({c for n in s.per_note for c in n.invalid})
-            failures.append(f"{meta['run_id']}: invalid codes {invalid}")
+        failures += pipeline_gate_failures(meta["run_id"], s)
     if failures:
         sys.exit("pipeline code gate failed:\n" + "\n".join(failures))
-    print("invented-code and invalid-code gates: pass")
+    print("pipeline gates: pass")
 
 
 if __name__ == "__main__":
