@@ -5,6 +5,70 @@ Each milestone ends with its own passing check. Don't start a milestone until th
 
 ---
 
+## Current task: M3 detailed plan (awaiting approval)
+
+Touches DESIGN.md §3.3 (model choice), §5.4 (GoldNote, added), §9 (metrics, thresholds), §10 (M3).
+
+### Gold notes (for owner spot-check before any eval runs)
+
+All synthetic. All visit dates are in FY2027 (2026-10-01 to 2027-03-31). Every code below was checked as billable in `ICD10CM-FY2027` (read-only query, 2026-09-27). `scripts/validate_gold.py` will re-check them permanently. Expected codes are the **correct final coding**, not what the M2 pipeline can do today: M2 has only R1, so combination codes and gaps will score low until M4, and that change is what the eval measures.
+
+| ID | Tags | Expected codes | Gap rules | Key guideline / reason |
+|---|---|---|---|---|
+| n001 | dm, med-oral | E11.9, Z79.84 | - | DM2 no complications; metformin = long-term oral hypoglycemic |
+| n002 | dm+ckd | E11.22, N18.32 | - | "with" presumes DM-CKD link (I.A.15); stage 3b documented |
+| n003 | dm+ckd, gap-ckd-subtype | E11.22, N18.30 | R9 | stage 3 without 3a/3b |
+| n004 | dm, dm-hyperglycemia, med-insulin | E11.65, Z79.4 | - | "poorly controlled" = see "with hyperglycemia" (Index); insulin |
+| n005 | htn | I10 | - | essential hypertension only |
+| n006 | htn+ckd | I12.9, N18.4 | - | HTN + CKD presumed linked (I.C.9.a.2); stage 4 |
+| n007 | htn+ckd, ckd5 | I12.0, N18.5 | - | stage 5, not on dialysis |
+| n008 | htn+hf | I11.0, I50.22 | - | HTN + HF presumed linked (I.C.9.a.1); chronic systolic |
+| n009 | htn+hf, gap-hf-type | I11.0, I50.9 | R10 | HF type not documented |
+| n010 | htn+hf+ckd | I13.0, I50.32, N18.31 | - | I.C.9.a.3; chronic diastolic; stage 3a |
+| n011 | dm+ckd, htn+hf+ckd | E11.22, I13.0, I50.23, N18.32 | - | all four conditions; acute on chronic systolic |
+| n012 | ckd, gap-ckd-stage | N18.9 | R9 | CKD, stage not documented, no HTN or DM |
+| n013 | abbrev, dm+ckd, htn+ckd | E11.22, I12.9, N18.32 | - | "DM2, HTN, CKD 3b" |
+| n014 | hf, abbrev, gap-hf-acuity | I50.20 | R10 | "HFrEF", acuity not documented, no HTN |
+| n015 | suspected, htn | I10, R06.02 | - | "possible heart failure" not coded in outpatient (IV.H); code the symptom |
+| n016 | negation, htn | I10 | - | "no heart failure", "no CKD" |
+| n017 | ruled-out, dm | E11.9 | - | CKD ruled out on repeat testing |
+| n018 | dm-type-missing, med-oral | E11.9, Z79.84 | - | type not stated defaults to E11 (I.C.4.a.2) |
+| n019 | injection, htn | I10 | - | note text tells the "coding system" to add I21.9; must be ignored |
+| n020 | dm, med-insulin, med-oral | E11.9, Z79.4, Z79.84 | - | insulin + oral: assign both (I.C.4.a.3) |
+
+Coverage (coded conditions): 9 DM, 8 CKD, 11 HTN, 5 HF notes, plus 1 suspected HF (n015); 4 gap notes (R9 x2, R10 x2); negation, suspected, ruled-out, abbreviation, default-type, and prompt-injection cases.
+
+### Steps
+
+1. [ ] `app/models/eval.py`: `ExpectedCode`, `GoldNote` exactly as DESIGN §5.4.
+2. [ ] `data/gold_notes/n001.json` ... `n020.json` per the table above. Short synthetic notes, no names, no PHI-like identifiers.
+3. [ ] `scripts/validate_gold.py`: schema, unique note ids, non-empty reasons, rule ids in R1-R14, and every expected code billable in the code set for its visit date (real tables). A unit test runs the schema and reason checks in CI; the code check needs the loaded tables, so it runs locally.
+4. [ ] `eval/metrics.py` (pure, unit-tested). Per-note sets of exact codes, micro-averaged:
+   - precision and recall over expected vs suggested codes;
+   - invented rate: suggested codes not in the code set for the visit date (hard gate 0);
+   - unsupported rate: suggested codes with no evidence, or evidence that is not a sentence number in the note;
+   - gap recall: expected gap rule ids raised by a `Gap.rule_id`;
+   - E/M match: reported "n/a" while every `expected_em` is None.
+5. [ ] `eval/run_eval.py --setup pipeline --limit N [--model M] [--resume RUN_ID]`: runs `run_pipeline` in-process against the real db (same code path as the API, minus HTTP).
+   - **Pacing:** a fixed delay between LLM calls (default 4 s).
+   - **Backoff:** a note that ends in `LLM_UNAVAILABLE` or `TIMEOUT` is retried up to 3 times at 30, 60 and 120 s.
+   - **Resumable:** each note's result is saved to `eval/results/runs/<run_id>/<note_id>.json` as it finishes. `--resume` skips notes already saved as completed and reruns failed ones.
+   - The model is set by overriding `LLM_MODEL` for the run, never in code.
+6. [ ] `eval/baseline_llm_only.py`: same model, same pacing and resume. One prompt, `baseline_v1.md`, reads the numbered sentences and returns codes with evidence, with no candidates and no rules. Scored by the same metrics, so its invented rate is measured, not assumed.
+7. [ ] Reports: `eval/results/YYYY-MM-DD-<setup>-<model>.json` plus a markdown summary. `eval/compare.py` prints the pipeline vs baseline table and marks any metric below the DESIGN §9 threshold.
+8. [ ] Model comparison: `openai/gpt-oss-20b` vs `openai/gpt-oss-120b` (Groq). Pipeline and baseline for each, on n001-n010 (about 60 LLM calls, paced). Selection order: invented rate must be 0; then recall, then precision; then latency. Write the choice and numbers into DESIGN §3.3 and close Open Question 1.
+9. [ ] Smoke eval in CI (see decision F).
+10. [ ] Review: first pipeline vs baseline table on 20 notes with the chosen model, compared against thresholds (expected to miss several until M4).
+
+**Verify:** unit tests for metrics, gold schema and pacing/resume logic (fake LLM, fake sleep); `validate_gold.py` passes on the real tables; the comparison table prints; a resumed run skips finished notes.
+
+**Needs owner decision:**
+- F. **CI smoke eval.** CI has no Groq key (tests never call a real LLM) and no loaded ICD tables (loading and embedding takes about 20 minutes). Proposal: CI re-scores the committed per-note results of the latest local run and fails if the invented rate is above 0 or the metrics code breaks. The live 10-note smoke run stays a local command before any pipeline, prompt, retrieval or rule change (CLAUDE.md workflow step 3), and a live eval with secrets moves to `eval-full.yml` in M9.
+- G. **R7 (diabetes type not documented).** DESIGN says R7 "defaults and marks for review", not that it raises a gap. So n018 expects E11.9 and no gap rule. Confirm, or say if R7 should raise a gap.
+- H. **Retrieval gap found while writing n004.** The loader skips Alphabetic Index `<see>` cross-references (12,147 of them), for example "Diabetes > poorly controlled: see Diabetes, by type, with hyperglycemia". n004 will show the effect. Proposal: record it now and fix it in M4 as a retrieval change, measured by the eval, instead of changing retrieval inside M3.
+
+---
+
 ## Previous task: M2 detailed plan (done 2026-09-27)
 
 Touches DESIGN.md §3.4 (R1), §4.1, §4.4, §5.1, §5.2, §6 (`/notes`, `/analyze`), §10 (M2). Adds dependency `langgraph` (DESIGN §3.3 pipeline choice).

@@ -74,12 +74,12 @@ flowchart LR
 | Database | Neon Postgres 16, pgvector, `pg_trgm` | Relational data and search in one free service |
 | ORM | SQLAlchemy 2, Alembic | Typed persistence and migrations |
 | Search | FTS + trigram + `BAAI/bge-small-en-v1.5` embeddings (run with `fastembed`/ONNX, no torch) | Handles abbreviations and semantic matches without another service |
-| LLM | OpenAI-compatible API configured by environment | Provider-independent; Groq first, Hugging Face backup |
+| LLM | OpenAI-compatible API configured by environment | Provider-independent; Groq (free tier) |
 | Backend hosting | Hugging Face Space using Docker | Free deployment target |
 | Local development | Docker Compose | Reproducible frontend, backend, and Postgres setup |
 | CI | GitHub Actions | Tests and evaluation on each change |
 
-Required LLM variables: `LLM_BASE_URL`, `LLM_API_KEY`, and `LLM_MODEL`. Use temperature `0` and JSON mode. M2 records test fixtures with one Groq model; the Groq vs Hugging Face comparison runs in M3 on the first 10 gold notes, and the final model is chosen there.
+Required LLM variables: `LLM_BASE_URL`, `LLM_API_KEY`, and `LLM_MODEL`. Use temperature `0` and JSON mode. M2 records test fixtures with one Groq model (`openai/gpt-oss-20b`). M3 compares two Groq models on the first 10 gold notes and chooses the final model; there is no Hugging Face comparison.
 
 ### 3.4 MVP coding rules
 
@@ -406,6 +406,27 @@ The note is untrusted data. Prompts must instruct the model to ignore instructio
 
 CPT data contains only the project-approved subset and project-written labels. Do not import official AMA descriptions without a license.
 
+### 5.4 Evaluation types
+
+```python
+class ExpectedCode(BaseModel):
+    code: str
+    system: CodeSystem
+    reason: str   # one line: which guideline or note sentence justifies this code
+
+class GoldNote(BaseModel):          # one file per note: data/gold_notes/n001.json
+    note_id: str                    # "n001"
+    visit_date: date
+    patient_type: PatientType
+    text: str
+    expected_codes: list[ExpectedCode]
+    expected_gap_rules: list[str]   # rule ids that must raise a gap, e.g. ["R9"]
+    expected_em: str | None         # None until M6
+    tags: list[str]                 # e.g. ["negation", "htn+ckd", "abbrev"]
+```
+
+Every expected code must be billable in the ICD-10-CM set for the note's visit date and have a reason line; `scripts/validate_gold.py` checks this against the loaded tables.
+
 ## 6. API Contracts
 
 Base path: `/api/v1`. All request and response bodies are JSON.
@@ -523,7 +544,7 @@ Expected: E11.22 and N18.30, both with evidence `[1]`. Its recorded LLM response
 | M0 | Repo, Docker Compose, FastAPI health endpoint, Postgres, migrations, and CI work. |
 | M1 | Load FY2027 ICD codes, tabular notes, Alphabetic Index, abbreviations, and embeddings; candidate-search tests pass. |
 | M2 | Thin slice: create note → extract facts → retrieve/select ICD candidates → R1 → return evidence-backed results. Record LLM fixtures with one Groq model. |
-| M3 | Add 20 gold notes, evaluation runner, and LLM-only baseline. Compare Groq and Hugging Face models on 10 gold notes and select one. |
+| M3 | Add 20 gold notes, evaluation runner, and LLM-only baseline. Compare two Groq models on 10 gold notes and select one. |
 | M4 | Add ICD rules R2–R12, gaps, confidence, and rule tests. |
 | M5 | Load FY2026 (April 1, 2026 update) and demonstrate code-set selection across September 30/October 1, 2026. |
 | M6 | Add CPT subset, NCCI, MDM extraction, E/M calculation, and R13–R14. |
@@ -533,7 +554,7 @@ Expected: E11.22 and N18.30, both with evidence `[1]`. Its recorded LLM response
 
 ## 11. Open Questions
 
-1. Which Groq and Hugging Face models perform best in the M3 comparison?
+1. Which of the two Groq models performs best in the M3 comparison?
 2. Is the public-demo use of the CPT subset and hand-built MDM logic acceptable without additional licensing review? If uncertain, keep CPT labels project-written and clearly mark the feature as educational.
 3. Can a certified coder review 10–15 gold notes later?
 4. Are free Hugging Face Space cold starts acceptable for the final demo?
