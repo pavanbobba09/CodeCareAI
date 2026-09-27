@@ -52,6 +52,7 @@ python scripts/seed_abbreviations.py
 python scripts/load_icd10cm.py --fy 2027            # ~1.5 min; upsert keeps unchanged embeddings
 python scripts/embed_codes.py --code-set ICD10CM-FY2027   # resumable; first run ~20-30 min on CPU
 python scripts/check_search.py                      # M1 search smoke check on the real tables
+python scripts/record_llm.py                        # worked example via the real LLM; re-records fixtures only on PASS (free tier: wait ~1 min between runs)
 ruff check scripts && ruff format --check scripts
 
 # eval

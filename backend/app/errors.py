@@ -3,6 +3,7 @@
 from typing import Literal
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.models import ErrorResponse
@@ -18,6 +19,7 @@ ErrorCode = Literal[
     "LLM_BAD_OUTPUT",
     "TIMEOUT",
     "DB_ERROR",
+    "PIPELINE_ERROR",
 ]
 
 
@@ -39,5 +41,16 @@ async def _handle_api_error(_: Request, exc: Exception) -> JSONResponse:
     return JSONResponse(status_code=exc.status_code, content=exc.body.model_dump())
 
 
+async def _handle_validation_error(_: Request, exc: Exception) -> JSONResponse:
+    assert isinstance(exc, RequestValidationError)
+    first = exc.errors()[0] if exc.errors() else {}
+    where = ".".join(str(p) for p in first.get("loc", ()))
+    body = ErrorResponse(
+        error_code="VALIDATION_ERROR", message=f"{where}: {first.get('msg', 'invalid request')}"
+    )
+    return JSONResponse(status_code=422, content=body.model_dump())
+
+
 def install_error_handlers(app: FastAPI) -> None:
     app.add_exception_handler(ApiError, _handle_api_error)
+    app.add_exception_handler(RequestValidationError, _handle_validation_error)

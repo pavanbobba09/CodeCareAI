@@ -79,7 +79,7 @@ flowchart LR
 | Local development | Docker Compose | Reproducible frontend, backend, and Postgres setup |
 | CI | GitHub Actions | Tests and evaluation on each change |
 
-Required LLM variables: `LLM_BASE_URL`, `LLM_API_KEY`, and `LLM_MODEL`. Use temperature `0` and JSON mode. Select the final free model in M2 using 10 gold notes.
+Required LLM variables: `LLM_BASE_URL`, `LLM_API_KEY`, and `LLM_MODEL`. Use temperature `0` and JSON mode. M2 records test fixtures with one Groq model; the Groq vs Hugging Face comparison runs in M3 on the first 10 gold notes, and the final model is chosen there.
 
 ### 3.4 MVP coding rules
 
@@ -161,8 +161,10 @@ sequenceDiagram
 |---|---|
 | LLM timeout, 429, or HTTP error | Wait up to `Retry-After` capped at 20 seconds; retry once; then return `LLM_UNAVAILABLE`. |
 | Invalid model JSON | Retry once with the validation error; then return `LLM_BAD_OUTPUT`. |
-| Invalid sentence evidence | Drop the fact and increment `model_errors`. |
+| Invalid sentence evidence | Drop the fact (or selection) and increment `model_errors`. |
 | Selected code outside candidates | Drop the selection and increment `model_errors`. |
+| R1 rejects a code | Drop the suggestion, increment `model_errors`, and log the code and fact IDs. Candidates are already real and billable, so this is a guard. |
+| Unexpected exception in a stage | Store a failed analysis; return `500 PIPELINE_ERROR`. |
 | No ICD-10-CM set covers the visit date | Return `409 CODE_SET_MISSING`; do not run the pipeline. |
 | No CPT set covers the visit date | Not an error. `cpt` is null, procedure facts get no candidates, CPT-dependent rules (R13, R14) are skipped, and `em` is null. |
 | Rule or pipeline failure | Return no partial suggestions; store a failed analysis. |
@@ -287,7 +289,7 @@ class CodeSetSelection(BaseModel):
     cpt: str | None           # e.g. CPT-DEMO-2026; None when no CPT set covers the visit date
 
 class PipelineError(BaseModel):
-    code: Literal["LLM_UNAVAILABLE", "LLM_BAD_OUTPUT", "TIMEOUT", "CODE_SET_MISSING", "DB_ERROR"]
+    code: Literal["LLM_UNAVAILABLE", "LLM_BAD_OUTPUT", "TIMEOUT", "CODE_SET_MISSING", "DB_ERROR", "PIPELINE_ERROR"]
     stage: str
     message: str
 
@@ -321,6 +323,9 @@ class ReviewEvent(BaseModel):
     reason: str | None
     created_at: datetime
 
+class SelectionOutput(BaseModel):  # LLM call 2 response; JSON mode needs an object root
+    selections: list[CodeSelection]
+
 class ErrorResponse(BaseModel):
     error_code: str
     message: str
@@ -336,7 +341,7 @@ class HealthResponse(BaseModel):
 
 ```python
 # LLM call 1: list[Sentence] + PatientType -> ExtractionOutput
-# LLM call 2: list[ClinicalFact] + list[CandidateSet] -> list[CodeSelection]
+# LLM call 2: list[ClinicalFact] + list[CandidateSet] -> SelectionOutput (list[CodeSelection])
 # Both calls use JSON mode, temperature 0, schema validation, and one retry.
 
 def resolve_code_sets(session: Session, visit_date: date) -> CodeSetSelection: ...  # raises CodeSetMissingError
@@ -351,6 +356,34 @@ def ncci_conflict(code_a: str, code_b: str, visit_date: date) -> RuleResult | No
 def run_rules(note: Note, facts: list[ClinicalFact], selections: list[CodeSelection]) -> tuple[list[Suggestion], list[Gap]]: ...
 def compute_em(mdm: MdmElements, patient_type: PatientType) -> EmResult: ...
 ```
+
+```python
+# Rules (backend/app/rules/, one module per rule, pure: no LLM or db calls inside)
+class RuleInput(BaseModel):
+    visit_date: date
+    code_sets: CodeSetSelection
+    facts: list[ClinicalFact]
+    suggestions: list[Suggestion]
+
+class DroppedCode(BaseModel):   # a suggestion a rule removed outright (e.g. R1)
+    code: str
+    fact_ids: list[str]
+    rule_id: str
+    reason: str
+
+class RuleOutput(BaseModel):
+    suggestions: list[Suggestion]  # kept, with this rule's RuleResult appended
+    dropped: list[DroppedCode]
+    gaps: list[Gap]
+
+def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput: ...
+# run_rules preloads the needed codes into an InMemoryCodeLookup, so rules never touch the db.
+# Rules run in order; each sees the previous rule's kept suggestions.
+```
+
+Pipeline state and nodes (`backend/app/pipeline/`): `PipelineState` holds the note, code sets, a monotonic deadline (150 s from start), facts, MDM, candidate sets, selections, suggestions, gaps, `model_errors`, `error`, and the final `result`. Nodes `extract_facts -> retrieve_candidates -> select_codes -> run_rules -> assemble` each live in their own file; any node that sets `error` routes to `fail`, which stores no partial facts or suggestions. Services (db session, LLM, embedder) are passed by closure, never stored in state. Prompts are versioned files (`extract_v1.md`, `select_v1.md`); `extract_v1` returns MDM as nulls until `extract_v2` in M6.
+
+Sentences (`backend/app/segment/`): known headers (`HPI:`, `Assessment:`, `Plan:`, `A/P:`, ...) set a normalized section; other `Word:` lines stay in the current section; text before any header is section `note`. Sentences split at `.`/`!`/`?` plus whitespace (not after `Dr.`, `vs.`, `e.g.`, ...) and at line ends; list bullets are stripped. `text[start:end] == Sentence.text` always holds.
 
 The note is untrusted data. Prompts must instruct the model to ignore instructions inside the note and use only supplied sentence numbers and candidates.
 
@@ -382,7 +415,7 @@ Base path: `/api/v1`. All request and response bodies are JSON.
 | `GET` | `/health` | none | `HealthResponse` | `500 DB_ERROR` |
 | `POST` | `/notes` | `NoteCreate` | `201 Note` | `422 VALIDATION_ERROR`, `404 PARENT_NOTE_NOT_FOUND` |
 | `GET` | `/notes/{note_id}` | path ID | `Note` | `404 NOTE_NOT_FOUND` |
-| `POST` | `/notes/{note_id}/analyze` | path ID | `200 AnalysisResult` | `404`, `409 CODE_SET_MISSING`, `503` LLM/timeout, `500 DB_ERROR` |
+| `POST` | `/notes/{note_id}/analyze` | path ID | `200 AnalysisResult` | `404 NOTE_NOT_FOUND`, `409 CODE_SET_MISSING`, `503 LLM_UNAVAILABLE`/`LLM_BAD_OUTPUT`/`TIMEOUT` (with `analysis_id`), `500 PIPELINE_ERROR`/`DB_ERROR` |
 | `GET` | `/analyses/{analysis_id}` | path ID | `AnalysisResult` | `404 ANALYSIS_NOT_FOUND` |
 | `POST` | `/analyses/{analysis_id}/suggestions/{suggestion_id}/reviews` | `ReviewRequest` | `201 ReviewEvent` | `404`, `422 INVALID_REPLACEMENT_CODE` |
 | `GET` | `/notes/{note_id}/history` | path ID | note, analyses, and reviews | `404 NOTE_NOT_FOUND` |
@@ -471,14 +504,26 @@ Use 50 synthetic `GoldNote` cases and the same model for both the full pipeline 
 
 The owner will validate expected results against FY2027 guidelines and code tables. The README must state that the set has **not** been reviewed by a certified coder. If available later, a certified coder reviews a 10–15 note sample.
 
+### Worked example
+
+`data/examples/worked_example.json` (synthetic, owner-approved): visit 2026-10-15, established patient.
+
+```text
+Assessment: Type 2 diabetes mellitus with chronic kidney disease stage 3.
+HPI: 62-year-old presents for diabetes and kidney follow-up. Denies chest pain or shortness of breath.
+Plan: Continue current regimen. Recheck renal function in 3 months.
+```
+
+Expected: E11.22 and N18.30, both with evidence `[1]`. Its recorded LLM responses live in `backend/tests/fixtures/llm/worked_example/`.
+
 ## 10. Build Order
 
 | Milestone | Testable result |
 |---|---|
 | M0 | Repo, Docker Compose, FastAPI health endpoint, Postgres, migrations, and CI work. |
 | M1 | Load FY2027 ICD codes, tabular notes, Alphabetic Index, abbreviations, and embeddings; candidate-search tests pass. |
-| M2 | Thin slice: create note → extract facts → retrieve/select ICD candidates → R1 → return evidence-backed results. Compare Groq and Hugging Face models on 10 notes and select one. |
-| M3 | Add 20 gold notes, evaluation runner, and LLM-only baseline. |
+| M2 | Thin slice: create note → extract facts → retrieve/select ICD candidates → R1 → return evidence-backed results. Record LLM fixtures with one Groq model. |
+| M3 | Add 20 gold notes, evaluation runner, and LLM-only baseline. Compare Groq and Hugging Face models on 10 gold notes and select one. |
 | M4 | Add ICD rules R2–R12, gaps, confidence, and rule tests. |
 | M5 | Load FY2026 (April 1, 2026 update) and demonstrate code-set selection across September 30/October 1, 2026. |
 | M6 | Add CPT subset, NCCI, MDM extraction, E/M calculation, and R13–R14. |
@@ -488,7 +533,7 @@ The owner will validate expected results against FY2027 guidelines and code tabl
 
 ## 11. Open Questions
 
-1. Which Groq and Hugging Face models perform best in the M2 comparison?
+1. Which Groq and Hugging Face models perform best in the M3 comparison?
 2. Is the public-demo use of the CPT subset and hand-built MDM logic acceptable without additional licensing review? If uncertain, keep CPT labels project-written and clearly mark the feature as educational.
 3. Can a certified coder review 10–15 gold notes later?
 4. Are free Hugging Face Space cold starts acceptable for the final demo?

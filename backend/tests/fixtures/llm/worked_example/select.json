@@ -1,0 +1,25 @@
+{
+  "step": "select",
+  "model": "openai/gpt-oss-20b",
+  "prompt_sha256": "669eae05415bf9593a8d16d28c2ce84caf4e7576c460f92abf9acd2400391571",
+  "response": {
+    "selections": [
+      {
+        "fact_id": "f1",
+        "code": "E11.22",
+        "evidence": [
+          1
+        ],
+        "rationale": "Type 2 diabetes mellitus with diabetic chronic kidney disease stage 3 documented."
+      },
+      {
+        "fact_id": "f2",
+        "code": "N18.30",
+        "evidence": [
+          1
+        ],
+        "rationale": "Chronic kidney disease stage 3 unspecified documented."
+      }
+    ]
+  }
+}

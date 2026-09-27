@@ -1,0 +1,81 @@
+{
+  "step": "extract",
+  "model": "openai/gpt-oss-20b",
+  "prompt_sha256": "421fd582c0b2f5ca01d8390aa9e3dedb5b82cadf3a43cf98e070ec53aeb78917",
+  "response": {
+    "facts": [
+      {
+        "fact_id": "f1",
+        "kind": "condition",
+        "concept": "type 2 diabetes mellitus",
+        "status": "active",
+        "details": {},
+        "links": [],
+        "evidence": [
+          1,
+          2
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "kind": "condition",
+        "concept": "chronic kidney disease",
+        "status": "active",
+        "details": {
+          "stage": "3"
+        },
+        "links": [
+          {
+            "type": "associated_with",
+            "target_fact_id": "f1"
+          }
+        ],
+        "evidence": [
+          1,
+          2
+        ]
+      },
+      {
+        "fact_id": "f3",
+        "kind": "procedure",
+        "concept": "renal function test",
+        "status": "planned",
+        "details": {
+          "type": "renal function test"
+        },
+        "links": [],
+        "evidence": [
+          5
+        ]
+      },
+      {
+        "fact_id": "f4",
+        "kind": "condition",
+        "concept": "chest pain",
+        "status": "denied",
+        "details": {},
+        "links": [],
+        "evidence": [
+          3
+        ]
+      },
+      {
+        "fact_id": "f5",
+        "kind": "condition",
+        "concept": "shortness of breath",
+        "status": "denied",
+        "details": {},
+        "links": [],
+        "evidence": [
+          3
+        ]
+      }
+    ],
+    "mdm": {
+      "problems": null,
+      "data": null,
+      "risk": null,
+      "evidence": []
+    }
+  }
+}

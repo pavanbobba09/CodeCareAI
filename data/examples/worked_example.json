@@ -1,0 +1,12 @@
+{
+  "description": "Synthetic worked example for the M2 thin slice (owner-approved 2026-09-26). Not real patient data.",
+  "note": {
+    "visit_date": "2026-10-15",
+    "patient_type": "established",
+    "text": "Assessment: Type 2 diabetes mellitus with chronic kidney disease stage 3.\nHPI: 62-year-old presents for diabetes and kidney follow-up. Denies chest pain or shortness of breath.\nPlan: Continue current regimen. Recheck renal function in 3 months.\n"
+  },
+  "expected": [
+    {"code": "E11.22", "evidence": [1]},
+    {"code": "N18.30", "evidence": [1]}
+  ]
+}
