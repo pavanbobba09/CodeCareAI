@@ -17,6 +17,7 @@ from app.rules.common import (
     HF_CODES,
     Conditions,
     active,
+    adopt_documented_parts,
     fail_all,
     heart_failure_additions,
     ids_of,
@@ -42,6 +43,10 @@ def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
     if not htn_codes or any(s.code.startswith("I13") for s in htn_codes):
         return RuleOutput(suggestions=out, dropped=dropped, gaps=[])
     c = Conditions(inp)
+    out = adopt_documented_parts(
+        inp, out, [s for s in htn_codes if s.code.startswith("I11")], "hypertension"
+    )
+    htn_codes = [s for s in active(out) if is_hypertension(s.code)]
     i11 = [s for s in htn_codes if s.code.startswith("I11")]
     unowned = [
         s

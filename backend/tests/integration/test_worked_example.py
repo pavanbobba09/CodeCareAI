@@ -28,6 +28,9 @@ def test_worked_example_from_recorded_llm(seeded: Engine) -> None:
     assert sorted((s["code"], s["evidence"]) for s in result["suggestions"]) == sorted(
         (e["code"], e["evidence"]) for e in WORKED["expected"]
     )
+    # The model's E11.22 cites only the diabetes fact; R2 must attach the CKD fact, not fail it.
+    e11_22 = next(s for s in result["suggestions"] if s["code"] == "E11.22")
+    assert e11_22["confidence"] != "not_suggested"
     # The extract prompt depends only on the note, so it must match the recording exactly.
     # (The select prompt differs here because the fixture db has fewer candidates.)
     assert "extract" not in llm.prompt_drift

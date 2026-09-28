@@ -188,11 +188,7 @@ def code_condition_families(code: str) -> frozenset[ConditionFamily]:
 
 
 def _documented(inp: RuleInput, family: ConditionFamily) -> list[ClinicalFact]:
-    return [
-        f
-        for f in inp.facts
-        if f.status == "active" and family in condition_families(f)
-    ]
+    return [f for f in inp.facts if f.status == "active" and family in condition_families(f)]
 
 
 def diabetes_facts(inp: RuleInput) -> list[ClinicalFact]:
@@ -231,6 +227,42 @@ def owns_families(inp: RuleInput, suggestion: Suggestion, *families: ConditionFa
 
 def ids_of(facts: Iterable[ClinicalFact]) -> list[str]:
     return sorted({f.fact_id for f in facts})
+
+
+def adopt_documented_parts(
+    inp: RuleInput,
+    suggestions: list[Suggestion],
+    targets: Iterable[Suggestion],
+    own: ConditionFamily,
+) -> list[Suggestion]:
+    """Attach the documented parts of a model-picked combination code.
+
+    A selection names one fact, so a selected E1x.22, I11.x, I12.x or I13.x can own only its
+    `own` family (diabetes or hypertension). When it owns an active fact of that family and
+    every other family the code asserts is documented by active facts, those facts and their
+    evidence are attached. Otherwise the code is left as is, and the ownership check fails it.
+    """
+    updated: dict[str, Suggestion] = {}
+    for s in targets:
+        if not own_family_facts(inp, s, own):
+            continue
+        parts: list[ClinicalFact] = []
+        for family in code_condition_families(s.code) - {own}:
+            if own_family_facts(inp, s, family):
+                continue
+            documented = _documented(inp, family)
+            if not documented:
+                break
+            parts += documented
+        else:
+            if parts:
+                updated[s.suggestion_id] = s.model_copy(
+                    update={
+                        "fact_ids": sorted({*s.fact_ids, *ids_of(parts)}),
+                        "evidence": sorted({*s.evidence, *(n for f in parts for n in f.evidence)}),
+                    }
+                )
+    return [updated.get(s.suggestion_id, s) for s in suggestions]
 
 
 # CKD stage -> N18 code (I.C.14.a.1: stages 1-5, stage 3 split 3a/3b; ESRD is N18.6).
@@ -297,9 +329,7 @@ HF_CODES = frozenset(
 )
 _HF_SYSTOLIC = re.compile(r"systolic|reduced ejection|\bhfref\b", re.IGNORECASE)
 _HF_DIASTOLIC = re.compile(r"diastolic|preserved ejection|\bhfpef\b", re.IGNORECASE)
-_HF_COMBINED = re.compile(
-    r"combined|systolic and diastolic|diastolic and systolic", re.IGNORECASE
-)
+_HF_COMBINED = re.compile(r"combined|systolic and diastolic|diastolic and systolic", re.IGNORECASE)
 _HF_ACUTE_ON_CHRONIC = re.compile(r"acute[ -]on[ -]chronic", re.IGNORECASE)
 _HF_ACUTE = re.compile(r"\bacute\b", re.IGNORECASE)
 _HF_CHRONIC = re.compile(r"\bchronic\b", re.IGNORECASE)

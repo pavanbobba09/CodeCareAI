@@ -20,6 +20,7 @@ from app.rules.common import (
     Conditions,
     active,
     added,
+    adopt_documented_parts,
     caused_by_other,
     fail_all,
     ids_of,
@@ -42,11 +43,9 @@ def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
     out: list[Suggestion] = list(inp.suggestions)
     dropped: list[DroppedCode] = []
     c = Conditions(inp)
-    combinations = [
-        s
-        for s in active(out)
-        if is_diabetes(s.code) and s.code.endswith(".22")
-    ]
+    picked = [s for s in active(out) if is_diabetes(s.code) and s.code.endswith(".22")]
+    out = adopt_documented_parts(inp, out, picked, "diabetes")
+    combinations = [s for s in active(out) if is_diabetes(s.code) and s.code.endswith(".22")]
     unowned = [s for s in combinations if not owns_families(inp, s, "diabetes", "ckd")]
     if unowned:
         r = result(

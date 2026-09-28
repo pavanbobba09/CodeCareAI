@@ -31,3 +31,9 @@ Corrections from the owner and the rule that prevents each one. Review at the st
 **What went wrong:** Family guards accepted diabetes, hypertension, CKD or heart failure documented anywhere in the note. A code attached to an unrelated active fact could therefore borrow another suggestion's condition and pass.
 
 **Rule:** Every condition code must own an active matching fact in its own `fact_ids`; combination codes must own every family they assert. A rule-added or normalized code carries only the facts and evidence that produced that code. Tests include a correctly documented condition elsewhere in the note so a global-presence check cannot pass.
+
+## 2026-09-28: Ownership checks must fit the selection contract
+
+**What went wrong:** R2 required a model-picked E11.22 to own both a diabetes and a CKD fact, but a selection can name only one fact. Every correctly picked E11.22 (the worked example and 4 gold notes) became `not_suggested`, and the worked-example test and `record_llm.py` still passed because they checked codes and evidence, not confidence.
+
+**Rule:** A rule that checks a suggestion's facts must be satisfiable by what the LLM contract can produce; add a test that feeds a real-shaped selection. Tests and checks on suggested codes also assert that the code is reported (confidence is not `not_suggested`), not only that it is present.

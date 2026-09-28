@@ -4,6 +4,9 @@ from app.models import ClinicalFact
 from app.rules import (
     Rule,
     r2_diabetes_ckd,
+    r3_htn_ckd,
+    r4_htn_hf,
+    r5_htn_hf_ckd,
     r6_duplicate_hypertension,
     r7_diabetes_type,
     r9_ckd_stage,
@@ -73,10 +76,56 @@ def test_code_cannot_borrow_another_suggestions_condition_fact(
     assert outcomes(by_code(out, code), rule_id) == ["fail"]
 
 
-def test_combination_code_owns_every_condition_family() -> None:
-    dm = fact("dm", "type 2 diabetes mellitus", [1])
-    ckd = fact("ckd", "chronic kidney disease stage 4", [2])
-    out = run(r2_diabetes_ckd.apply, [sug("s1", "E11.22", ["dm"])], [dm, ckd])
+DM = fact("dm", "type 2 diabetes mellitus", [1])
+HTN = fact("htn", "hypertension", [2])
+CKD = fact("ckd", "chronic kidney disease stage 4", [3])
+HF = fact("hf", "chronic diastolic heart failure", [4])
+
+
+@pytest.mark.parametrize(
+    ("rule", "rule_id", "code", "own", "facts"),
+    [
+        (r2_diabetes_ckd.apply, "R2", "E11.22", DM, [DM, CKD]),
+        (r3_htn_ckd.apply, "R3", "I12.9", HTN, [HTN, CKD]),
+        (r4_htn_hf.apply, "R4", "I11.0", HTN, [HTN, HF]),
+        (r5_htn_hf_ckd.apply, "R5", "I13.0", HTN, [HTN, HF, CKD]),
+    ],
+)
+def test_picked_combination_code_adopts_its_documented_parts(
+    rule: Rule, rule_id: str, code: str, own: ClinicalFact, facts: list[ClinicalFact]
+) -> None:
+    # A selection names one fact, so the model's E11.22 can only cite the diabetes fact.
+    out = run(rule, [sug("s1", code, [own.fact_id], own.evidence)], facts)
+
+    picked = by_code(out, code)
+    assert "fail" not in outcomes(picked, rule_id)
+    assert picked.added_by_rule is None
+    assert picked.fact_ids == sorted(f.fact_id for f in facts)
+    assert picked.evidence == sorted(n for f in facts for n in f.evidence)
+
+
+@pytest.mark.parametrize(
+    ("rule", "rule_id", "code", "owner", "facts"),
+    [
+        # Owns only a part, not its own family: the code has no diabetes/hypertension fact.
+        (r2_diabetes_ckd.apply, "R2", "E11.22", "ckd", [DM, CKD]),
+        (r3_htn_ckd.apply, "R3", "I12.9", "ckd", [HTN, CKD]),
+        # Owns its family but a part is not documented as an active fact.
+        (r2_diabetes_ckd.apply, "R2", "E11.22", "dm", [DM]),
+        (r5_htn_hf_ckd.apply, "R5", "I13.0", "htn", [HTN, CKD]),
+    ],
+)
+def test_combination_code_without_its_own_family_or_a_documented_part_fails(
+    rule: Rule, rule_id: str, code: str, owner: str, facts: list[ClinicalFact]
+) -> None:
+    out = run(rule, [sug("s1", code, [owner])], facts)
+
+    assert "fail" in outcomes(by_code(out, code), rule_id)
+
+
+def test_suspected_part_is_not_adopted() -> None:
+    suspected_ckd = fact("ckd", "chronic kidney disease stage 4", [3], status="suspected")
+    out = run(r2_diabetes_ckd.apply, [sug("s1", "E11.22", ["dm"])], [DM, suspected_ckd])
 
     assert outcomes(by_code(out, "E11.22"), "R2") == ["fail"]
 
