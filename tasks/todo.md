@@ -25,15 +25,14 @@ Suggestion cards show an `Added by rule Rn` badge when that field is set. The fa
 
 ---
 
-## Plan for 2026-09-28 (after 07:30 CDT, owner message starts it)
+## Plan for 2026-09-28 (revised by owner, 2026-09-28)
 
-Order (owner, 2026-09-27). Stop and report after step 1.
+`integration` (M4 + M7 + M8 merged, commit `32ec9c2`) is the working branch; `main` stays as is until the eval passes. Stop and report after step 1 (a).
 
-1. [ ] **M4 eval** on `m4-rules`: budget check; re-record the worked-example fixtures (2 calls); run (a) `--extract-prompt extract_v1`, 20 notes, new run id, outputs saved; run (b) `extract_v2`, 20 notes, outputs saved (if both don't fit, (a) today and (b) the next day); replay both; report all results against M3. **Stop for approval.**
-2. [ ] Merge M4, then M7, into `main`; fix conflicts (expected: `DESIGN.md`, `tasks/todo.md`).
-3. [ ] Rebase `m8-frontend` onto `main`, `npm run gen:types`, add the "added by rule" badge (`Suggestion.added_by_rule`), rerun e2e, merge into `main`.
-4. [ ] **Write README.md on `main`** once steps 1-3 are done and all tests pass on `main`, using the owner's README prompt below, with the M4 numbers.
-5. [ ] Push.
+1. [ ] **M4 eval on `integration`:** budget check; re-record the worked-example fixtures (2 calls) and confirm `test_worked_example_from_recorded_llm` passes; run (a) `--extract-prompt extract_v1`, 20 notes, new run id, outputs saved; **stop and report (a) against M3**; then run (b) `extract_v2`, 20 notes, outputs saved (the next day if it does not fit); replay both; report all results against M3. **Stop for approval.**
+2. [ ] After the eval passes, `integration` becomes `main`.
+3. [ ] **Write README.md on `main`** once all tests pass there, using the owner's README prompt below, with the M4 numbers.
+4. [ ] Push.
 
 Why the README waits (2026-09-27): no single branch had every feature (replay and the R9 gap on `m4-rules`; frontend, e2e, fake LLM, review API on `m8-frontend`), and the M4 eval numbers did not exist yet.
 
@@ -132,7 +131,7 @@ Owner-directed fixes before tomorrow's M4 eval; no LLM calls. Each fix gets a re
 8. [x] Eval: rename the old check to evidence-reference validity; add a rule-based support check (cited sentences name the condition via description, Index terms or abbreviations; not negated; carry the needed details, e.g. "3b" for N18.32; code comes from an active fact); 20-30 hand-labeled pairs test it.
 9. [x] Eval coverage: a run with a missing or failed gold note is "incomplete" and claims no pass/fail; runs store a hash per gold note; replay refuses if a gold note changed.
 10. [x] Full-pipeline test: suspected heart failure plus a documented symptom -> no I50 code, symptom code present.
-11. [ ] m8-frontend: review buttons disabled while re-analysis runs; e2e suggestions cite different sentences so the highlight test can fail.
+11. [x] m8-frontend: review buttons disabled while re-analysis runs; e2e suggestions cite different sentences so the highlight test can fail.
 
 ### Review (2026-09-27)
 
@@ -186,7 +185,7 @@ Rules work on **codes the LLM already selected, plus fact status and details**. 
 14. [x] **Confidence bands** (DESIGN §5.1 gets the definition): `not_suggested` = R11 applied; `review` = any `needs_review` result or any linked gap; `strong` = every rule result `pass`, no linked gap, evidence present.
 15. [ ] **Tests.** One file per rule in `tests/unit/rules/`: positive, negative, edge case each, using `InMemoryCodeLookup`. Graph test with recorded fixtures for one combination note. Re-record the worked example only if its output changes (it should not: E11.22 + N18.30 already). *(2026-09-27: rule, chain and confidence tests done (133 unit); the recorded combination-note graph test still needs a recording, i.e. LLM calls.)*
 16. [ ] **extract_v2** (owner decision L): same as v1, plus: when a diagnosis is suspected/possible/probable, also extract the documented symptoms or signs behind it as their own `active` facts. `PROMPT_VERSION` -> `extract_v2+select_v1`; re-record the worked-example fixtures with `record_llm.py`. *(2026-09-27: prompt added and pipeline switched; re-recording pending, 2 LLM calls, so `test_worked_example_from_recorded_llm` fails on prompt drift until then.)* DESIGN: MDM extraction becomes `extract_v3` in M6.
-17. [ ] **Eval (revised 2026-09-27, owner):** when the Groq limit recovers, budget check first; (i) re-record worked-example fixtures (2 calls); (ii) run (a) from scratch with a new run id, `--extract-prompt extract_v1`, 20 notes, outputs saved (the old `2026-09-27-m4rules-*` 14 + 6 run is not patched); (iii) run (b) `extract_v2`, 20 notes; if both don't fit, (a) today and (b) the next day; (iv) replay both with the N18 stage rule and report all against M3.
+17. [ ] **Eval (revised 2026-09-27, owner):** when the Groq limit recovers, budget check first; (i) re-record worked-example fixtures (2 calls); (ii) run (a) from scratch with a new run id, `--extract-prompt extract_v1`, 20 notes, outputs saved; (iii) run (b) `extract_v2`, 20 notes; if both don't fit, (a) today and (b) the next day; (iv) replay both with the N18 stage rule and report all against M3.
 18. [x] **DESIGN.md** in the same change as the code: `Suggestion.added_by_rule`, `CodeLookup.excludes1_of`, rule add/drop contract and R1-last, `model_errors` definition, confidence bands, R1-R12 behaviour with sources, extract_v2/v3, and a **Known limits** list (at least: "unrelated" statements with no alternative cause are not captured; secondary diabetes E08/E09/E13 combinations; temporary insulin use (I.C.4.a.3) is not detected; I11.9/I12 without a documented link beyond the presumption).
 19. [x] **`--extract-prompt`** (default `extract_v2`), recorded in `meta.json`; resuming a run with a different setup, model or prompt version stops.
 20. [x] **Usage logging:** `LlmClient(on_usage=...)` reports prompt, completion and reasoning tokens per call; run files keep `usage` (summed across retries); local gitignored ledger `eval/.usage_ledger.jsonl`; `record_llm.py` logs too.
@@ -231,7 +230,7 @@ Next.js 15 (App Router), TypeScript strict, Tailwind (DESIGN §3.3). Runtime dep
    - **E/M card:** shows "No E/M level" with `missing` elements, or "E/M arrives in M6" while `em` is null.
 5. [x] **Loading and failed states.** Analyze shows a progress state (it can take up to 150 s) and disables the button. A failed analysis (`503` with `analysis_id`, or a stored `status: failed`) shows the error code and message, keeps the note visible, and offers "Analyze again" (a new analysis; the failed one stays in history). `409 CODE_SET_MISSING`, `500 PIPELINE_ERROR`/`DB_ERROR` and a network error each get a clear message. Page-level loading skeleton and a not-found page for `404 NOTE_NOT_FOUND`.
 6. [x] **Accessibility basics:** keyboard-reachable actions, `aria-live` for analyze status and review results, highlight not by color alone (outline + sentence number emphasis).
-7. [x] **Playwright smoke test** (DESIGN §9 `web`: analyze, highlight, accept, edit, reject) against the **real backend and test db, with a fake LLM** (decision P): create the worked-example note -> analyze -> hover E11.22 and see sentence 1 highlighted -> accept E11.22 -> edit N18.30 to N18.31 -> reject N18.30 with a reason -> history shows three reviews. *(Owner: only one more test, the failed analysis through the fake LLM's 503; no route-mocked tests.)*
+7. [x] **Playwright smoke test** (DESIGN §9 `web`: analyze, highlight, accept, edit, reject) against the **real backend and the local dev db (FY2027 loaded), with a fake LLM** (decision P): create the worked-example note -> analyze -> hover E11.22 and see sentence 1 highlighted -> accept E11.22 -> edit N18.30 to N18.31 -> reject N18.30 with a reason -> history shows three reviews. *(Owner: only one more test, the failed analysis through the fake LLM's 503; no route-mocked tests.)*
 8. [-] *(dropped: owner decision Q, e2e local only; no frontend CI job in M8)* **CI:** a `frontend` job: `npm ci`, lint, `tsc --noEmit`, types up to date (step 1), `next build`; an `e2e` job with Postgres, the backend on the seeded test tables, the fake LLM, and Playwright (decision Q).
 9. [x] **DESIGN.md** in the same change: §7 frontend layout (`e2e/`, `openapi.json`), §9 how the smoke test runs, the fake LLM (if P is approved), `NEXT_PUBLIC_API_BASE_URL`; CLAUDE.md commands (`gen:types`, `test:e2e`, how to start the e2e stack).
 
