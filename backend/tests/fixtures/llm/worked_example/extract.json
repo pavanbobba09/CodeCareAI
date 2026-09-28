@@ -1,7 +1,7 @@
 {
   "step": "extract",
-  "model": "openai/gpt-oss-20b",
-  "prompt_sha256": "421fd582c0b2f5ca01d8390aa9e3dedb5b82cadf3a43cf98e070ec53aeb78917",
+  "model": "openai/gpt-oss-120b",
+  "prompt_sha256": "3819d075fee31bb193f14cfa6990ef752498b53e4294d84a75436e5d7f692c13",
   "response": {
     "facts": [
       {
@@ -9,11 +9,12 @@
         "kind": "condition",
         "concept": "type 2 diabetes mellitus",
         "status": "active",
-        "details": {},
+        "details": {
+          "type": "type 2"
+        },
         "links": [],
         "evidence": [
-          1,
-          2
+          1
         ]
       },
       {
@@ -31,25 +32,11 @@
           }
         ],
         "evidence": [
-          1,
-          2
+          1
         ]
       },
       {
         "fact_id": "f3",
-        "kind": "procedure",
-        "concept": "renal function test",
-        "status": "planned",
-        "details": {
-          "type": "renal function test"
-        },
-        "links": [],
-        "evidence": [
-          5
-        ]
-      },
-      {
-        "fact_id": "f4",
         "kind": "condition",
         "concept": "chest pain",
         "status": "denied",
@@ -60,7 +47,7 @@
         ]
       },
       {
-        "fact_id": "f5",
+        "fact_id": "f4",
         "kind": "condition",
         "concept": "shortness of breath",
         "status": "denied",
@@ -68,6 +55,17 @@
         "links": [],
         "evidence": [
           3
+        ]
+      },
+      {
+        "fact_id": "f5",
+        "kind": "procedure",
+        "concept": "renal function test",
+        "status": "planned",
+        "details": {},
+        "links": [],
+        "evidence": [
+          5
         ]
       }
     ],

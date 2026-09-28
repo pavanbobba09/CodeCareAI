@@ -1,7 +1,7 @@
 {
   "step": "select",
-  "model": "openai/gpt-oss-20b",
-  "prompt_sha256": "669eae05415bf9593a8d16d28c2ce84caf4e7576c460f92abf9acd2400391571",
+  "model": "openai/gpt-oss-120b",
+  "prompt_sha256": "6ac83b56192ce7b399754f0c3f61b8ae3916e152372a8bd8d3256497f58f4a71",
   "response": {
     "selections": [
       {
@@ -10,7 +10,7 @@
         "evidence": [
           1
         ],
-        "rationale": "Type 2 diabetes mellitus with diabetic chronic kidney disease stage 3 documented."
+        "rationale": "The note states type 2 diabetes mellitus with chronic kidney disease stage 3, which aligns with E11.22 (type 2 diabetes with diabetic chronic kidney disease)."
       },
       {
         "fact_id": "f2",
@@ -18,7 +18,7 @@
         "evidence": [
           1
         ],
-        "rationale": "Chronic kidney disease stage 3 unspecified documented."
+        "rationale": "The documentation mentions chronic kidney disease stage 3 without specifying a or b, matching N18.30 (CKD stage 3 unspecified)."
       }
     ]
   }
