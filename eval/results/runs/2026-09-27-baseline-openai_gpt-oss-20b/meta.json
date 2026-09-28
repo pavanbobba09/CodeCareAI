@@ -1,1 +1,1 @@
-{"run_id": "2026-09-27-baseline-openai_gpt-oss-20b", "setup": "baseline", "model": "openai/gpt-oss-20b", "prompt_version": "baseline_v1"}
+{"run_id": "2026-09-27-baseline-openai_gpt-oss-20b", "setup": "baseline", "model": "openai/gpt-oss-20b", "prompt_version": "baseline_v1", "gold": {"n001": null, "n002": null, "n003": null, "n004": null, "n005": null, "n006": null, "n007": null, "n008": null, "n009": null, "n010": null}, "scope_backfilled": true}

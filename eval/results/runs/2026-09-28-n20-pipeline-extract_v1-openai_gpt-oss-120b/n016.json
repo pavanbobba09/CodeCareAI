@@ -1,0 +1,298 @@
+{
+  "note_id": "n016",
+  "setup": "pipeline",
+  "model": "openai/gpt-oss-120b",
+  "prompt_version": "extract_v1+select_v1",
+  "status": "completed",
+  "error": null,
+  "attempts": 1,
+  "n_sentences": 7,
+  "predicted": [
+    {
+      "code": "I10",
+      "evidence": [
+        4
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    }
+  ],
+  "gap_rules": [],
+  "em_code": null,
+  "model_errors": 0,
+  "latency_ms": 21594,
+  "usage": [
+    {
+      "step": "extract",
+      "prompt_tokens": 1550,
+      "completion_tokens": 636,
+      "reasoning_tokens": 495
+    },
+    {
+      "step": "select",
+      "prompt_tokens": 1170,
+      "completion_tokens": 176,
+      "reasoning_tokens": 123
+    }
+  ],
+  "llm_outputs": {
+    "facts": [
+      {
+        "fact_id": "f1",
+        "kind": "condition",
+        "concept": "essential hypertension",
+        "status": "active",
+        "details": {
+          "type": "essential"
+        },
+        "links": [],
+        "evidence": [
+          4
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "kind": "condition",
+        "concept": "heart failure",
+        "status": "denied",
+        "details": {},
+        "links": [],
+        "evidence": [
+          2,
+          5
+        ]
+      },
+      {
+        "fact_id": "f3",
+        "kind": "condition",
+        "concept": "chronic kidney disease",
+        "status": "ruled_out",
+        "details": {},
+        "links": [],
+        "evidence": [
+          3,
+          6
+        ]
+      }
+    ],
+    "candidate_sets": [
+      {
+        "fact_id": "f1",
+        "candidates": [
+          {
+            "code": "I10",
+            "system": "ICD-10-CM",
+            "description": "Essential (primary) hypertension",
+            "score": 0.032787,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O10.011",
+            "system": "ICD-10-CM",
+            "description": "Pre-existing essential hypertension complicating pregnancy, first trimester",
+            "score": 0.03125,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O10.03",
+            "system": "ICD-10-CM",
+            "description": "Pre-existing essential hypertension complicating the puerperium",
+            "score": 0.030159,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O10.012",
+            "system": "ICD-10-CM",
+            "description": "Pre-existing essential hypertension complicating pregnancy, second trimester",
+            "score": 0.029274,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O10.013",
+            "system": "ICD-10-CM",
+            "description": "Pre-existing essential hypertension complicating pregnancy, third trimester",
+            "score": 0.029236,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O10.019",
+            "system": "ICD-10-CM",
+            "description": "Pre-existing essential hypertension complicating pregnancy, unspecified trimester",
+            "score": 0.029211,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I11.9",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart disease without heart failure",
+            "score": 0.028577,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I12.9",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive chronic kidney disease with stage 1 through stage 4 chronic kidney disease, or unspecified chronic kidney disease",
+            "score": 0.027778,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O10.02",
+            "system": "ICD-10-CM",
+            "description": "Pre-existing essential hypertension complicating childbirth",
+            "score": 0.027402,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I16.9",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive crisis, unspecified",
+            "score": 0.027289,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "H40.059",
+            "system": "ICD-10-CM",
+            "description": "Ocular hypertension, unspecified eye",
+            "score": 0.0272,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O16.1",
+            "system": "ICD-10-CM",
+            "description": "Unspecified maternal hypertension, first trimester",
+            "score": 0.026857,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O16.2",
+            "system": "ICD-10-CM",
+            "description": "Unspecified maternal hypertension, second trimester",
+            "score": 0.025562,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I15.9",
+            "system": "ICD-10-CM",
+            "description": "Secondary hypertension, unspecified",
+            "score": 0.025475,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I1A.0",
+            "system": "ICD-10-CM",
+            "description": "Resistant hypertension",
+            "score": 0.025015,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O16.3",
+            "system": "ICD-10-CM",
+            "description": "Unspecified maternal hypertension, third trimester",
+            "score": 0.024322,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I27.20",
+            "system": "ICD-10-CM",
+            "description": "Pulmonary hypertension, unspecified",
+            "score": 0.023903,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I13.10",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart and chronic kidney disease without heart failure, with stage 1 through stage 4 chronic kidney disease, or unspecified chronic kidney disease",
+            "score": 0.02374,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I95.9",
+            "system": "ICD-10-CM",
+            "description": "Hypotension, unspecified",
+            "score": 0.022092,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E83.32",
+            "system": "ICD-10-CM",
+            "description": "Hereditary vitamin D-dependent rickets (type 1) (type 2)",
+            "score": 0.016393,
+            "sources": [
+              "text"
+            ]
+          }
+        ]
+      }
+    ],
+    "selections": [
+      {
+        "fact_id": "f1",
+        "code": "I10",
+        "evidence": [
+          4
+        ],
+        "rationale": "The note documents essential hypertension, which corresponds to ICD‑10‑CM code I10."
+      }
+    ],
+    "model_errors": 0
+  }
+}

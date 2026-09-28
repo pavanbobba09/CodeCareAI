@@ -1,0 +1,478 @@
+{
+  "note_id": "n019",
+  "setup": "pipeline",
+  "model": "openai/gpt-oss-120b",
+  "prompt_version": "extract_v1+select_v1",
+  "status": "completed",
+  "error": null,
+  "attempts": 1,
+  "n_sentences": 4,
+  "predicted": [
+    {
+      "code": "I10",
+      "evidence": [
+        3
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    }
+  ],
+  "gap_rules": [],
+  "em_code": null,
+  "model_errors": 0,
+  "latency_ms": 10753,
+  "usage": [
+    {
+      "step": "extract",
+      "prompt_tokens": 1495,
+      "completion_tokens": 374,
+      "reasoning_tokens": 272
+    },
+    {
+      "step": "select",
+      "prompt_tokens": 1711,
+      "completion_tokens": 291,
+      "reasoning_tokens": 196
+    }
+  ],
+  "llm_outputs": {
+    "facts": [
+      {
+        "fact_id": "f1",
+        "kind": "condition",
+        "concept": "essential hypertension",
+        "status": "active",
+        "details": {},
+        "links": [],
+        "evidence": [
+          3
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "kind": "medication",
+        "concept": "losartan",
+        "status": "active",
+        "details": {
+          "drug": "losartan"
+        },
+        "links": [],
+        "evidence": [
+          4
+        ]
+      }
+    ],
+    "candidate_sets": [
+      {
+        "fact_id": "f1",
+        "candidates": [
+          {
+            "code": "I10",
+            "system": "ICD-10-CM",
+            "description": "Essential (primary) hypertension",
+            "score": 0.04728,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "O10.011",
+            "system": "ICD-10-CM",
+            "description": "Pre-existing essential hypertension complicating pregnancy, first trimester",
+            "score": 0.044822,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "O10.012",
+            "system": "ICD-10-CM",
+            "description": "Pre-existing essential hypertension complicating pregnancy, second trimester",
+            "score": 0.043503,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "O10.013",
+            "system": "ICD-10-CM",
+            "description": "Pre-existing essential hypertension complicating pregnancy, third trimester",
+            "score": 0.043301,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "O10.019",
+            "system": "ICD-10-CM",
+            "description": "Pre-existing essential hypertension complicating pregnancy, unspecified trimester",
+            "score": 0.042477,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "O10.03",
+            "system": "ICD-10-CM",
+            "description": "Pre-existing essential hypertension complicating the puerperium",
+            "score": 0.042364,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "O10.02",
+            "system": "ICD-10-CM",
+            "description": "Pre-existing essential hypertension complicating childbirth",
+            "score": 0.03987,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I11.9",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart disease without heart failure",
+            "score": 0.028898,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "H40.059",
+            "system": "ICD-10-CM",
+            "description": "Ocular hypertension, unspecified eye",
+            "score": 0.027673,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O16.1",
+            "system": "ICD-10-CM",
+            "description": "Unspecified maternal hypertension, first trimester",
+            "score": 0.027444,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I16.9",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive crisis, unspecified",
+            "score": 0.027056,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O16.2",
+            "system": "ICD-10-CM",
+            "description": "Unspecified maternal hypertension, second trimester",
+            "score": 0.025712,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I15.9",
+            "system": "ICD-10-CM",
+            "description": "Secondary hypertension, unspecified",
+            "score": 0.025475,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I1A.0",
+            "system": "ICD-10-CM",
+            "description": "Resistant hypertension",
+            "score": 0.025452,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O16.3",
+            "system": "ICD-10-CM",
+            "description": "Unspecified maternal hypertension, third trimester",
+            "score": 0.025383,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "G25.0",
+            "system": "ICD-10-CM",
+            "description": "Essential tremor",
+            "score": 0.025149,
+            "sources": [
+              "index",
+              "text"
+            ]
+          },
+          {
+            "code": "R03.0",
+            "system": "ICD-10-CM",
+            "description": "Elevated blood-pressure reading, without diagnosis of hypertension",
+            "score": 0.024569,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I27.20",
+            "system": "ICD-10-CM",
+            "description": "Pulmonary hypertension, unspecified",
+            "score": 0.024306,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O16.5",
+            "system": "ICD-10-CM",
+            "description": "Unspecified maternal hypertension, complicating the puerperium",
+            "score": 0.024152,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I16.0",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive urgency",
+            "score": 0.02381,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          }
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "candidates": [
+          {
+            "code": "L27.0",
+            "system": "ICD-10-CM",
+            "description": "Generalized skin eruption due to drugs and medicaments taken internally",
+            "score": 0.016393,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "T46.4X3D",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by angiotensin-converting-enzyme inhibitors, assault, subsequent encounter",
+            "score": 0.016393,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "Z71.51",
+            "system": "ICD-10-CM",
+            "description": "Drug abuse counseling and surveillance of drug abuser",
+            "score": 0.016393,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "D52.1",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced folate deficiency anemia",
+            "score": 0.016129,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "F19.20",
+            "system": "ICD-10-CM",
+            "description": "Other psychoactive substance dependence, uncomplicated",
+            "score": 0.016129,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "T46.4X3A",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by angiotensin-converting-enzyme inhibitors, assault, initial encounter",
+            "score": 0.016129,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D59.0",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced autoimmune hemolytic anemia",
+            "score": 0.015873,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "F19.90",
+            "system": "ICD-10-CM",
+            "description": "Other psychoactive substance use, unspecified, uncomplicated",
+            "score": 0.015873,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "T46.4X3S",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by angiotensin-converting-enzyme inhibitors, assault, sequela",
+            "score": 0.015873,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D59.2",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced nonautoimmune hemolytic anemia",
+            "score": 0.015625,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "L27.1",
+            "system": "ICD-10-CM",
+            "description": "Localized skin eruption due to drugs and medicaments taken internally",
+            "score": 0.015625,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "T46.4X4S",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by angiotensin-converting-enzyme inhibitors, undetermined, sequela",
+            "score": 0.015625,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D61.1",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced aplastic anemia",
+            "score": 0.015385,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "F19.10",
+            "system": "ICD-10-CM",
+            "description": "Other psychoactive substance abuse, uncomplicated",
+            "score": 0.015385,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "T46.4X1S",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by angiotensin-converting-enzyme inhibitors, accidental (unintentional), sequela",
+            "score": 0.015385,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D61.811",
+            "system": "ICD-10-CM",
+            "description": "Other drug-induced pancytopenia",
+            "score": 0.015152,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T46.4X4A",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by angiotensin-converting-enzyme inhibitors, undetermined, initial encounter",
+            "score": 0.015152,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "Z79.811",
+            "system": "ICD-10-CM",
+            "description": "Long term (current) use of aromatase inhibitors",
+            "score": 0.015152,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "D64.2",
+            "system": "ICD-10-CM",
+            "description": "Secondary sideroblastic anemia due to drugs and toxins",
+            "score": 0.014925,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T46.4X1A",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by angiotensin-converting-enzyme inhibitors, accidental (unintentional), initial encounter",
+            "score": 0.014925,
+            "sources": [
+              "vector"
+            ]
+          }
+        ]
+      }
+    ],
+    "selections": [
+      {
+        "fact_id": "f1",
+        "code": "I10",
+        "evidence": [
+          3
+        ],
+        "rationale": "The note states \"Essential hypertension,\" which directly matches code I10 for essential (primary) hypertension."
+      }
+    ],
+    "model_errors": 0
+  }
+}

@@ -1,0 +1,504 @@
+{
+  "meta": {
+    "run_id": "2026-09-28-n20-pipeline-extract_v1-openai_gpt-oss-120b",
+    "setup": "pipeline",
+    "model": "openai/gpt-oss-120b",
+    "prompt_version": "extract_v1+select_v1",
+    "prompts": {
+      "extract": "extract_v1",
+      "select": "select_v1"
+    },
+    "git_commit": "33fa3998b330ac1c0d113ed41678e768457b4950",
+    "code_sets": [
+      "ICD10CM-FY2027"
+    ],
+    "gold": {
+      "n001": "f964af527787215ed321183299f21f3f78c109a67114bc5b8c50a6c01df88852",
+      "n002": "9fcf835bae8d1bfc826ed7328bc1f492bda8543da0289ebee653e35fd608c8f5",
+      "n003": "d7654546734d0e9eb746f1f6852ebff78659583b72cad6472242dcc746c79486",
+      "n004": "fff524707520c8d345175264ad1040e2d30dad5ec488635e0cf5142033ac21c5",
+      "n005": "f7d76af36da605ae430040a993eabaf2a512d4864c953ea264c023bf69ef7cbc",
+      "n006": "513cc7ac75f464a002248c435ce47088f8bb34d277079b307db3b5663c0bf187",
+      "n007": "a997a837c7a7a968a6b96cd06ce2224869a318e5d11f4ff7c995736859434cd1",
+      "n008": "5896c3245e70a2506a77261ac1936c809a95ef0f8070754a7a842dffd862b4b3",
+      "n009": "619e0ba36914661ce92b9f03489eca2e444bb5e84946c6e31f99388d7c916504",
+      "n010": "68f7620b58cfd61685509af23732ef759e721f4b8449efc56feb1bd41e5d9719",
+      "n011": "08966e94c00617f3a9e772457ac5fb4a714e29887246662701265a9969123ffe",
+      "n012": "f2c40c21cf107c9436e6a23247636ec682095bb581dd48e2df569245577a2f6a",
+      "n013": "67a93ef9e03d5e12c684d1220df4a5371bd72d21ad2939dcef8783c6d5d58c04",
+      "n014": "a93c7386dabf144544a831b6e4084407e95ff7238a96e2fbcb4277171eeec004",
+      "n015": "a95ce166252415197973fdd30283a8fcb2407bd1244e5350cab8a0f8990f165a",
+      "n016": "af43ceb22c472d203edeff1c96a42efa2d68e496de4dd0443df3fa632f529efa",
+      "n017": "962347b36153b554247c3baaca2604ec996766be86ed13bde57b702d2a9d9a85",
+      "n018": "b5c40f607f411bb3923401776aa0409f6bc3632de588134538a77b9400a2dccb",
+      "n019": "ecf6688b96fdb8f1101e747b1ccde14ef66f70f263642c6e406ef262f23bf5a6",
+      "n020": "bf8db07da6e45e454dad5cf69cdb128663a69f544d3c3bb37eb081dcfb78419b"
+    }
+  },
+  "summary": {
+    "notes": 20,
+    "failed_notes": 0,
+    "missing_notes": [],
+    "complete": true,
+    "predicted_codes": 35,
+    "precision": 0.9429,
+    "recall": 0.8462,
+    "invented_rate": 0.0,
+    "invalid_rate": 0.0,
+    "evidence_ref_invalid_rate": 0.0,
+    "unsupported_rate": 0.0286,
+    "gap_recall": 1.0,
+    "em_match": null,
+    "mean_latency_ms": 9379,
+    "per_note": [
+      {
+        "note_id": "n001",
+        "status": "completed",
+        "expected": [
+          "E11.9",
+          "Z79.84"
+        ],
+        "predicted": [
+          "E11.9",
+          "Z79.84"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n002",
+        "status": "completed",
+        "expected": [
+          "E11.22",
+          "N18.32"
+        ],
+        "predicted": [
+          "N18.32"
+        ],
+        "missed": [
+          "E11.22"
+        ],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n003",
+        "status": "completed",
+        "expected": [
+          "E11.22",
+          "N18.30"
+        ],
+        "predicted": [
+          "N18.30"
+        ],
+        "missed": [
+          "E11.22"
+        ],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [
+          "R9"
+        ],
+        "gaps_raised": [
+          "R9"
+        ]
+      },
+      {
+        "note_id": "n004",
+        "status": "completed",
+        "expected": [
+          "E11.65",
+          "Z79.4"
+        ],
+        "predicted": [
+          "E11.9",
+          "Z79.4"
+        ],
+        "missed": [
+          "E11.65"
+        ],
+        "extra": [
+          "E11.9"
+        ],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n005",
+        "status": "completed",
+        "expected": [
+          "I10"
+        ],
+        "predicted": [
+          "I10"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n006",
+        "status": "completed",
+        "expected": [
+          "I12.9",
+          "N18.4"
+        ],
+        "predicted": [
+          "I12.9",
+          "N18.4"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n007",
+        "status": "completed",
+        "expected": [
+          "I12.0",
+          "N18.5"
+        ],
+        "predicted": [
+          "I12.0",
+          "N18.5"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n008",
+        "status": "completed",
+        "expected": [
+          "I11.0",
+          "I50.22"
+        ],
+        "predicted": [
+          "I11.0",
+          "I50.22"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n009",
+        "status": "completed",
+        "expected": [
+          "I11.0",
+          "I50.9"
+        ],
+        "predicted": [
+          "I11.0",
+          "I50.9"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [
+          "R10"
+        ],
+        "gaps_raised": [
+          "R10"
+        ]
+      },
+      {
+        "note_id": "n010",
+        "status": "completed",
+        "expected": [
+          "I13.0",
+          "I50.32",
+          "N18.31"
+        ],
+        "predicted": [
+          "I13.0",
+          "I50.32",
+          "N18.31"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n011",
+        "status": "completed",
+        "expected": [
+          "E11.22",
+          "I13.0",
+          "I50.23",
+          "N18.32"
+        ],
+        "predicted": [
+          "I13.0",
+          "I50.23",
+          "N18.32"
+        ],
+        "missed": [
+          "E11.22"
+        ],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n012",
+        "status": "completed",
+        "expected": [
+          "N18.9"
+        ],
+        "predicted": [
+          "N18.9"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [
+          "R9"
+        ],
+        "gaps_raised": [
+          "R9"
+        ]
+      },
+      {
+        "note_id": "n013",
+        "status": "completed",
+        "expected": [
+          "E11.22",
+          "I12.9",
+          "N18.32"
+        ],
+        "predicted": [
+          "I12.9",
+          "N18.32"
+        ],
+        "missed": [
+          "E11.22"
+        ],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n014",
+        "status": "completed",
+        "expected": [
+          "I50.20"
+        ],
+        "predicted": [
+          "I50.20",
+          "I50.9"
+        ],
+        "missed": [],
+        "extra": [
+          "I50.9"
+        ],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [
+          "R10"
+        ],
+        "gaps_raised": [
+          "R10"
+        ]
+      },
+      {
+        "note_id": "n015",
+        "status": "completed",
+        "expected": [
+          "I10",
+          "R06.02"
+        ],
+        "predicted": [
+          "I10"
+        ],
+        "missed": [
+          "R06.02"
+        ],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n016",
+        "status": "completed",
+        "expected": [
+          "I10"
+        ],
+        "predicted": [
+          "I10"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n017",
+        "status": "completed",
+        "expected": [
+          "E11.9"
+        ],
+        "predicted": [
+          "E11.9"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n018",
+        "status": "completed",
+        "expected": [
+          "E11.9",
+          "Z79.84"
+        ],
+        "predicted": [
+          "E11.9",
+          "Z79.84"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n019",
+        "status": "completed",
+        "expected": [
+          "I10"
+        ],
+        "predicted": [
+          "I10"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [],
+        "unchecked": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      },
+      {
+        "note_id": "n020",
+        "status": "completed",
+        "expected": [
+          "E11.9",
+          "Z79.4",
+          "Z79.84"
+        ],
+        "predicted": [
+          "E11.9",
+          "Z79.4",
+          "Z79.84"
+        ],
+        "missed": [],
+        "extra": [],
+        "invented": [],
+        "invalid": [],
+        "evidence_ref_invalid": [],
+        "unsupported": [
+          "Z79.4"
+        ],
+        "unchecked": [],
+        "gaps_expected": [],
+        "gaps_raised": []
+      }
+    ]
+  }
+}

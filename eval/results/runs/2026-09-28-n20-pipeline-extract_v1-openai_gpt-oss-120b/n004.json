@@ -1,0 +1,528 @@
+{
+  "note_id": "n004",
+  "setup": "pipeline",
+  "model": "openai/gpt-oss-120b",
+  "prompt_version": "extract_v1+select_v1",
+  "status": "completed",
+  "error": null,
+  "attempts": 1,
+  "n_sentences": 5,
+  "predicted": [
+    {
+      "code": "E11.9",
+      "evidence": [
+        1,
+        3
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    },
+    {
+      "code": "Z79.4",
+      "evidence": [
+        1,
+        4
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    }
+  ],
+  "gap_rules": [],
+  "em_code": null,
+  "model_errors": 0,
+  "latency_ms": 19014,
+  "usage": [
+    {
+      "step": "extract",
+      "prompt_tokens": 1526,
+      "completion_tokens": 980,
+      "reasoning_tokens": 834
+    },
+    {
+      "step": "select",
+      "prompt_tokens": 1936,
+      "completion_tokens": 434,
+      "reasoning_tokens": 326
+    }
+  ],
+  "llm_outputs": {
+    "facts": [
+      {
+        "fact_id": "f1",
+        "kind": "condition",
+        "concept": "type 2 diabetes mellitus",
+        "status": "active",
+        "details": {},
+        "links": [],
+        "evidence": [
+          1,
+          3
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "kind": "medication",
+        "concept": "insulin glargine",
+        "status": "active",
+        "details": {
+          "dose": "nightly"
+        },
+        "links": [],
+        "evidence": [
+          1,
+          4
+        ]
+      },
+      {
+        "fact_id": "f3",
+        "kind": "procedure",
+        "concept": "diabetes education referral",
+        "status": "planned",
+        "details": {},
+        "links": [],
+        "evidence": [
+          5
+        ]
+      }
+    ],
+    "candidate_sets": [
+      {
+        "fact_id": "f1",
+        "candidates": [
+          {
+            "code": "E11.21",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic nephropathy",
+            "score": 0.044518,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.319",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with unspecified diabetic retinopathy without macular edema",
+            "score": 0.038898,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.9",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus without complications",
+            "score": 0.032266,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.22",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic chronic kidney disease",
+            "score": 0.029462,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.42",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic polyneuropathy",
+            "score": 0.029236,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.44",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic amyotrophy",
+            "score": 0.029199,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.40",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic neuropathy, unspecified",
+            "score": 0.028718,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.65",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with hyperglycemia",
+            "score": 0.028442,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.8",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with unspecified complications",
+            "score": 0.028034,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.69",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with other specified complication",
+            "score": 0.027783,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.41",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic mononeuropathy",
+            "score": 0.027273,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.36",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic cataract",
+            "score": 0.027151,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.311",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with unspecified diabetic retinopathy with macular edema",
+            "score": 0.026378,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.620",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic dermatitis",
+            "score": 0.025937,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E10.A2",
+            "system": "ICD-10-CM",
+            "description": "Type 1 diabetes mellitus, presymptomatic, Stage 2",
+            "score": 0.02481,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.621",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with foot ulcer",
+            "score": 0.024652,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.43",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic autonomic (poly)neuropathy",
+            "score": 0.024265,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.618",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with other diabetic arthropathy",
+            "score": 0.023098,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.10",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with ketoacidosis without coma",
+            "score": 0.022655,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.649",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with hypoglycemia without coma",
+            "score": 0.022612,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          }
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "candidates": [
+          {
+            "code": "Z79.4",
+            "system": "ICD-10-CM",
+            "description": "Long term (current) use of insulin",
+            "score": 0.031099,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E88.819",
+            "system": "ICD-10-CM",
+            "description": "Insulin resistance, unspecified",
+            "score": 0.029437,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X1A",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by insulin and oral hypoglycemic [antidiabetic] drugs, accidental (unintentional), initial encounter",
+            "score": 0.029206,
+            "sources": [
+              "index",
+              "text"
+            ]
+          },
+          {
+            "code": "T38.3X1D",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by insulin and oral hypoglycemic [antidiabetic] drugs, accidental (unintentional), subsequent encounter",
+            "score": 0.028783,
+            "sources": [
+              "index",
+              "text"
+            ]
+          },
+          {
+            "code": "T38.3X1S",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by insulin and oral hypoglycemic [antidiabetic] drugs, accidental (unintentional), sequela",
+            "score": 0.028372,
+            "sources": [
+              "index",
+              "text"
+            ]
+          },
+          {
+            "code": "T38.3X2A",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by insulin and oral hypoglycemic [antidiabetic] drugs, intentional self-harm, initial encounter",
+            "score": 0.027972,
+            "sources": [
+              "index",
+              "text"
+            ]
+          },
+          {
+            "code": "T38.3X2D",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by insulin and oral hypoglycemic [antidiabetic] drugs, intentional self-harm, subsequent encounter",
+            "score": 0.027584,
+            "sources": [
+              "index",
+              "text"
+            ]
+          },
+          {
+            "code": "O24.434",
+            "system": "ICD-10-CM",
+            "description": "Gestational diabetes mellitus in the puerperium, insulin controlled",
+            "score": 0.026671,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X5A",
+            "system": "ICD-10-CM",
+            "description": "Adverse effect of insulin and oral hypoglycemic [antidiabetic] drugs, initial encounter",
+            "score": 0.026646,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X6A",
+            "system": "ICD-10-CM",
+            "description": "Underdosing of insulin and oral hypoglycemic [antidiabetic] drugs, initial encounter",
+            "score": 0.026496,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "O24.424",
+            "system": "ICD-10-CM",
+            "description": "Gestational diabetes mellitus in childbirth, insulin controlled",
+            "score": 0.025894,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X6S",
+            "system": "ICD-10-CM",
+            "description": "Underdosing of insulin and oral hypoglycemic [antidiabetic] drugs, sequela",
+            "score": 0.025795,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X6D",
+            "system": "ICD-10-CM",
+            "description": "Underdosing of insulin and oral hypoglycemic [antidiabetic] drugs, subsequent encounter",
+            "score": 0.025695,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E88.818",
+            "system": "ICD-10-CM",
+            "description": "Other insulin resistance",
+            "score": 0.025589,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X5D",
+            "system": "ICD-10-CM",
+            "description": "Adverse effect of insulin and oral hypoglycemic [antidiabetic] drugs, subsequent encounter",
+            "score": 0.025448,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X5S",
+            "system": "ICD-10-CM",
+            "description": "Adverse effect of insulin and oral hypoglycemic [antidiabetic] drugs, sequela",
+            "score": 0.024749,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T85.624D",
+            "system": "ICD-10-CM",
+            "description": "Displacement of insulin pump, subsequent encounter",
+            "score": 0.024008,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "O24.414",
+            "system": "ICD-10-CM",
+            "description": "Gestational diabetes mellitus in pregnancy, insulin controlled",
+            "score": 0.023889,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T85.633D",
+            "system": "ICD-10-CM",
+            "description": "Leakage of insulin pump, subsequent encounter",
+            "score": 0.022987,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T85.624A",
+            "system": "ICD-10-CM",
+            "description": "Displacement of insulin pump, initial encounter",
+            "score": 0.021911,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          }
+        ]
+      }
+    ],
+    "selections": [
+      {
+        "fact_id": "f1",
+        "code": "E11.9",
+        "evidence": [
+          1,
+          3
+        ],
+        "rationale": "The note states type 2 diabetes mellitus, poorly controlled, with no specific complication noted, supporting E11.9."
+      },
+      {
+        "fact_id": "f2",
+        "code": "Z79.4",
+        "evidence": [
+          1,
+          4
+        ],
+        "rationale": "Insulin glargine is being used long‑term for diabetes management, supporting Z79.4."
+      }
+    ],
+    "model_errors": 0
+  }
+}

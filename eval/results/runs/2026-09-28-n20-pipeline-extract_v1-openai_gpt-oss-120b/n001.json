@@ -1,0 +1,517 @@
+{
+  "note_id": "n001",
+  "setup": "pipeline",
+  "model": "openai/gpt-oss-120b",
+  "prompt_version": "extract_v1+select_v1",
+  "status": "completed",
+  "error": null,
+  "attempts": 1,
+  "n_sentences": 7,
+  "predicted": [
+    {
+      "code": "E11.9",
+      "evidence": [
+        2
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    },
+    {
+      "code": "Z79.84",
+      "evidence": [
+        3
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    }
+  ],
+  "gap_rules": [],
+  "em_code": null,
+  "model_errors": 0,
+  "latency_ms": 5079,
+  "usage": [
+    {
+      "step": "extract",
+      "prompt_tokens": 1579,
+      "completion_tokens": 626,
+      "reasoning_tokens": 438
+    },
+    {
+      "step": "select",
+      "prompt_tokens": 1852,
+      "completion_tokens": 340,
+      "reasoning_tokens": 236
+    }
+  ],
+  "llm_outputs": {
+    "facts": [
+      {
+        "fact_id": "f1",
+        "kind": "condition",
+        "concept": "type 2 diabetes mellitus",
+        "status": "active",
+        "details": {
+          "type": "type 2"
+        },
+        "links": [],
+        "evidence": [
+          2
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "kind": "medication",
+        "concept": "metformin",
+        "status": "active",
+        "details": {
+          "drug": "metformin",
+          "dose": "1000 mg twice daily"
+        },
+        "links": [],
+        "evidence": [
+          3
+        ]
+      },
+      {
+        "fact_id": "f3",
+        "kind": "condition",
+        "concept": "hypoglycemic episodes",
+        "status": "denied",
+        "details": {},
+        "links": [],
+        "evidence": [
+          4
+        ]
+      },
+      {
+        "fact_id": "f4",
+        "kind": "procedure",
+        "concept": "hemoglobin A1c",
+        "status": "planned",
+        "details": {},
+        "links": [],
+        "evidence": [
+          7
+        ]
+      }
+    ],
+    "candidate_sets": [
+      {
+        "fact_id": "f1",
+        "candidates": [
+          {
+            "code": "E11.21",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic nephropathy",
+            "score": 0.045022,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.319",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with unspecified diabetic retinopathy without macular edema",
+            "score": 0.040009,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.9",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus without complications",
+            "score": 0.032018,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.22",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic chronic kidney disease",
+            "score": 0.030415,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.42",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic polyneuropathy",
+            "score": 0.029469,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.44",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic amyotrophy",
+            "score": 0.029199,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.69",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with other specified complication",
+            "score": 0.028624,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.65",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with hyperglycemia",
+            "score": 0.028442,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.41",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic mononeuropathy",
+            "score": 0.028139,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.8",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with unspecified complications",
+            "score": 0.027778,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.40",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic neuropathy, unspecified",
+            "score": 0.027418,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.311",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with unspecified diabetic retinopathy with macular edema",
+            "score": 0.02739,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.36",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic cataract",
+            "score": 0.027313,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.3311",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with moderate nonproliferative diabetic retinopathy with macular edema, right eye",
+            "score": 0.025418,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.3211",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with mild nonproliferative diabetic retinopathy with macular edema, right eye",
+            "score": 0.025152,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.620",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic dermatitis",
+            "score": 0.024642,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E10.A2",
+            "system": "ICD-10-CM",
+            "description": "Type 1 diabetes mellitus, presymptomatic, Stage 2",
+            "score": 0.024625,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.3391",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with moderate nonproliferative diabetic retinopathy without macular edema, right eye",
+            "score": 0.024056,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.43",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic autonomic (poly)neuropathy",
+            "score": 0.02396,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.3312",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with moderate nonproliferative diabetic retinopathy with macular edema, left eye",
+            "score": 0.023643,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          }
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "candidates": [
+          {
+            "code": "E09.01",
+            "system": "ICD-10-CM",
+            "description": "Drug or chemical induced diabetes mellitus with hyperosmolarity with coma",
+            "score": 0.025193,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.65",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with hyperglycemia",
+            "score": 0.016393,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "Z71.51",
+            "system": "ICD-10-CM",
+            "description": "Drug abuse counseling and surveillance of drug abuser",
+            "score": 0.016393,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "D52.1",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced folate deficiency anemia",
+            "score": 0.016129,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "Z79.84",
+            "system": "ICD-10-CM",
+            "description": "Long term (current) use of oral hypoglycemic drugs",
+            "score": 0.016129,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D59.0",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced autoimmune hemolytic anemia",
+            "score": 0.015873,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T38.3X6S",
+            "system": "ICD-10-CM",
+            "description": "Underdosing of insulin and oral hypoglycemic [antidiabetic] drugs, sequela",
+            "score": 0.015873,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D59.2",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced nonautoimmune hemolytic anemia",
+            "score": 0.015625,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T38.3X6D",
+            "system": "ICD-10-CM",
+            "description": "Underdosing of insulin and oral hypoglycemic [antidiabetic] drugs, subsequent encounter",
+            "score": 0.015625,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D61.1",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced aplastic anemia",
+            "score": 0.015385,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "E09.65",
+            "system": "ICD-10-CM",
+            "description": "Drug or chemical induced diabetes mellitus with hyperglycemia",
+            "score": 0.015385,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D61.811",
+            "system": "ICD-10-CM",
+            "description": "Other drug-induced pancytopenia",
+            "score": 0.015152,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T38.3X5D",
+            "system": "ICD-10-CM",
+            "description": "Adverse effect of insulin and oral hypoglycemic [antidiabetic] drugs, subsequent encounter",
+            "score": 0.015152,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D64.2",
+            "system": "ICD-10-CM",
+            "description": "Secondary sideroblastic anemia due to drugs and toxins",
+            "score": 0.014925,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T38.3X5S",
+            "system": "ICD-10-CM",
+            "description": "Adverse effect of insulin and oral hypoglycemic [antidiabetic] drugs, sequela",
+            "score": 0.014925,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D70.2",
+            "system": "ICD-10-CM",
+            "description": "Other drug-induced agranulocytosis",
+            "score": 0.014706,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "R73.02",
+            "system": "ICD-10-CM",
+            "description": "Impaired glucose tolerance (oral)",
+            "score": 0.014706,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D72.12",
+            "system": "ICD-10-CM",
+            "description": "Drug rash with eosinophilia and systemic symptoms syndrome",
+            "score": 0.014493,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T38.3X6A",
+            "system": "ICD-10-CM",
+            "description": "Underdosing of insulin and oral hypoglycemic [antidiabetic] drugs, initial encounter",
+            "score": 0.014493,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D84.821",
+            "system": "ICD-10-CM",
+            "description": "Immunodeficiency due to drugs",
+            "score": 0.014286,
+            "sources": [
+              "text"
+            ]
+          }
+        ]
+      }
+    ],
+    "selections": [
+      {
+        "fact_id": "f1",
+        "code": "E11.9",
+        "evidence": [
+          2
+        ],
+        "rationale": "The note states type 2 diabetes mellitus without complications, which matches code E11.9."
+      },
+      {
+        "fact_id": "f2",
+        "code": "Z79.84",
+        "evidence": [
+          3
+        ],
+        "rationale": "The patient is taking metformin long‑term, fitting code Z79.84 for current use of oral hypoglycemic drugs."
+      }
+    ],
+    "model_errors": 0
+  }
+}
