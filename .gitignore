@@ -22,3 +22,6 @@ node_modules/
 
 # Eval
 eval/.usage_ledger.jsonl
+
+# Local scratch
+tmp/
