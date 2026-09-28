@@ -31,9 +31,7 @@ def apply(inp: RuleInput, codes: CodeLookup) -> RuleOutput:
     for s in inp.suggestions:
         families = code_condition_families(s.code)
         related = [
-            facts[f]
-            for f in s.fact_ids
-            if f in facts and condition_families(facts[f]) & families
+            facts[f] for f in s.fact_ids if f in facts and condition_families(facts[f]) & families
         ]
         statuses = {f.status for f in related}
         if statuses and statuses <= NOT_CODED:

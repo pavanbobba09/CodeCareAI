@@ -24,9 +24,7 @@ def test_triad_gives_i13_0_with_i50_and_n18_and_no_i10() -> None:
 def test_diabetes_type_normalizes_before_ckd_combination() -> None:
     dm = fact("f1", "diabetes mellitus", [1])
     ckd = fact("f2", "chronic kidney disease stage 4", [2])
-    out = run_chain(
-        [sug("s1", "E13.9", ["f1"]), sug("s2", "N18.4", ["f2"])], [dm, ckd]
-    )
+    out = run_chain([sug("s1", "E13.9", ["f1"]), sug("s2", "N18.4", ["f2"])], [dm, ckd])
 
     assert "E11.22" in codes_of(out)
     assert "E13.9" not in codes_of(out)

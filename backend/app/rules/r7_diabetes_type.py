@@ -50,12 +50,12 @@ def _type(facts: list[ClinicalFact]) -> str | None:
         concept = raw.concept.lower()
         detail = raw.details.get("type", "").lower()
         text = f"{concept} {detail}"
-        type1 = detail in {"1", "i", "one", "type 1"} or bool(re.search(
-            r"\btype\s*(1|i|one)\b|\bt1dm\b|\bdm1\b|\biddm\b", text
-        ))
-        type2 = detail in {"2", "ii", "two", "type 2"} or bool(re.search(
-            r"\btype\s*(2|ii|two)\b|\bt2dm\b|\bdm2\b|\bniddm\b", text
-        ))
+        type1 = detail in {"1", "i", "one", "type 1"} or bool(
+            re.search(r"\btype\s*(1|i|one)\b|\bt1dm\b|\bdm1\b|\biddm\b", text)
+        )
+        type2 = detail in {"2", "ii", "two", "type 2"} or bool(
+            re.search(r"\btype\s*(2|ii|two)\b|\bt2dm\b|\bdm2\b|\bniddm\b", text)
+        )
         if type1:
             found.add("1")
         if type2:
