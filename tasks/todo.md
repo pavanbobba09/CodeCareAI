@@ -27,12 +27,22 @@ Suggestion cards show an `Added by rule Rn` badge when that field is set. The fa
 
 ## Plan for 2026-09-28 (revised by owner, 2026-09-28)
 
-`integration` (M4 + M7 + M8 merged, commit `32ec9c2`) is the working branch; `main` stays as is until the eval passes. Stop and report after step 1 (a).
+`integration` (M4 + M7 + M8 merged, commit `32ec9c2`) is the working branch; `main` stays as is until the eval passes. 
 
-1. [ ] **M4 eval on `integration`:** budget check; re-record the worked-example fixtures (2 calls) and confirm `test_worked_example_from_recorded_llm` passes; run (a) `--extract-prompt extract_v1`, 20 notes, new run id, outputs saved; **stop and report (a) against M3**; then run (b) `extract_v2`, 20 notes, outputs saved (the next day if it does not fit); replay both; report all results against M3. **Stop for approval.**
-2. [ ] After the eval passes, `integration` becomes `main`.
-3. [ ] **Write README.md on `main`** once all tests pass there, using the owner's README prompt below, with the M4 numbers.
-4. [ ] Push.
+1. [x] **M4 eval on `integration`:** fixtures re-recorded (`test_worked_example_from_recorded_llm` passes and now checks E11.22 is reported); run (a) `extract_v1`, 20 notes; E11.22 fix replayed on run (a). Run (b) `extract_v2` dropped (owner, 2026-09-28: assessment due today).
+2. [x] `integration` merged into `main`.
+3. [x] Short README.md (owner's cut-down version, under 120 lines) with a Playwright screenshot.
+4. [x] Push; repository public.
+
+### Review (2026-09-28)
+
+**Done:** secret scan clean (no `gsk_` in any commit; no `.env`, `data/raw/`, ledger or `node_modules` ever tracked); fixtures re-recorded; run (a) `2026-09-28-n20-pipeline-extract_v1-openai_gpt-oss-120b` (20/20 completed, 5,369 tokens per note measured). Run (a) showed a rule regression from `6b0b88c`: a model-picked E11.22 cites only its diabetes fact, so R2 marked it not suggested on n002, n003, n011, n013 and the worked example. Fix: a picked combination code that owns an active fact of its own family adopts the documented facts for its other parts (DESIGN §3.4; lesson 2026-09-28). The 5 unformatted files were formatted. The four M3 10-note runs got a backfilled scope (`scope_backfilled`, null hashes) so the rescore gate passes.
+
+**Result** (replay `2026-09-28-n20-replay-extract_v1-fix-openai_gpt-oss-120b` vs M3 pipeline and LLM-only baseline, 20 notes, gpt-oss-120b): precision 0.95 / 0.78 / 0.56; recall 0.95 / 0.82 / 0.49; invented 0.00 / 0.00 / 0.03; invalid 0.00 / 0.00 / 0.12; gap recall 1.00 / 0.00 / 0.00.
+
+**Verified:** 254 unit + 67 integration tests pass; the 4 new adoption tests and the worked-example assertion fail on the pre-fix rules; ruff, ruff format, mypy clean; `rescore.py` gates pass.
+
+**Open:** n004 (model picks E11.9 over E11.65), n015 (R06.02 needs `extract_v2`), n014 (I50.9 next to I50.20), `extract_v2` never measured on the full set.
 
 Why the README waits (2026-09-27): no single branch had every feature (replay and the R9 gap on `m4-rules`; frontend, e2e, fake LLM, review API on `m8-frontend`), and the M4 eval numbers did not exist yet.
 

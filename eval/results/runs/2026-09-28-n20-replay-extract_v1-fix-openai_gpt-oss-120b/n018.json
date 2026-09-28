@@ -1,0 +1,478 @@
+{
+  "note_id": "n018",
+  "setup": "pipeline",
+  "model": "openai/gpt-oss-120b",
+  "prompt_version": "extract_v1+select_v1",
+  "status": "completed",
+  "error": null,
+  "attempts": 1,
+  "n_sentences": 4,
+  "predicted": [
+    {
+      "code": "E11.9",
+      "evidence": [
+        3
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    },
+    {
+      "code": "Z79.84",
+      "evidence": [
+        2,
+        4
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    }
+  ],
+  "gap_rules": [],
+  "em_code": null,
+  "model_errors": 0,
+  "latency_ms": 4,
+  "usage": [],
+  "llm_outputs": {
+    "facts": [
+      {
+        "fact_id": "f1",
+        "kind": "condition",
+        "concept": "diabetes mellitus",
+        "status": "active",
+        "details": {
+          "stage": "controlled"
+        },
+        "links": [],
+        "evidence": [
+          3
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "kind": "medication",
+        "concept": "metformin",
+        "status": "active",
+        "details": {
+          "drug": "metformin",
+          "dose": "daily"
+        },
+        "links": [
+          {
+            "type": "associated_with",
+            "target_fact_id": "f1"
+          }
+        ],
+        "evidence": [
+          2,
+          4
+        ]
+      }
+    ],
+    "candidate_sets": [
+      {
+        "fact_id": "f1",
+        "candidates": [
+          {
+            "code": "O24.414",
+            "system": "ICD-10-CM",
+            "description": "Gestational diabetes mellitus in pregnancy, insulin controlled",
+            "score": 0.02971,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O24.410",
+            "system": "ICD-10-CM",
+            "description": "Gestational diabetes mellitus in pregnancy, diet controlled",
+            "score": 0.029631,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E13.65",
+            "system": "ICD-10-CM",
+            "description": "Other specified diabetes mellitus with hyperglycemia",
+            "score": 0.029236,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E13.9",
+            "system": "ICD-10-CM",
+            "description": "Other specified diabetes mellitus without complications",
+            "score": 0.028191,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O24.415",
+            "system": "ICD-10-CM",
+            "description": "Gestational diabetes mellitus in pregnancy, controlled by oral hypoglycemic drugs",
+            "score": 0.027778,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.65",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with hyperglycemia",
+            "score": 0.02773,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O24.420",
+            "system": "ICD-10-CM",
+            "description": "Gestational diabetes mellitus in childbirth, diet controlled",
+            "score": 0.02773,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E10.65",
+            "system": "ICD-10-CM",
+            "description": "Type 1 diabetes mellitus with hyperglycemia",
+            "score": 0.026861,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O24.434",
+            "system": "ICD-10-CM",
+            "description": "Gestational diabetes mellitus in the puerperium, insulin controlled",
+            "score": 0.02619,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "Z13.1",
+            "system": "ICD-10-CM",
+            "description": "Encounter for screening for diabetes mellitus",
+            "score": 0.025795,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E08.21",
+            "system": "ICD-10-CM",
+            "description": "Diabetes mellitus due to underlying condition with diabetic nephropathy",
+            "score": 0.016393,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "E11.9",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus without complications",
+            "score": 0.016393,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "O24.424",
+            "system": "ICD-10-CM",
+            "description": "Gestational diabetes mellitus in childbirth, insulin controlled",
+            "score": 0.016393,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "E08.22",
+            "system": "ICD-10-CM",
+            "description": "Diabetes mellitus due to underlying condition with diabetic chronic kidney disease",
+            "score": 0.016129,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "E08.65",
+            "system": "ICD-10-CM",
+            "description": "Diabetes mellitus due to underlying condition with hyperglycemia",
+            "score": 0.016129,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "E10.A1",
+            "system": "ICD-10-CM",
+            "description": "Type 1 diabetes mellitus, presymptomatic, Stage 1",
+            "score": 0.016129,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "E08.29",
+            "system": "ICD-10-CM",
+            "description": "Diabetes mellitus due to underlying condition with other diabetic kidney complication",
+            "score": 0.015873,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "E09.65",
+            "system": "ICD-10-CM",
+            "description": "Drug or chemical induced diabetes mellitus with hyperglycemia",
+            "score": 0.015873,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "E10.A2",
+            "system": "ICD-10-CM",
+            "description": "Type 1 diabetes mellitus, presymptomatic, Stage 2",
+            "score": 0.015873,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "E08.311",
+            "system": "ICD-10-CM",
+            "description": "Diabetes mellitus due to underlying condition with unspecified diabetic retinopathy with macular edema",
+            "score": 0.015625,
+            "sources": [
+              "text"
+            ]
+          }
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "candidates": [
+          {
+            "code": "E09.21",
+            "system": "ICD-10-CM",
+            "description": "Drug or chemical induced diabetes mellitus with diabetic nephropathy",
+            "score": 0.024269,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "Z71.51",
+            "system": "ICD-10-CM",
+            "description": "Drug abuse counseling and surveillance of drug abuser",
+            "score": 0.016393,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "Z79.84",
+            "system": "ICD-10-CM",
+            "description": "Long term (current) use of oral hypoglycemic drugs",
+            "score": 0.016393,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D52.1",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced folate deficiency anemia",
+            "score": 0.016129,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "Z79.85",
+            "system": "ICD-10-CM",
+            "description": "Long-term (current) use of injectable non-insulin antidiabetic drugs",
+            "score": 0.016129,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D59.0",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced autoimmune hemolytic anemia",
+            "score": 0.015873,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "E09.638",
+            "system": "ICD-10-CM",
+            "description": "Drug or chemical induced diabetes mellitus with other oral complications",
+            "score": 0.015873,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D59.2",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced nonautoimmune hemolytic anemia",
+            "score": 0.015625,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "Z79.818",
+            "system": "ICD-10-CM",
+            "description": "Long term (current) use of other agents affecting estrogen receptors and estrogen levels",
+            "score": 0.015625,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D61.1",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced aplastic anemia",
+            "score": 0.015385,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "Z79.4",
+            "system": "ICD-10-CM",
+            "description": "Long term (current) use of insulin",
+            "score": 0.015385,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D61.811",
+            "system": "ICD-10-CM",
+            "description": "Other drug-induced pancytopenia",
+            "score": 0.015152,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "E09.65",
+            "system": "ICD-10-CM",
+            "description": "Drug or chemical induced diabetes mellitus with hyperglycemia",
+            "score": 0.015152,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D64.2",
+            "system": "ICD-10-CM",
+            "description": "Secondary sideroblastic anemia due to drugs and toxins",
+            "score": 0.014925,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "R73.02",
+            "system": "ICD-10-CM",
+            "description": "Impaired glucose tolerance (oral)",
+            "score": 0.014925,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D70.2",
+            "system": "ICD-10-CM",
+            "description": "Other drug-induced agranulocytosis",
+            "score": 0.014706,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "E66.1",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced obesity",
+            "score": 0.014706,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D72.12",
+            "system": "ICD-10-CM",
+            "description": "Drug rash with eosinophilia and systemic symptoms syndrome",
+            "score": 0.014493,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "Z79.52",
+            "system": "ICD-10-CM",
+            "description": "Long term (current) use of systemic steroids",
+            "score": 0.014493,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D84.821",
+            "system": "ICD-10-CM",
+            "description": "Immunodeficiency due to drugs",
+            "score": 0.014286,
+            "sources": [
+              "text"
+            ]
+          }
+        ]
+      }
+    ],
+    "selections": [
+      {
+        "fact_id": "f1",
+        "code": "E11.9",
+        "evidence": [
+          3
+        ],
+        "rationale": "Diabetes mellitus controlled on metformin indicates type 2 diabetes without complications."
+      },
+      {
+        "fact_id": "f2",
+        "code": "Z79.84",
+        "evidence": [
+          2,
+          4
+        ],
+        "rationale": "Metformin is an oral hypoglycemic drug taken daily, indicating long‑term use of oral hypoglycemic agents."
+      }
+    ],
+    "model_errors": 0
+  }
+}

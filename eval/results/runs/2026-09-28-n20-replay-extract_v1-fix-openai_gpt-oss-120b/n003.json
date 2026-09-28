@@ -1,0 +1,533 @@
+{
+  "note_id": "n003",
+  "setup": "pipeline",
+  "model": "openai/gpt-oss-120b",
+  "prompt_version": "extract_v1+select_v1",
+  "status": "completed",
+  "error": null,
+  "attempts": 1,
+  "n_sentences": 3,
+  "predicted": [
+    {
+      "code": "E11.22",
+      "evidence": [
+        1,
+        2
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    },
+    {
+      "code": "N18.30",
+      "evidence": [
+        2
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    }
+  ],
+  "gap_rules": [
+    "R9"
+  ],
+  "em_code": null,
+  "model_errors": 0,
+  "latency_ms": 4,
+  "usage": [],
+  "llm_outputs": {
+    "facts": [
+      {
+        "fact_id": "f1",
+        "kind": "condition",
+        "concept": "type 2 diabetes mellitus",
+        "status": "active",
+        "details": {},
+        "links": [
+          {
+            "type": "associated_with",
+            "target_fact_id": "f2"
+          }
+        ],
+        "evidence": [
+          1,
+          2
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "kind": "condition",
+        "concept": "chronic kidney disease",
+        "status": "active",
+        "details": {
+          "stage": "3"
+        },
+        "links": [],
+        "evidence": [
+          1,
+          2
+        ]
+      },
+      {
+        "fact_id": "f3",
+        "kind": "procedure",
+        "concept": "renal function test",
+        "status": "planned",
+        "details": {
+          "type": "renal function"
+        },
+        "links": [],
+        "evidence": [
+          3
+        ]
+      }
+    ],
+    "candidate_sets": [
+      {
+        "fact_id": "f1",
+        "candidates": [
+          {
+            "code": "E11.21",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic nephropathy",
+            "score": 0.044518,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.319",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with unspecified diabetic retinopathy without macular edema",
+            "score": 0.038898,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.9",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus without complications",
+            "score": 0.032266,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.22",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic chronic kidney disease",
+            "score": 0.029462,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.42",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic polyneuropathy",
+            "score": 0.029236,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.44",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic amyotrophy",
+            "score": 0.029199,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.40",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic neuropathy, unspecified",
+            "score": 0.028718,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.65",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with hyperglycemia",
+            "score": 0.028442,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.8",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with unspecified complications",
+            "score": 0.028034,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.69",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with other specified complication",
+            "score": 0.027783,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.41",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic mononeuropathy",
+            "score": 0.027273,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.36",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic cataract",
+            "score": 0.027151,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.311",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with unspecified diabetic retinopathy with macular edema",
+            "score": 0.026378,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.620",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic dermatitis",
+            "score": 0.025937,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E10.A2",
+            "system": "ICD-10-CM",
+            "description": "Type 1 diabetes mellitus, presymptomatic, Stage 2",
+            "score": 0.02481,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.621",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with foot ulcer",
+            "score": 0.024652,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.43",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic autonomic (poly)neuropathy",
+            "score": 0.024265,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.618",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with other diabetic arthropathy",
+            "score": 0.023098,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.10",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with ketoacidosis without coma",
+            "score": 0.022655,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.649",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with hypoglycemia without coma",
+            "score": 0.022612,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          }
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "candidates": [
+          {
+            "code": "N18.30",
+            "system": "ICD-10-CM",
+            "description": "Chronic kidney disease, stage 3 unspecified",
+            "score": 0.047192,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "N18.31",
+            "system": "ICD-10-CM",
+            "description": "Chronic kidney disease, stage 3a",
+            "score": 0.046808,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "N18.32",
+            "system": "ICD-10-CM",
+            "description": "Chronic kidney disease, stage 3b",
+            "score": 0.046087,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "N18.1",
+            "system": "ICD-10-CM",
+            "description": "Chronic kidney disease, stage 1",
+            "score": 0.045715,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "N18.2",
+            "system": "ICD-10-CM",
+            "description": "Chronic kidney disease, stage 2 (mild)",
+            "score": 0.045029,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I12.9",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive chronic kidney disease with stage 1 through stage 4 chronic kidney disease, or unspecified chronic kidney disease",
+            "score": 0.044775,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "N18.5",
+            "system": "ICD-10-CM",
+            "description": "Chronic kidney disease, stage 5",
+            "score": 0.044249,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I12.0",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive chronic kidney disease with stage 5 chronic kidney disease or end stage renal disease",
+            "score": 0.044196,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "N18.4",
+            "system": "ICD-10-CM",
+            "description": "Chronic kidney disease, stage 4 (severe)",
+            "score": 0.043966,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I13.0",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart and chronic kidney disease with heart failure and stage 1 through stage 4 chronic kidney disease, or unspecified chronic kidney disease",
+            "score": 0.041382,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "D63.1",
+            "system": "ICD-10-CM",
+            "description": "Anemia in chronic kidney disease",
+            "score": 0.040664,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.22",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic chronic kidney disease",
+            "score": 0.038399,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I13.10",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart and chronic kidney disease without heart failure, with stage 1 through stage 4 chronic kidney disease, or unspecified chronic kidney disease",
+            "score": 0.029572,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I13.11",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart and chronic kidney disease without heart failure, with stage 5 chronic kidney disease, or end stage renal disease",
+            "score": 0.028718,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I13.2",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart and chronic kidney disease with heart failure and with stage 5 chronic kidney disease, or end stage renal disease",
+            "score": 0.028665,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "N18.9",
+            "system": "ICD-10-CM",
+            "description": "Chronic kidney disease, unspecified",
+            "score": 0.027206,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E10.22",
+            "system": "ICD-10-CM",
+            "description": "Type 1 diabetes mellitus with diabetic chronic kidney disease",
+            "score": 0.02632,
+            "sources": [
+              "index",
+              "text"
+            ]
+          },
+          {
+            "code": "E13.22",
+            "system": "ICD-10-CM",
+            "description": "Other specified diabetes mellitus with diabetic chronic kidney disease",
+            "score": 0.025816,
+            "sources": [
+              "index",
+              "text"
+            ]
+          },
+          {
+            "code": "N18.6",
+            "system": "ICD-10-CM",
+            "description": "End stage renal disease",
+            "score": 0.025344,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E09.22",
+            "system": "ICD-10-CM",
+            "description": "Drug or chemical induced diabetes mellitus with diabetic chronic kidney disease",
+            "score": 0.024923,
+            "sources": [
+              "index",
+              "text"
+            ]
+          }
+        ]
+      }
+    ],
+    "selections": [
+      {
+        "fact_id": "f1",
+        "code": "E11.22",
+        "evidence": [
+          2
+        ],
+        "rationale": "The note states type 2 diabetes mellitus with chronic kidney disease stage 3, matching the code for type 2 diabetes with diabetic chronic kidney disease."
+      },
+      {
+        "fact_id": "f2",
+        "code": "N18.30",
+        "evidence": [
+          2
+        ],
+        "rationale": "The note specifies chronic kidney disease stage 3 without further subclassification, fitting the unspecified stage 3 CKD code."
+      }
+    ],
+    "model_errors": 0
+  }
+}

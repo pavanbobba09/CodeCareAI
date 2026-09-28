@@ -1,0 +1,1019 @@
+{
+  "note_id": "n011",
+  "setup": "pipeline",
+  "model": "openai/gpt-oss-120b",
+  "prompt_version": "extract_v1+select_v1",
+  "status": "completed",
+  "error": null,
+  "attempts": 1,
+  "n_sentences": 6,
+  "predicted": [
+    {
+      "code": "E11.22",
+      "evidence": [
+        2
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    },
+    {
+      "code": "N18.32",
+      "evidence": [
+        2
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    },
+    {
+      "code": "I50.23",
+      "evidence": [
+        4
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    },
+    {
+      "code": "I13.0",
+      "evidence": [
+        2,
+        3,
+        4
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    }
+  ],
+  "gap_rules": [],
+  "em_code": null,
+  "model_errors": 0,
+  "latency_ms": 4,
+  "usage": [],
+  "llm_outputs": {
+    "facts": [
+      {
+        "fact_id": "f1",
+        "kind": "condition",
+        "concept": "type 2 diabetes mellitus",
+        "status": "active",
+        "details": {},
+        "links": [],
+        "evidence": [
+          2
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "kind": "condition",
+        "concept": "chronic kidney disease",
+        "status": "active",
+        "details": {
+          "stage": "3b"
+        },
+        "links": [
+          {
+            "type": "associated_with",
+            "target_fact_id": "f1"
+          }
+        ],
+        "evidence": [
+          2
+        ]
+      },
+      {
+        "fact_id": "f3",
+        "kind": "condition",
+        "concept": "hypertension",
+        "status": "active",
+        "details": {},
+        "links": [],
+        "evidence": [
+          3
+        ]
+      },
+      {
+        "fact_id": "f4",
+        "kind": "condition",
+        "concept": "systolic heart failure",
+        "status": "active",
+        "details": {
+          "acuity": "acute on chronic"
+        },
+        "links": [],
+        "evidence": [
+          4
+        ]
+      },
+      {
+        "fact_id": "f5",
+        "kind": "medication",
+        "concept": "furosemide",
+        "status": "planned",
+        "details": {
+          "drug": "furosemide"
+        },
+        "links": [],
+        "evidence": [
+          5
+        ]
+      }
+    ],
+    "candidate_sets": [
+      {
+        "fact_id": "f1",
+        "candidates": [
+          {
+            "code": "E11.21",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic nephropathy",
+            "score": 0.044518,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.319",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with unspecified diabetic retinopathy without macular edema",
+            "score": 0.038898,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.9",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus without complications",
+            "score": 0.032266,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.22",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic chronic kidney disease",
+            "score": 0.029462,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.42",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic polyneuropathy",
+            "score": 0.029236,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.44",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic amyotrophy",
+            "score": 0.029199,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.40",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic neuropathy, unspecified",
+            "score": 0.028718,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.65",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with hyperglycemia",
+            "score": 0.028442,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.8",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with unspecified complications",
+            "score": 0.028034,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.69",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with other specified complication",
+            "score": 0.027783,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.41",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic mononeuropathy",
+            "score": 0.027273,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.36",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic cataract",
+            "score": 0.027151,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.311",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with unspecified diabetic retinopathy with macular edema",
+            "score": 0.026378,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.620",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic dermatitis",
+            "score": 0.025937,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E10.A2",
+            "system": "ICD-10-CM",
+            "description": "Type 1 diabetes mellitus, presymptomatic, Stage 2",
+            "score": 0.02481,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.621",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with foot ulcer",
+            "score": 0.024652,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.43",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic autonomic (poly)neuropathy",
+            "score": 0.024265,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.618",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with other diabetic arthropathy",
+            "score": 0.023098,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.10",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with ketoacidosis without coma",
+            "score": 0.022655,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.649",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with hypoglycemia without coma",
+            "score": 0.022612,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          }
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "candidates": [
+          {
+            "code": "N18.32",
+            "system": "ICD-10-CM",
+            "description": "Chronic kidney disease, stage 3b",
+            "score": 0.047712,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "N18.30",
+            "system": "ICD-10-CM",
+            "description": "Chronic kidney disease, stage 3 unspecified",
+            "score": 0.046288,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "N18.31",
+            "system": "ICD-10-CM",
+            "description": "Chronic kidney disease, stage 3a",
+            "score": 0.046087,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "N18.1",
+            "system": "ICD-10-CM",
+            "description": "Chronic kidney disease, stage 1",
+            "score": 0.045715,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "N18.2",
+            "system": "ICD-10-CM",
+            "description": "Chronic kidney disease, stage 2 (mild)",
+            "score": 0.044803,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I12.9",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive chronic kidney disease with stage 1 through stage 4 chronic kidney disease, or unspecified chronic kidney disease",
+            "score": 0.044775,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "N18.5",
+            "system": "ICD-10-CM",
+            "description": "Chronic kidney disease, stage 5",
+            "score": 0.044249,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I12.0",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive chronic kidney disease with stage 5 chronic kidney disease or end stage renal disease",
+            "score": 0.044196,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "N18.4",
+            "system": "ICD-10-CM",
+            "description": "Chronic kidney disease, stage 4 (severe)",
+            "score": 0.044192,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I13.0",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart and chronic kidney disease with heart failure and stage 1 through stage 4 chronic kidney disease, or unspecified chronic kidney disease",
+            "score": 0.041382,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "D63.1",
+            "system": "ICD-10-CM",
+            "description": "Anemia in chronic kidney disease",
+            "score": 0.040054,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I13.10",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart and chronic kidney disease without heart failure, with stage 1 through stage 4 chronic kidney disease, or unspecified chronic kidney disease",
+            "score": 0.039988,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.22",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic chronic kidney disease",
+            "score": 0.037543,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "N18.9",
+            "system": "ICD-10-CM",
+            "description": "Chronic kidney disease, unspecified",
+            "score": 0.037364,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I13.11",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart and chronic kidney disease without heart failure, with stage 5 chronic kidney disease, or end stage renal disease",
+            "score": 0.028543,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I13.2",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart and chronic kidney disease with heart failure and with stage 5 chronic kidney disease, or end stage renal disease",
+            "score": 0.028485,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E10.22",
+            "system": "ICD-10-CM",
+            "description": "Type 1 diabetes mellitus with diabetic chronic kidney disease",
+            "score": 0.02632,
+            "sources": [
+              "index",
+              "text"
+            ]
+          },
+          {
+            "code": "E13.22",
+            "system": "ICD-10-CM",
+            "description": "Other specified diabetes mellitus with diabetic chronic kidney disease",
+            "score": 0.025816,
+            "sources": [
+              "index",
+              "text"
+            ]
+          },
+          {
+            "code": "N18.6",
+            "system": "ICD-10-CM",
+            "description": "End stage renal disease",
+            "score": 0.025232,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E09.22",
+            "system": "ICD-10-CM",
+            "description": "Drug or chemical induced diabetes mellitus with diabetic chronic kidney disease",
+            "score": 0.024923,
+            "sources": [
+              "index",
+              "text"
+            ]
+          }
+        ]
+      },
+      {
+        "fact_id": "f3",
+        "candidates": [
+          {
+            "code": "K76.6",
+            "system": "ICD-10-CM",
+            "description": "Portal hypertension",
+            "score": 0.030886,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I10",
+            "system": "ICD-10-CM",
+            "description": "Essential (primary) hypertension",
+            "score": 0.030092,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I16.0",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive urgency",
+            "score": 0.030018,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "H40.051",
+            "system": "ICD-10-CM",
+            "description": "Ocular hypertension, right eye",
+            "score": 0.029139,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I11.9",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart disease without heart failure",
+            "score": 0.028475,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "H40.053",
+            "system": "ICD-10-CM",
+            "description": "Ocular hypertension, bilateral",
+            "score": 0.028309,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I16.1",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive emergency",
+            "score": 0.027971,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "H40.059",
+            "system": "ICD-10-CM",
+            "description": "Ocular hypertension, unspecified eye",
+            "score": 0.027584,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "R03.0",
+            "system": "ICD-10-CM",
+            "description": "Elevated blood-pressure reading, without diagnosis of hypertension",
+            "score": 0.027402,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I1A.0",
+            "system": "ICD-10-CM",
+            "description": "Resistant hypertension",
+            "score": 0.027347,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I16.9",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive crisis, unspecified",
+            "score": 0.027206,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "H40.052",
+            "system": "ICD-10-CM",
+            "description": "Ocular hypertension, left eye",
+            "score": 0.026879,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I97.3",
+            "system": "ICD-10-CM",
+            "description": "Postprocedural hypertension",
+            "score": 0.02683,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "P29.2",
+            "system": "ICD-10-CM",
+            "description": "Neonatal hypertension",
+            "score": 0.025894,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I15.0",
+            "system": "ICD-10-CM",
+            "description": "Renovascular hypertension",
+            "score": 0.025245,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I15.9",
+            "system": "ICD-10-CM",
+            "description": "Secondary hypertension, unspecified",
+            "score": 0.024924,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I67.4",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive encephalopathy",
+            "score": 0.024501,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I11.0",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart disease with heart failure",
+            "score": 0.023296,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O16.5",
+            "system": "ICD-10-CM",
+            "description": "Unspecified maternal hypertension, complicating the puerperium",
+            "score": 0.022968,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I27.20",
+            "system": "ICD-10-CM",
+            "description": "Pulmonary hypertension, unspecified",
+            "score": 0.022149,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          }
+        ]
+      },
+      {
+        "fact_id": "f4",
+        "candidates": [
+          {
+            "code": "I50.23",
+            "system": "ICD-10-CM",
+            "description": "Acute on chronic systolic (congestive) heart failure",
+            "score": 0.047907,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.22",
+            "system": "ICD-10-CM",
+            "description": "Chronic systolic (congestive) heart failure",
+            "score": 0.046251,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.21",
+            "system": "ICD-10-CM",
+            "description": "Acute systolic (congestive) heart failure",
+            "score": 0.046183,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.33",
+            "system": "ICD-10-CM",
+            "description": "Acute on chronic diastolic (congestive) heart failure",
+            "score": 0.045547,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.43",
+            "system": "ICD-10-CM",
+            "description": "Acute on chronic combined systolic (congestive) and diastolic (congestive) heart failure",
+            "score": 0.045109,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.813",
+            "system": "ICD-10-CM",
+            "description": "Acute on chronic right heart failure",
+            "score": 0.044899,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.41",
+            "system": "ICD-10-CM",
+            "description": "Acute combined systolic (congestive) and diastolic (congestive) heart failure",
+            "score": 0.043484,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.31",
+            "system": "ICD-10-CM",
+            "description": "Acute diastolic (congestive) heart failure",
+            "score": 0.042452,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.20",
+            "system": "ICD-10-CM",
+            "description": "Unspecified systolic (congestive) heart failure",
+            "score": 0.042424,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.32",
+            "system": "ICD-10-CM",
+            "description": "Chronic diastolic (congestive) heart failure",
+            "score": 0.042368,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.42",
+            "system": "ICD-10-CM",
+            "description": "Chronic combined systolic (congestive) and diastolic (congestive) heart failure",
+            "score": 0.042069,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.811",
+            "system": "ICD-10-CM",
+            "description": "Acute right heart failure",
+            "score": 0.040537,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.812",
+            "system": "ICD-10-CM",
+            "description": "Chronic right heart failure",
+            "score": 0.039973,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.40",
+            "system": "ICD-10-CM",
+            "description": "Unspecified combined systolic (congestive) and diastolic (congestive) heart failure",
+            "score": 0.039171,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "J95.822",
+            "system": "ICD-10-CM",
+            "description": "Acute and chronic postprocedural respiratory failure",
+            "score": 0.037083,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "J96.20",
+            "system": "ICD-10-CM",
+            "description": "Acute and chronic respiratory failure, unspecified whether with hypoxia or hypercapnia",
+            "score": 0.035372,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "J96.21",
+            "system": "ICD-10-CM",
+            "description": "Acute and chronic respiratory failure with hypoxia",
+            "score": 0.034164,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.30",
+            "system": "ICD-10-CM",
+            "description": "Unspecified diastolic (congestive) heart failure",
+            "score": 0.02632,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.9",
+            "system": "ICD-10-CM",
+            "description": "Heart failure, unspecified",
+            "score": 0.025382,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.814",
+            "system": "ICD-10-CM",
+            "description": "Right heart failure due to left heart failure",
+            "score": 0.025062,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          }
+        ]
+      }
+    ],
+    "selections": [
+      {
+        "fact_id": "f1",
+        "code": "E11.22",
+        "evidence": [
+          2
+        ],
+        "rationale": "The note states type 2 diabetes mellitus with chronic kidney disease, matching the code for type 2 diabetes with diabetic chronic kidney disease."
+      },
+      {
+        "fact_id": "f2",
+        "code": "N18.32",
+        "evidence": [
+          2
+        ],
+        "rationale": "The documentation specifies chronic kidney disease stage 3b, which corresponds to code N18.32."
+      },
+      {
+        "fact_id": "f3",
+        "code": "I10",
+        "evidence": [
+          3
+        ],
+        "rationale": "The simple statement \"Hypertension\" without further detail aligns with essential (primary) hypertension code I10."
+      },
+      {
+        "fact_id": "f4",
+        "code": "I50.23",
+        "evidence": [
+          4
+        ],
+        "rationale": "The phrase \"Acute on chronic systolic heart failure\" directly matches code I50.23 for acute on chronic systolic (congestive) heart failure."
+      }
+    ],
+    "model_errors": 0
+  }
+}

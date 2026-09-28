@@ -1,0 +1,730 @@
+{
+  "note_id": "n020",
+  "setup": "pipeline",
+  "model": "openai/gpt-oss-120b",
+  "prompt_version": "extract_v1+select_v1",
+  "status": "completed",
+  "error": null,
+  "attempts": 1,
+  "n_sentences": 4,
+  "predicted": [
+    {
+      "code": "E11.9",
+      "evidence": [
+        3
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    },
+    {
+      "code": "Z79.84",
+      "evidence": [
+        1,
+        4
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    },
+    {
+      "code": "Z79.4",
+      "evidence": [
+        1,
+        4
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": false,
+      "support_reason": "condition not named in the cited sentences"
+    }
+  ],
+  "gap_rules": [],
+  "em_code": null,
+  "model_errors": 0,
+  "latency_ms": 4,
+  "usage": [],
+  "llm_outputs": {
+    "facts": [
+      {
+        "fact_id": "f1",
+        "kind": "condition",
+        "concept": "type 2 diabetes mellitus",
+        "status": "active",
+        "details": {},
+        "links": [],
+        "evidence": [
+          1,
+          3
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "kind": "medication",
+        "concept": "metformin",
+        "status": "active",
+        "details": {
+          "drug": "metformin"
+        },
+        "links": [],
+        "evidence": [
+          1,
+          4
+        ]
+      },
+      {
+        "fact_id": "f3",
+        "kind": "medication",
+        "concept": "insulin glargine",
+        "status": "active",
+        "details": {
+          "drug": "insulin glargine"
+        },
+        "links": [],
+        "evidence": [
+          1,
+          4
+        ]
+      }
+    ],
+    "candidate_sets": [
+      {
+        "fact_id": "f1",
+        "candidates": [
+          {
+            "code": "E11.21",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic nephropathy",
+            "score": 0.044518,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.319",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with unspecified diabetic retinopathy without macular edema",
+            "score": 0.038898,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.9",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus without complications",
+            "score": 0.032266,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.22",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic chronic kidney disease",
+            "score": 0.029462,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.42",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic polyneuropathy",
+            "score": 0.029236,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.44",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic amyotrophy",
+            "score": 0.029199,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.40",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic neuropathy, unspecified",
+            "score": 0.028718,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.65",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with hyperglycemia",
+            "score": 0.028442,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.8",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with unspecified complications",
+            "score": 0.028034,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.69",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with other specified complication",
+            "score": 0.027783,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.41",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic mononeuropathy",
+            "score": 0.027273,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.36",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic cataract",
+            "score": 0.027151,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.311",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with unspecified diabetic retinopathy with macular edema",
+            "score": 0.026378,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.620",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic dermatitis",
+            "score": 0.025937,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E10.A2",
+            "system": "ICD-10-CM",
+            "description": "Type 1 diabetes mellitus, presymptomatic, Stage 2",
+            "score": 0.02481,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.621",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with foot ulcer",
+            "score": 0.024652,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.43",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with diabetic autonomic (poly)neuropathy",
+            "score": 0.024265,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.618",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with other diabetic arthropathy",
+            "score": 0.023098,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.10",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with ketoacidosis without coma",
+            "score": 0.022655,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "E11.649",
+            "system": "ICD-10-CM",
+            "description": "Type 2 diabetes mellitus with hypoglycemia without coma",
+            "score": 0.022612,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          }
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "candidates": [
+          {
+            "code": "E09.21",
+            "system": "ICD-10-CM",
+            "description": "Drug or chemical induced diabetes mellitus with diabetic nephropathy",
+            "score": 0.026857,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E09.311",
+            "system": "ICD-10-CM",
+            "description": "Drug or chemical induced diabetes mellitus with unspecified diabetic retinopathy with macular edema",
+            "score": 0.023894,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E09.319",
+            "system": "ICD-10-CM",
+            "description": "Drug or chemical induced diabetes mellitus with unspecified diabetic retinopathy without macular edema",
+            "score": 0.023611,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E09.3312",
+            "system": "ICD-10-CM",
+            "description": "Drug or chemical induced diabetes mellitus with moderate nonproliferative diabetic retinopathy with macular edema, left eye",
+            "score": 0.022605,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "E09.3392",
+            "system": "ICD-10-CM",
+            "description": "Drug or chemical induced diabetes mellitus with moderate nonproliferative diabetic retinopathy without macular edema, left eye",
+            "score": 0.020948,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "L27.0",
+            "system": "ICD-10-CM",
+            "description": "Generalized skin eruption due to drugs and medicaments taken internally",
+            "score": 0.016393,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "Z71.51",
+            "system": "ICD-10-CM",
+            "description": "Drug abuse counseling and surveillance of drug abuser",
+            "score": 0.016393,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "Z79.85",
+            "system": "ICD-10-CM",
+            "description": "Long-term (current) use of injectable non-insulin antidiabetic drugs",
+            "score": 0.016393,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D52.1",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced folate deficiency anemia",
+            "score": 0.016129,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "M21.931",
+            "system": "ICD-10-CM",
+            "description": "Unspecified acquired deformity of right forearm",
+            "score": 0.016129,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "Z79.84",
+            "system": "ICD-10-CM",
+            "description": "Long term (current) use of oral hypoglycemic drugs",
+            "score": 0.016129,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D59.0",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced autoimmune hemolytic anemia",
+            "score": 0.015873,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "I42.7",
+            "system": "ICD-10-CM",
+            "description": "Cardiomyopathy due to drug and external agent",
+            "score": 0.015873,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "M21.932",
+            "system": "ICD-10-CM",
+            "description": "Unspecified acquired deformity of left forearm",
+            "score": 0.015873,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "D59.2",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced nonautoimmune hemolytic anemia",
+            "score": 0.015625,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "E09.638",
+            "system": "ICD-10-CM",
+            "description": "Drug or chemical induced diabetes mellitus with other oral complications",
+            "score": 0.015625,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "M21.939",
+            "system": "ICD-10-CM",
+            "description": "Unspecified acquired deformity of unspecified forearm",
+            "score": 0.015625,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "D61.1",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced aplastic anemia",
+            "score": 0.015385,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "E09.65",
+            "system": "ICD-10-CM",
+            "description": "Drug or chemical induced diabetes mellitus with hyperglycemia",
+            "score": 0.015385,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "F19.20",
+            "system": "ICD-10-CM",
+            "description": "Other psychoactive substance dependence, uncomplicated",
+            "score": 0.015385,
+            "sources": [
+              "index"
+            ]
+          }
+        ]
+      },
+      {
+        "fact_id": "f3",
+        "candidates": [
+          {
+            "code": "T38.3X1A",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by insulin and oral hypoglycemic [antidiabetic] drugs, accidental (unintentional), initial encounter",
+            "score": 0.043148,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X1D",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by insulin and oral hypoglycemic [antidiabetic] drugs, accidental (unintentional), subsequent encounter",
+            "score": 0.042386,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "Z79.85",
+            "system": "ICD-10-CM",
+            "description": "Long-term (current) use of injectable non-insulin antidiabetic drugs",
+            "score": 0.04188,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X1S",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by insulin and oral hypoglycemic [antidiabetic] drugs, accidental (unintentional), sequela",
+            "score": 0.040797,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "Z79.4",
+            "system": "ICD-10-CM",
+            "description": "Long term (current) use of insulin",
+            "score": 0.030777,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X2A",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by insulin and oral hypoglycemic [antidiabetic] drugs, intentional self-harm, initial encounter",
+            "score": 0.02971,
+            "sources": [
+              "index",
+              "text"
+            ]
+          },
+          {
+            "code": "T38.3X5A",
+            "system": "ICD-10-CM",
+            "description": "Adverse effect of insulin and oral hypoglycemic [antidiabetic] drugs, initial encounter",
+            "score": 0.029572,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X6A",
+            "system": "ICD-10-CM",
+            "description": "Underdosing of insulin and oral hypoglycemic [antidiabetic] drugs, initial encounter",
+            "score": 0.029287,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X2D",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by insulin and oral hypoglycemic [antidiabetic] drugs, intentional self-harm, subsequent encounter",
+            "score": 0.029274,
+            "sources": [
+              "index",
+              "text"
+            ]
+          },
+          {
+            "code": "T38.3X5D",
+            "system": "ICD-10-CM",
+            "description": "Adverse effect of insulin and oral hypoglycemic [antidiabetic] drugs, subsequent encounter",
+            "score": 0.028439,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X3D",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by insulin and oral hypoglycemic [antidiabetic] drugs, assault, subsequent encounter",
+            "score": 0.028405,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X6D",
+            "system": "ICD-10-CM",
+            "description": "Underdosing of insulin and oral hypoglycemic [antidiabetic] drugs, subsequent encounter",
+            "score": 0.028372,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X6S",
+            "system": "ICD-10-CM",
+            "description": "Underdosing of insulin and oral hypoglycemic [antidiabetic] drugs, sequela",
+            "score": 0.027972,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X3A",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by insulin and oral hypoglycemic [antidiabetic] drugs, assault, initial encounter",
+            "score": 0.027912,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X4A",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by insulin and oral hypoglycemic [antidiabetic] drugs, undetermined, initial encounter",
+            "score": 0.027799,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X5S",
+            "system": "ICD-10-CM",
+            "description": "Adverse effect of insulin and oral hypoglycemic [antidiabetic] drugs, sequela",
+            "score": 0.027619,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X4S",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by insulin and oral hypoglycemic [antidiabetic] drugs, undetermined, sequela",
+            "score": 0.027222,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "Z46.81",
+            "system": "ICD-10-CM",
+            "description": "Encounter for fitting and adjustment of insulin pump",
+            "score": 0.027222,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "H40.60X0",
+            "system": "ICD-10-CM",
+            "description": "Glaucoma secondary to drugs, unspecified eye, stage unspecified",
+            "score": 0.027146,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "T38.3X4D",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by insulin and oral hypoglycemic [antidiabetic] drugs, undetermined, subsequent encounter",
+            "score": 0.026905,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          }
+        ]
+      }
+    ],
+    "selections": [
+      {
+        "fact_id": "f1",
+        "code": "E11.9",
+        "evidence": [
+          3
+        ],
+        "rationale": "Sentence 3 states the patient has type 2 diabetes mellitus without complications, matching code E11.9."
+      },
+      {
+        "fact_id": "f2",
+        "code": "Z79.84",
+        "evidence": [
+          1,
+          4
+        ],
+        "rationale": "Sentences 1 and 4 indicate ongoing metformin therapy, which is long‑term use of oral hypoglycemic drugs, matching Z79.84."
+      },
+      {
+        "fact_id": "f3",
+        "code": "Z79.4",
+        "evidence": [
+          1,
+          4
+        ],
+        "rationale": "Sentences 1 and 4 show continued insulin glargine use, indicating long‑term (current) use of insulin, matching Z79.4."
+      }
+    ],
+    "model_errors": 0
+  }
+}

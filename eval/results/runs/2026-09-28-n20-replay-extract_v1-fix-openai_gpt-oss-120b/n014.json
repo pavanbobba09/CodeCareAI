@@ -1,0 +1,745 @@
+{
+  "note_id": "n014",
+  "setup": "pipeline",
+  "model": "openai/gpt-oss-120b",
+  "prompt_version": "extract_v1+select_v1",
+  "status": "completed",
+  "error": null,
+  "attempts": 1,
+  "n_sentences": 4,
+  "predicted": [
+    {
+      "code": "I50.9",
+      "evidence": [
+        1
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    },
+    {
+      "code": "I50.20",
+      "evidence": [
+        3
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    }
+  ],
+  "gap_rules": [
+    "R10"
+  ],
+  "em_code": null,
+  "model_errors": 0,
+  "latency_ms": 3,
+  "usage": [],
+  "llm_outputs": {
+    "facts": [
+      {
+        "fact_id": "f1",
+        "kind": "condition",
+        "concept": "heart failure",
+        "status": "active",
+        "details": {},
+        "links": [],
+        "evidence": [
+          1
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "kind": "condition",
+        "concept": "chest pain",
+        "status": "denied",
+        "details": {},
+        "links": [],
+        "evidence": [
+          2
+        ]
+      },
+      {
+        "fact_id": "f3",
+        "kind": "condition",
+        "concept": "heart failure with reduced ejection fraction",
+        "status": "active",
+        "details": {},
+        "links": [
+          {
+            "type": "associated_with",
+            "target_fact_id": "f1"
+          }
+        ],
+        "evidence": [
+          3
+        ]
+      },
+      {
+        "fact_id": "f4",
+        "kind": "medication",
+        "concept": "sacubitril-valsartan",
+        "status": "active",
+        "details": {
+          "drug": "sacubitril-valsartan"
+        },
+        "links": [],
+        "evidence": [
+          4
+        ]
+      }
+    ],
+    "candidate_sets": [
+      {
+        "fact_id": "f1",
+        "candidates": [
+          {
+            "code": "I50.9",
+            "system": "ICD-10-CM",
+            "description": "Heart failure, unspecified",
+            "score": 0.043014,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.810",
+            "system": "ICD-10-CM",
+            "description": "Right heart failure, unspecified",
+            "score": 0.04276,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.84",
+            "system": "ICD-10-CM",
+            "description": "End stage heart failure",
+            "score": 0.042073,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I11.0",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart disease with heart failure",
+            "score": 0.041708,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.20",
+            "system": "ICD-10-CM",
+            "description": "Unspecified systolic (congestive) heart failure",
+            "score": 0.041699,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T86.22",
+            "system": "ICD-10-CM",
+            "description": "Heart transplant failure",
+            "score": 0.040962,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.89",
+            "system": "ICD-10-CM",
+            "description": "Other heart failure",
+            "score": 0.040651,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I11.9",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart disease without heart failure",
+            "score": 0.040498,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.21",
+            "system": "ICD-10-CM",
+            "description": "Acute systolic (congestive) heart failure",
+            "score": 0.040457,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.811",
+            "system": "ICD-10-CM",
+            "description": "Acute right heart failure",
+            "score": 0.040021,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.812",
+            "system": "ICD-10-CM",
+            "description": "Chronic right heart failure",
+            "score": 0.039961,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.30",
+            "system": "ICD-10-CM",
+            "description": "Unspecified diastolic (congestive) heart failure",
+            "score": 0.039889,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.83",
+            "system": "ICD-10-CM",
+            "description": "High output heart failure",
+            "score": 0.039753,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.82",
+            "system": "ICD-10-CM",
+            "description": "Biventricular heart failure",
+            "score": 0.039737,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.22",
+            "system": "ICD-10-CM",
+            "description": "Chronic systolic (congestive) heart failure",
+            "score": 0.039688,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.31",
+            "system": "ICD-10-CM",
+            "description": "Acute diastolic (congestive) heart failure",
+            "score": 0.038265,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I97.130",
+            "system": "ICD-10-CM",
+            "description": "Postprocedural heart failure following cardiac surgery",
+            "score": 0.035221,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I97.131",
+            "system": "ICD-10-CM",
+            "description": "Postprocedural heart failure following other surgery",
+            "score": 0.033388,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I09.81",
+            "system": "ICD-10-CM",
+            "description": "Rheumatic heart failure",
+            "score": 0.030579,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.814",
+            "system": "ICD-10-CM",
+            "description": "Right heart failure due to left heart failure",
+            "score": 0.029052,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          }
+        ]
+      },
+      {
+        "fact_id": "f3",
+        "candidates": [
+          {
+            "code": "I50.20",
+            "system": "ICD-10-CM",
+            "description": "Unspecified systolic (congestive) heart failure",
+            "score": 0.044044,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.23",
+            "system": "ICD-10-CM",
+            "description": "Acute on chronic systolic (congestive) heart failure",
+            "score": 0.043717,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I11.0",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart disease with heart failure",
+            "score": 0.043402,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.33",
+            "system": "ICD-10-CM",
+            "description": "Acute on chronic diastolic (congestive) heart failure",
+            "score": 0.043248,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.30",
+            "system": "ICD-10-CM",
+            "description": "Unspecified diastolic (congestive) heart failure",
+            "score": 0.043085,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I11.9",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart disease without heart failure",
+            "score": 0.04068,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.43",
+            "system": "ICD-10-CM",
+            "description": "Acute on chronic combined systolic (congestive) and diastolic (congestive) heart failure",
+            "score": 0.040471,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.9",
+            "system": "ICD-10-CM",
+            "description": "Heart failure, unspecified",
+            "score": 0.040447,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.84",
+            "system": "ICD-10-CM",
+            "description": "End stage heart failure",
+            "score": 0.039562,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.40",
+            "system": "ICD-10-CM",
+            "description": "Unspecified combined systolic (congestive) and diastolic (congestive) heart failure",
+            "score": 0.039528,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I13.0",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart and chronic kidney disease with heart failure and stage 1 through stage 4 chronic kidney disease, or unspecified chronic kidney disease",
+            "score": 0.038755,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.810",
+            "system": "ICD-10-CM",
+            "description": "Right heart failure, unspecified",
+            "score": 0.038054,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.813",
+            "system": "ICD-10-CM",
+            "description": "Acute on chronic right heart failure",
+            "score": 0.037761,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.83",
+            "system": "ICD-10-CM",
+            "description": "High output heart failure",
+            "score": 0.036866,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T86.32",
+            "system": "ICD-10-CM",
+            "description": "Heart-lung transplant failure",
+            "score": 0.035946,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I97.130",
+            "system": "ICD-10-CM",
+            "description": "Postprocedural heart failure following cardiac surgery",
+            "score": 0.034644,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I97.131",
+            "system": "ICD-10-CM",
+            "description": "Postprocedural heart failure following other surgery",
+            "score": 0.033719,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.21",
+            "system": "ICD-10-CM",
+            "description": "Acute systolic (congestive) heart failure",
+            "score": 0.030415,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.31",
+            "system": "ICD-10-CM",
+            "description": "Acute diastolic (congestive) heart failure",
+            "score": 0.029907,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I09.81",
+            "system": "ICD-10-CM",
+            "description": "Rheumatic heart failure",
+            "score": 0.029631,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          }
+        ]
+      },
+      {
+        "fact_id": "f4",
+        "candidates": [
+          {
+            "code": "T46.6X6S",
+            "system": "ICD-10-CM",
+            "description": "Underdosing of antihyperlipidemic and antiarteriosclerotic drugs, sequela",
+            "score": 0.016393,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "Z71.51",
+            "system": "ICD-10-CM",
+            "description": "Drug abuse counseling and surveillance of drug abuser",
+            "score": 0.016393,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "D52.1",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced folate deficiency anemia",
+            "score": 0.016129,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T46.4X1A",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by angiotensin-converting-enzyme inhibitors, accidental (unintentional), initial encounter",
+            "score": 0.016129,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D59.0",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced autoimmune hemolytic anemia",
+            "score": 0.015873,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T46.4X4S",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by angiotensin-converting-enzyme inhibitors, undetermined, sequela",
+            "score": 0.015873,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D59.2",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced nonautoimmune hemolytic anemia",
+            "score": 0.015625,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T46.4X3D",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by angiotensin-converting-enzyme inhibitors, assault, subsequent encounter",
+            "score": 0.015625,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D61.1",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced aplastic anemia",
+            "score": 0.015385,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T46.4X1S",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by angiotensin-converting-enzyme inhibitors, accidental (unintentional), sequela",
+            "score": 0.015385,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D61.811",
+            "system": "ICD-10-CM",
+            "description": "Other drug-induced pancytopenia",
+            "score": 0.015152,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T46.4X1D",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by angiotensin-converting-enzyme inhibitors, accidental (unintentional), subsequent encounter",
+            "score": 0.015152,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D64.2",
+            "system": "ICD-10-CM",
+            "description": "Secondary sideroblastic anemia due to drugs and toxins",
+            "score": 0.014925,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T46.4X6D",
+            "system": "ICD-10-CM",
+            "description": "Underdosing of angiotensin-converting-enzyme inhibitors, subsequent encounter",
+            "score": 0.014925,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D70.2",
+            "system": "ICD-10-CM",
+            "description": "Other drug-induced agranulocytosis",
+            "score": 0.014706,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T46.4X6A",
+            "system": "ICD-10-CM",
+            "description": "Underdosing of angiotensin-converting-enzyme inhibitors, initial encounter",
+            "score": 0.014706,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D72.12",
+            "system": "ICD-10-CM",
+            "description": "Drug rash with eosinophilia and systemic symptoms syndrome",
+            "score": 0.014493,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T46.6X6D",
+            "system": "ICD-10-CM",
+            "description": "Underdosing of antihyperlipidemic and antiarteriosclerotic drugs, subsequent encounter",
+            "score": 0.014493,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "D84.821",
+            "system": "ICD-10-CM",
+            "description": "Immunodeficiency due to drugs",
+            "score": 0.014286,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T46.4X4D",
+            "system": "ICD-10-CM",
+            "description": "Poisoning by angiotensin-converting-enzyme inhibitors, undetermined, subsequent encounter",
+            "score": 0.014286,
+            "sources": [
+              "vector"
+            ]
+          }
+        ]
+      }
+    ],
+    "selections": [
+      {
+        "fact_id": "f1",
+        "code": "I50.9",
+        "evidence": [
+          1
+        ],
+        "rationale": "The note mentions heart failure without any qualifiers, matching I50.9 Heart failure, unspecified."
+      },
+      {
+        "fact_id": "f3",
+        "code": "I50.20",
+        "evidence": [
+          3
+        ],
+        "rationale": "HFrEF indicates reduced ejection fraction, i.e., systolic heart failure, which aligns with I50.20 Unspecified systolic (congestive) heart failure."
+      }
+    ],
+    "model_errors": 0
+  }
+}

@@ -1,0 +1,729 @@
+{
+  "note_id": "n009",
+  "setup": "pipeline",
+  "model": "openai/gpt-oss-120b",
+  "prompt_version": "extract_v1+select_v1",
+  "status": "completed",
+  "error": null,
+  "attempts": 1,
+  "n_sentences": 6,
+  "predicted": [
+    {
+      "code": "I50.9",
+      "evidence": [
+        1,
+        4
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    },
+    {
+      "code": "I11.0",
+      "evidence": [
+        1,
+        3,
+        4
+      ],
+      "in_code_set": true,
+      "billable": true,
+      "supported": true,
+      "support_reason": "supported"
+    }
+  ],
+  "gap_rules": [
+    "R10"
+  ],
+  "em_code": null,
+  "model_errors": 0,
+  "latency_ms": 4,
+  "usage": [],
+  "llm_outputs": {
+    "facts": [
+      {
+        "fact_id": "f1",
+        "kind": "condition",
+        "concept": "heart failure",
+        "status": "active",
+        "details": {},
+        "links": [],
+        "evidence": [
+          1,
+          4
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "kind": "condition",
+        "concept": "hypertension",
+        "status": "active",
+        "details": {},
+        "links": [],
+        "evidence": [
+          3
+        ]
+      },
+      {
+        "fact_id": "f3",
+        "kind": "medication",
+        "concept": "furosemide",
+        "status": "active",
+        "details": {
+          "drug": "furosemide"
+        },
+        "links": [],
+        "evidence": [
+          5
+        ]
+      },
+      {
+        "fact_id": "f4",
+        "kind": "procedure",
+        "concept": "echocardiogram",
+        "status": "planned",
+        "details": {},
+        "links": [],
+        "evidence": [
+          6
+        ]
+      }
+    ],
+    "candidate_sets": [
+      {
+        "fact_id": "f1",
+        "candidates": [
+          {
+            "code": "I50.9",
+            "system": "ICD-10-CM",
+            "description": "Heart failure, unspecified",
+            "score": 0.043014,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.810",
+            "system": "ICD-10-CM",
+            "description": "Right heart failure, unspecified",
+            "score": 0.04276,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.84",
+            "system": "ICD-10-CM",
+            "description": "End stage heart failure",
+            "score": 0.042073,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I11.0",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart disease with heart failure",
+            "score": 0.041708,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.20",
+            "system": "ICD-10-CM",
+            "description": "Unspecified systolic (congestive) heart failure",
+            "score": 0.041699,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "T86.22",
+            "system": "ICD-10-CM",
+            "description": "Heart transplant failure",
+            "score": 0.040962,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.89",
+            "system": "ICD-10-CM",
+            "description": "Other heart failure",
+            "score": 0.040651,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I11.9",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart disease without heart failure",
+            "score": 0.040498,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.21",
+            "system": "ICD-10-CM",
+            "description": "Acute systolic (congestive) heart failure",
+            "score": 0.040457,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.811",
+            "system": "ICD-10-CM",
+            "description": "Acute right heart failure",
+            "score": 0.040021,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.812",
+            "system": "ICD-10-CM",
+            "description": "Chronic right heart failure",
+            "score": 0.039961,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.30",
+            "system": "ICD-10-CM",
+            "description": "Unspecified diastolic (congestive) heart failure",
+            "score": 0.039889,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.83",
+            "system": "ICD-10-CM",
+            "description": "High output heart failure",
+            "score": 0.039753,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.82",
+            "system": "ICD-10-CM",
+            "description": "Biventricular heart failure",
+            "score": 0.039737,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.22",
+            "system": "ICD-10-CM",
+            "description": "Chronic systolic (congestive) heart failure",
+            "score": 0.039688,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.31",
+            "system": "ICD-10-CM",
+            "description": "Acute diastolic (congestive) heart failure",
+            "score": 0.038265,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I97.130",
+            "system": "ICD-10-CM",
+            "description": "Postprocedural heart failure following cardiac surgery",
+            "score": 0.035221,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I97.131",
+            "system": "ICD-10-CM",
+            "description": "Postprocedural heart failure following other surgery",
+            "score": 0.033388,
+            "sources": [
+              "index",
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I09.81",
+            "system": "ICD-10-CM",
+            "description": "Rheumatic heart failure",
+            "score": 0.030579,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          },
+          {
+            "code": "I50.814",
+            "system": "ICD-10-CM",
+            "description": "Right heart failure due to left heart failure",
+            "score": 0.029052,
+            "sources": [
+              "text",
+              "vector"
+            ]
+          }
+        ]
+      },
+      {
+        "fact_id": "f2",
+        "candidates": [
+          {
+            "code": "K76.6",
+            "system": "ICD-10-CM",
+            "description": "Portal hypertension",
+            "score": 0.030886,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I10",
+            "system": "ICD-10-CM",
+            "description": "Essential (primary) hypertension",
+            "score": 0.030092,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I16.0",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive urgency",
+            "score": 0.030018,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "H40.051",
+            "system": "ICD-10-CM",
+            "description": "Ocular hypertension, right eye",
+            "score": 0.029139,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I11.9",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart disease without heart failure",
+            "score": 0.028475,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "H40.053",
+            "system": "ICD-10-CM",
+            "description": "Ocular hypertension, bilateral",
+            "score": 0.028309,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I16.1",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive emergency",
+            "score": 0.027971,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "H40.059",
+            "system": "ICD-10-CM",
+            "description": "Ocular hypertension, unspecified eye",
+            "score": 0.027584,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "R03.0",
+            "system": "ICD-10-CM",
+            "description": "Elevated blood-pressure reading, without diagnosis of hypertension",
+            "score": 0.027402,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I1A.0",
+            "system": "ICD-10-CM",
+            "description": "Resistant hypertension",
+            "score": 0.027347,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I16.9",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive crisis, unspecified",
+            "score": 0.027206,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "H40.052",
+            "system": "ICD-10-CM",
+            "description": "Ocular hypertension, left eye",
+            "score": 0.026879,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I97.3",
+            "system": "ICD-10-CM",
+            "description": "Postprocedural hypertension",
+            "score": 0.02683,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "P29.2",
+            "system": "ICD-10-CM",
+            "description": "Neonatal hypertension",
+            "score": 0.025894,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I15.0",
+            "system": "ICD-10-CM",
+            "description": "Renovascular hypertension",
+            "score": 0.025245,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I15.9",
+            "system": "ICD-10-CM",
+            "description": "Secondary hypertension, unspecified",
+            "score": 0.024924,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I67.4",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive encephalopathy",
+            "score": 0.024501,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I11.0",
+            "system": "ICD-10-CM",
+            "description": "Hypertensive heart disease with heart failure",
+            "score": 0.023296,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "O16.5",
+            "system": "ICD-10-CM",
+            "description": "Unspecified maternal hypertension, complicating the puerperium",
+            "score": 0.022968,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          },
+          {
+            "code": "I27.20",
+            "system": "ICD-10-CM",
+            "description": "Pulmonary hypertension, unspecified",
+            "score": 0.022149,
+            "sources": [
+              "index",
+              "vector"
+            ]
+          }
+        ]
+      },
+      {
+        "fact_id": "f3",
+        "candidates": [
+          {
+            "code": "D59.2",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced nonautoimmune hemolytic anemia",
+            "score": 0.026151,
+            "sources": [
+              "index",
+              "text"
+            ]
+          },
+          {
+            "code": "L27.0",
+            "system": "ICD-10-CM",
+            "description": "Generalized skin eruption due to drugs and medicaments taken internally",
+            "score": 0.016393,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "T42.2X6S",
+            "system": "ICD-10-CM",
+            "description": "Underdosing of succinimides and oxazolidinediones, sequela",
+            "score": 0.016393,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "Z71.51",
+            "system": "ICD-10-CM",
+            "description": "Drug abuse counseling and surveillance of drug abuser",
+            "score": 0.016393,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "D52.1",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced folate deficiency anemia",
+            "score": 0.016129,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "F19.20",
+            "system": "ICD-10-CM",
+            "description": "Other psychoactive substance dependence, uncomplicated",
+            "score": 0.016129,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "T42.2X6A",
+            "system": "ICD-10-CM",
+            "description": "Underdosing of succinimides and oxazolidinediones, initial encounter",
+            "score": 0.016129,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "A07.0",
+            "system": "ICD-10-CM",
+            "description": "Balantidiasis",
+            "score": 0.015873,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "D59.0",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced autoimmune hemolytic anemia",
+            "score": 0.015873,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T42.2X5A",
+            "system": "ICD-10-CM",
+            "description": "Adverse effect of succinimides and oxazolidinediones, initial encounter",
+            "score": 0.015873,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "A18.89",
+            "system": "ICD-10-CM",
+            "description": "Tuberculosis of other sites",
+            "score": 0.015625,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "T42.2X5S",
+            "system": "ICD-10-CM",
+            "description": "Adverse effect of succinimides and oxazolidinediones, sequela",
+            "score": 0.015625,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "A52.79",
+            "system": "ICD-10-CM",
+            "description": "Other symptomatic late syphilis",
+            "score": 0.015385,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "D61.1",
+            "system": "ICD-10-CM",
+            "description": "Drug-induced aplastic anemia",
+            "score": 0.015385,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T42.2X5D",
+            "system": "ICD-10-CM",
+            "description": "Adverse effect of succinimides and oxazolidinediones, subsequent encounter",
+            "score": 0.015385,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "B54",
+            "system": "ICD-10-CM",
+            "description": "Unspecified malaria",
+            "score": 0.015152,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "D61.811",
+            "system": "ICD-10-CM",
+            "description": "Other drug-induced pancytopenia",
+            "score": 0.015152,
+            "sources": [
+              "text"
+            ]
+          },
+          {
+            "code": "T42.2X6D",
+            "system": "ICD-10-CM",
+            "description": "Underdosing of succinimides and oxazolidinediones, subsequent encounter",
+            "score": 0.015152,
+            "sources": [
+              "vector"
+            ]
+          },
+          {
+            "code": "B70.0",
+            "system": "ICD-10-CM",
+            "description": "Diphyllobothriasis",
+            "score": 0.014925,
+            "sources": [
+              "index"
+            ]
+          },
+          {
+            "code": "D64.2",
+            "system": "ICD-10-CM",
+            "description": "Secondary sideroblastic anemia due to drugs and toxins",
+            "score": 0.014925,
+            "sources": [
+              "text"
+            ]
+          }
+        ]
+      }
+    ],
+    "selections": [
+      {
+        "fact_id": "f1",
+        "code": "I50.9",
+        "evidence": [
+          1,
+          4
+        ],
+        "rationale": "The note states only \"heart failure\" without specifying type, acuity, or laterality, supporting the unspecified heart failure code I50.9."
+      },
+      {
+        "fact_id": "f2",
+        "code": "I10",
+        "evidence": [
+          3
+        ],
+        "rationale": "The note simply says \"Hypertension,\" indicating essential (primary) hypertension, which matches code I10."
+      }
+    ],
+    "model_errors": 0
+  }
+}
