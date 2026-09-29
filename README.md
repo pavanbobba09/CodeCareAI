@@ -2,7 +2,7 @@
 
 **CodeCare AI: an explainable ICD-10-CM coding copilot for outpatient notes.**
 
-> This is a proof of concept built for the Cotiviti internship assessment (topic: Content Management in Health Care). It uses synthetic data only. Its coding has not been reviewed by a certified coder. It is not for real clinical or billing use.
+> Proof of concept. Synthetic data only, not reviewed by a certified coder, and not for real clinical or billing use.
 
 ![CodeCare AI review page](docs/review-page.png)
 
@@ -72,8 +72,6 @@ What the system returned (one live run with gpt-oss-120b):
 | R10 | Heart failure: matches type and acuity; raises a gap when either is missing | built |
 | R11 | Suspected or ruled-out diagnoses are not coded as confirmed | built |
 | R12 | Excludes1 conflicts: both codes go to review with a question | built |
-| R13 | CPT support and NCCI pairs | designed, not built |
-| R14 | Office visit (E/M) level from medical decision making | designed, not built |
 
 - Neutral documentation gap queries (a test checks that no query names a code or pushes toward a higher-paying answer).
 - A review screen with evidence highlighting, and accept, edit, or reject with append-only history.
