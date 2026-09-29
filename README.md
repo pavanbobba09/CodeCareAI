@@ -200,8 +200,8 @@ Full design (types, endpoints, tables, rule details, build order): [DESIGN.md](D
 
 - Report: [CodeCare_AI_Report.docx](deliverables/CodeCare_AI_Report.docx)
 - Slides: [CodeCare_AI_Presentation.pptx](deliverables/CodeCare_AI_Presentation.pptx)
-- Video script: [CodeCare_AI_Video_Script.md](deliverables/CodeCare_AI_Video_Script.md)
-- Video and resume: to be added to [deliverables/](deliverables/)
+- Video: [CodeCare_AI_Video.mp4](deliverables/CodeCare_AI_Video.mp4)
+- Resume: [PavanBobba_Resume.pdf](deliverables/PavanBobba_Resume.pdf)
 
 ## References
 

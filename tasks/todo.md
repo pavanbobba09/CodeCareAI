@@ -5,6 +5,21 @@ Each milestone ends with its own passing check. Don't start a milestone until th
 
 ---
 
+## Current task: internship submission (2026-09-29)
+
+No application code changes. Assessment topic: **Content Management in Health Care**.
+
+1. [x] Two-page Word report with APA references (`deliverables/CodeCare_AI_Report.docx`).
+2. [x] Seven-slide PowerPoint deck (`deliverables/CodeCare_AI_Presentation.pptx`).
+3. [x] Video walkthrough (`deliverables/CodeCare_AI_Video.mp4`).
+4. [x] Resume (`deliverables/PavanBobba_Resume.pdf`).
+
+### Review (2026-09-29)
+
+All numbers come from run `2026-09-28-n20-replay-extract_v1-fix-openai_gpt-oss-120b`. The data is synthetic and not certified-coder reviewed.
+
+---
+
 ## Current task: integrate M4, M7, and M8 (2026-09-27)
 
 Approved integration-only work; no real LLM calls and no push.
